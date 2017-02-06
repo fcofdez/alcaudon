@@ -1,5 +1,5 @@
 package alcaudon.core
 
 trait StreamingContext {
-  val operations: List[StreamOperation[_, _]] = List()
+  val operations: List[StreamTransformation[_]] = List()
 }
