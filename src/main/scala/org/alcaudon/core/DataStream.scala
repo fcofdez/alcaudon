@@ -26,8 +26,13 @@ trait DataStream[T] {
   }
 
   // Not to functional :S
-  // def addSink(fn: T => Unit): DataStreamSink[T] = {
-  // }
+  def addSink(fn: T => Unit): DataStreamSink[T] = {
+    val sinkFn = StreamSink(fn)
+    val transformation =
+      SinkTransformation("id", "sink", streamTransformation, sinkFn)
+    streamingContext.addOperation(transformation)
+    new DataStreamSink(this, sinkFn, transformation)
+  }
 }
 
 case class OneOutputStreamOperator[T](
