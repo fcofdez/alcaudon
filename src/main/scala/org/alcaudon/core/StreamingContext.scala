@@ -26,5 +26,6 @@ object Test extends App {
   val ctx = new StrCtx
   val one = ctx.addSource({(ctx: SourceContext[Int]) =>
                           ctx.collect(1, 1L) })
-  val filtered = one.filter(_ < 20)
+  val filtered = one.filter(_ < 20).map(_ * 2)
+
 }

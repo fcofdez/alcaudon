@@ -10,6 +10,11 @@ trait DataStream[T] {
     transform("filter", filterFn)
   }
 
+  def map[O](fn: T => O): DataStream[O] = {
+    val mapFn = StreamMap(fn)
+    transform("map", mapFn)
+  }
+
   def transform[O](opName: String, operator: OneInputStreamOperator[T, O]): DataStream[O] = {
     val transformation = OneInputTransformation[T, O]("id", opName, streamTransformation, operator)
     streamingContext.addOperation(transformation)
