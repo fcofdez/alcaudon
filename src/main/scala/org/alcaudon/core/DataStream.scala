@@ -9,14 +9,15 @@ trait DataStream[T] {
   //   OneInputTransformation
   // }
 
-  def transform[O](opName: String, operator: OneInputStreamOperator[T, O]): String = {
-    val transformation = OneInputTransformation("id", opName, streamTransformation, operator)
+  def transform[O](opName: String, operator: OneInputStreamOperator[T, O]): DataStream[O] = {
+    val transformation = OneInputTransformation[T, O]("id", opName, streamTransformation, operator)
     streamingContext.addOperation(transformation)
-    "1"
+    new OneOutputStreamOperator[O](streamingContext, transformation)
   }
 }
 
-case class OneSourceDataStream[T](streamingContext: StreamingContext,
-                                  streamTransformation: StreamTransformation[T]) extends DataStream[T]
+case class OneOutputStreamOperator[T](streamingContext: StreamingContext,
+                                      streamTransformation: StreamTransformation[T]) extends DataStream[T]
 
-trait SourceDataStream[T] extends DataStream[T]
+case class DataStreamSource[T](streamingContext: StreamingContext,
+                               streamTransformation: StreamTransformation[T]) extends DataStream[T]
