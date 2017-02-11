@@ -1,7 +1,5 @@
 package alcaudon.core
 
-// case class StreamSource[Input, Output]
-
 trait SourceContext[I] {
   def collect(record: I, timestamp: Long): Unit
   def close: Unit
@@ -18,4 +16,7 @@ trait SourceFn[I] {
 
 class StreamSource[O](sourceFn: SourceFn[O]) extends StreamOperator[O]
 
-case class SourceTransformation[T](id: String, name: String, src: StreamSource[T]) extends StreamTransformation[T]
+case class SourceTransformation[T](id: String,
+                                   name: String,
+                                   src: StreamSource[T])
+    extends StreamTransformation[T]

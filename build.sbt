@@ -6,7 +6,8 @@ scalaVersion := "2.12.1"
 
 scalacOptions ++= Seq(
   "-target:jvm-1.8",
-  "-encoding", "UTF-8",
+  "-encoding",
+  "UTF-8",
   "-unchecked",
   "-deprecation",
   "-Xfuture",

@@ -16,9 +16,10 @@ case class StreamMap[T, O](fn: T => O) extends OneInputStreamOperator[T, O] {
     output = output.collect(StreamRecord(fn(record.value), record.timeStamp))
 }
 
-case class StreamFilter[T](fn: T => Boolean) extends OneInputStreamOperator[T, T] {
+case class StreamFilter[T](fn: T => Boolean)
+    extends OneInputStreamOperator[T, T] {
   def processStreamRecord(record: StreamRecord[T]): Unit =
-    if(fn(record.value))
+    if (fn(record.value))
       output = output.collect(record)
 }
 

@@ -4,7 +4,8 @@ import scala.reflect.ClassTag
 import scala.reflect._
 
 trait TypeInfo[T] {
-  def name[T: ClassTag] = classTag[T].runtimeClass.toString //Think about a more performant way
+  def name[T: ClassTag] =
+    classTag[T].runtimeClass.toString //Think about a more performant way
   def serializer(obj: T): String
   def deserializer(t: String): T
 }
