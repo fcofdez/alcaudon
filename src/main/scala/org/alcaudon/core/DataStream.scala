@@ -17,10 +17,8 @@ trait DataStream[T] {
 
   def transform[O](opName: String,
                    operator: OneInputStreamOperator[T, O]): DataStream[O] = {
-    val transformation = OneInputTransformation[T, O]("id",
-                                                      opName,
-                                                      streamTransformation,
-                                                      operator)
+    val transformation =
+      OneInputTransformation[T, O](opName, streamTransformation, operator)
     streamingContext.addOperation(transformation)
     new OneOutputStreamOperator[O](streamingContext, transformation)
   }
@@ -29,7 +27,7 @@ trait DataStream[T] {
   def addSink(fn: T => Unit): DataStreamSink[T] = {
     val sinkFn = StreamSink(fn)
     val transformation =
-      SinkTransformation("id", "sink", streamTransformation, sinkFn)
+      SinkTransformation("sink", streamTransformation, sinkFn)
     streamingContext.addOperation(transformation)
     new DataStreamSink(this, sinkFn, transformation)
   }

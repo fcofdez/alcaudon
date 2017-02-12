@@ -17,7 +17,18 @@ trait SourceFn[I] {
 
 class StreamSource[O](sourceFn: SourceFn[O]) extends StreamOperator[O]
 
-case class SourceTransformation[T](id: String,
-                                   name: String,
-                                   src: StreamSource[T])
+object SourceTransformation {
+  var internalIdCounter = 0
+
+  def nextId: String = {
+    val nextId = internalIdCounter.toString
+    internalIdCounter += 1
+    nextId
+  }
+
+}
+
+case class SourceTransformation[T](name: String,
+                                   src: StreamSource[T],
+                                   id: String = SourceTransformation.nextId)
     extends StreamTransformation[T]

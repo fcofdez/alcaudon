@@ -16,7 +16,7 @@ trait StreamingContext {
       }
     }
     val streamSrc = new StreamSource(sourceFn)
-    val transformation = new SourceTransformation("id2", "src", streamSrc)
+    val transformation = new SourceTransformation("src", streamSrc)
     new DataStreamSource(this, transformation)
   }
 }
@@ -26,7 +26,7 @@ class StrCtx extends StreamingContext
 object Test extends App {
   val ctx = new StrCtx
   val one = ctx.addSource({ (ctx: SourceContext[Int]) =>
-    ctx.collect(1, 1L)
+    while (true) ctx.collect(1, 1L)
   })
   val filtered = one.filter(_ < 20).map(_ * 2)
   val sink = filtered.addSink(println)
