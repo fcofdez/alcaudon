@@ -6,12 +6,13 @@ trait SourceContext[I] {
 }
 
 trait SourceFn[I] {
+  var running = true
   def run(ctx: SourceContext[I]): Unit
 
   // SourceFn usually deal with an infinite loop,
   // so there must be a way to signal the source to
   // stop collecting data.
-  def cancel: Unit = {}
+  def cancel: Unit = { running = false }
 }
 
 class StreamSource[O](sourceFn: SourceFn[O]) extends StreamOperator[O]
