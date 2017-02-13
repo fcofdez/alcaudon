@@ -28,7 +28,7 @@ object Test extends App {
   val one = ctx.addSource({ (ctx: SourceContext[Int]) =>
     while (true) ctx.collect(1, 1L)
   })
-  val filtered = one.filter(_ < 20).map(_ * 2)
+  val filtered = one.filter(_ < 20).map(_ * 2).map(_.toString).map(_ + "asd")
   val sink = filtered.addSink(println)
   println(ComputationGraph.generateComputationGraph(ctx))
   println(sink)
