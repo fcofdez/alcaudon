@@ -11,20 +11,8 @@ case class StreamSink[T](sourceFn: T => Unit)
     sourceFn(record.value)
 }
 
-object SinkTransformation {
-  var internalIdCounter = 0
-
-  def nextId: String = {
-    val nextId = internalIdCounter.toString
-    internalIdCounter += 1
-    nextId
-  }
-
-}
-
 case class SinkTransformation[T](
     name: String,
     input: StreamTransformation[T],
-    op: StreamSink[T],
-    id: String = SinkTransformation.nextId
+    op: StreamSink[T]
 ) extends StreamTransformation[T]

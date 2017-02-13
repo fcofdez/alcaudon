@@ -1,15 +1,15 @@
 package alcaudon.core
 
 trait StreamTransformation[I] {
-  val id: String
+  val id: Int = StreamTransformation.getNextId
   val name: String
 }
 
-object OneInputStreamTransformation {
+object StreamTransformation {
   var internalIdCounter = 0
 
-  def getNextId: String = {
-    val nextId = internalIdCounter.toString
+  def getNextId: Int = {
+    val nextId = internalIdCounter
     internalIdCounter += 1
     nextId
   }
@@ -18,7 +18,5 @@ object OneInputStreamTransformation {
 
 case class OneInputTransformation[I, O](name: String,
                                         input: StreamTransformation[I],
-                                        op: OneInputStreamOperator[I, O],
-                                        id: String =
-                                          OneInputStreamTransformation.getNextId)
+                                        op: OneInputStreamOperator[I, O])
     extends StreamTransformation[O]

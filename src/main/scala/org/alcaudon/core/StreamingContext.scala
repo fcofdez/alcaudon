@@ -30,5 +30,6 @@ object Test extends App {
   })
   val filtered = one.filter(_ < 20).map(_ * 2)
   val sink = filtered.addSink(println)
+  println(ComputationGraph.generateComputationGraph(ctx))
   println(sink)
 }
