@@ -18,7 +18,10 @@ scalacOptions ++= Seq(
   "-Ywarn-unused"
 )
 
-libraryDependencies += "org.scala-graph" %% "graph-core" % "1.11.4"
+libraryDependencies ++= Seq(
+  "com.chuusai" %% "shapeless" % "2.3.2",
+  "org.scala-graph" %% "graph-core" % "1.11.4"
+)
 
 // Test
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.1"

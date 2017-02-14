@@ -1,11 +1,9 @@
 package alcaudon.core
 
-import scala.reflect.ClassTag
-import scala.reflect._
+import shapeless._
 
 trait TypeInfo[T] {
-  def name[T: ClassTag] =
-    classTag[T].runtimeClass.toString //Think about a more performant way
+  def name(implicit tip: Typeable[T]): String = tip.describe
   def serializer(obj: T): String
   def deserializer(t: String): T
 }

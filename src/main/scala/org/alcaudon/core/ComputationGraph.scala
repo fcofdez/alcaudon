@@ -72,7 +72,10 @@ case class ComputationGraphGenerator(env: StreamingContext) {
   def transform(transformation: SourceTransformation[_]): Set[Int] = {
     computationGraph.addNode(
       StreamNode(transformation.id, transformation.name))
-    Set(transformation.id)
+
+    val transformedId = Set(transformation.id)
+    alreadyTransformed += transformation -> transformedId
+    transformedId
   }
 
   def transform(transformation: SinkTransformation[_]): Set[Int] = {
@@ -83,8 +86,12 @@ case class ComputationGraphGenerator(env: StreamingContext) {
 
     computationGraph.addNode(
       StreamNode(transformation.id, transformation.name))
+
     inputIds.foreach(computationGraph.addEdge(_, transformation.id))
-    Set(transformation.id)
+
+    val transformedId = Set(transformation.id)
+    alreadyTransformed += transformation -> transformedId
+    transformedId
   }
 
   def transform(transformation: OneInputTransformation[_, _]): Set[Int] = {
@@ -96,6 +103,9 @@ case class ComputationGraphGenerator(env: StreamingContext) {
     computationGraph.addNode(
       StreamNode(transformation.id, transformation.name))
     inputIds.foreach(computationGraph.addEdge(_, transformation.id))
-    Set(transformation.id)
+
+    val transformedId = Set(transformation.id)
+    alreadyTransformed += transformation -> transformedId
+    transformedId
   }
 }

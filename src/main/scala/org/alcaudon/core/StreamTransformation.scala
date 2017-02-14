@@ -1,5 +1,7 @@
 package alcaudon.core
 
+import alcaudon.core.TypeInfo._
+
 trait StreamTransformation[I] {
   val id: Int = StreamTransformation.getNextId
   val name: String
@@ -16,7 +18,15 @@ object StreamTransformation {
 
 }
 
-case class OneInputTransformation[I, O](name: String,
-                                        input: StreamTransformation[I],
-                                        op: OneInputStreamOperator[I, O])
-    extends StreamTransformation[O]
+case class OneInputTransformation[I: TypeInfo, O: TypeInfo](
+    name: String,
+    input: StreamTransformation[I],
+    op: OneInputStreamOperator[I, O])
+    extends StreamTransformation[O] {
+
+  lazy val internalInputTypeInfo = implicitly[TypeInfo[I]]
+  lazy val internalOutputTypeInfo = implicitly[TypeInfo[O]]
+
+  def inputTypeInfo = internalInputTypeInfo
+  def outputTypeInfo = internalOutputTypeInfo
+}
