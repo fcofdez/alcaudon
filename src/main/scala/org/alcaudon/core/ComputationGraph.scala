@@ -37,7 +37,10 @@ case class ComputationGraph(env: StreamingContext) {
   def addEdge(src: Int, dst: Int): Boolean = {
     val srcNode = nodes.get(src)
     val dstNode = nodes.get(dst)
-    val res = srcNode.zip(dstNode).map { case (srcN: StreamNode, dstN: StreamNode) => internalGraph.addLEdge(srcN, dstN)("~>") }
+    val res = srcNode.zip(dstNode).map {
+      case (srcN: StreamNode, dstN: StreamNode) =>
+        internalGraph.addLEdge(srcN, dstN)("~>")
+    }
     res.forall(_ == true)
   }
 }
@@ -67,10 +70,10 @@ case class ComputationGraphGenerator(env: StreamingContext) {
   }
 
   def transform(transformation: SourceTransformation[_]): Set[Int] = {
-    computationGraph.addNode(StreamNode(transformation.id, transformation.name))
+    computationGraph.addNode(
+      StreamNode(transformation.id, transformation.name))
     Set(transformation.id)
   }
-
 
   def transform(transformation: SinkTransformation[_]): Set[Int] = {
     val inputIds = transform(transformation.input)
@@ -78,7 +81,8 @@ case class ComputationGraphGenerator(env: StreamingContext) {
     if (alreadyTransformed.contains(transformation))
       return alreadyTransformed(transformation)
 
-    computationGraph.addNode(StreamNode(transformation.id, transformation.name))
+    computationGraph.addNode(
+      StreamNode(transformation.id, transformation.name))
     inputIds.foreach(computationGraph.addEdge(_, transformation.id))
     Set(transformation.id)
   }
@@ -89,7 +93,8 @@ case class ComputationGraphGenerator(env: StreamingContext) {
     if (alreadyTransformed.contains(transformation))
       return alreadyTransformed(transformation)
 
-    computationGraph.addNode(StreamNode(transformation.id, transformation.name))
+    computationGraph.addNode(
+      StreamNode(transformation.id, transformation.name))
     inputIds.foreach(computationGraph.addEdge(_, transformation.id))
     Set(transformation.id)
   }
