@@ -8,6 +8,7 @@ trait DataStream[T] {
   def filter(fn: T => Boolean)(
       implicit typeEvidence: TypeInfo[T]): DataStream[T] = {
     val filterFn = StreamFilter(fn)
+
     transform("filter", filterFn)
   }
 
@@ -22,6 +23,7 @@ trait DataStream[T] {
       implicit typeTEvidence: TypeInfo[T]): DataStream[O] = {
 
     val typeOEvidence = implicitly[TypeInfo[O]] // Type O negative |_|
+
     val transformation =
       OneInputTransformation[T, O](opName, streamTransformation, operator)(
         typeTEvidence,

@@ -20,7 +20,8 @@ scalacOptions ++= Seq(
 
 libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.3.2",
-  "org.scala-graph" %% "graph-core" % "1.11.4"
+  "org.scala-graph" %% "graph-core" % "1.11.4",
+  "org.scala-graph" %% "graph-json" % "1.11.0"
 )
 
 // Test

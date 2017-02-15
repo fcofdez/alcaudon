@@ -17,5 +17,11 @@ trait SourceFn[I] {
 
 class StreamSource[O](sourceFn: SourceFn[O]) extends StreamOperator[O]
 
-case class SourceTransformation[T](name: String, src: StreamSource[T])
-    extends StreamTransformation[T]
+case class SourceTransformation[T: TypeInfo](name: String,
+                                             src: StreamSource[T])
+    extends StreamTransformation[T] {
+
+  lazy val internalOutputTypeInfo = implicitly[TypeInfo[T]]
+
+  def outputTypeInfo = internalOutputTypeInfo
+}

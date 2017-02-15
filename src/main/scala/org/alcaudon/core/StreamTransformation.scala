@@ -1,5 +1,7 @@
 package alcaudon.core
 
+import shapeless.Typeable._
+
 import alcaudon.core.TypeInfo._
 
 trait StreamTransformation[I] {
