@@ -12,6 +12,13 @@ trait DataStream[T] {
     transform("filter", filterFn)
   }
 
+  def keyBy[K](fn: T => K): KeyedStream[T, K] = {
+    val keyFn = new KeySelector[T, K] {
+      def extract(value: T): K = fn(value)
+    }
+    KeyedStream(streamingContext, streamTransformation, keyFn)
+  }
+
   def map[O: TypeInfo](fn: T => O)(
       implicit typeEvidence: TypeInfo[T]): DataStream[O] = {
     val mapFn = StreamMap(fn)
