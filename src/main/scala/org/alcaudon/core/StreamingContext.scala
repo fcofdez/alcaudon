@@ -30,6 +30,7 @@ object Test extends App {
     while (true) ctx.collect(1, 1L)
   })
   val filtered = one.filter(_ < 20).map(_ * 2).map(_.toString).map(_ + "asd")
+  val z = filtered.keyBy((_, 1))
   val sink = filtered.addSink(println)
   val graph = ComputationGraph.generateComputationGraph(ctx).internalGraph
   println(graph)

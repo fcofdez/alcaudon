@@ -1,5 +1,7 @@
 package alcaudon.core
 
+import shapeless._
+
 trait DataStream[T] {
   type Type = T
   val streamingContext: StreamingContext
@@ -11,6 +13,14 @@ trait DataStream[T] {
 
     transform("filter", filterFn)
   }
+
+  // def keyBy(fields: Strings*): KeyedStream[T, HList] = {
+  //   val keyFn = new KeySelector[T, K] {
+  //     def extract(value: T): K =
+  //       fields.length
+  //       fn(value)
+  //   }
+  // }
 
   def keyBy[K](fn: T => K): KeyedStream[T, K] = {
     val keyFn = new KeySelector[T, K] {
