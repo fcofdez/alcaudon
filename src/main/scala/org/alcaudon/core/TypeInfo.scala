@@ -36,6 +36,7 @@ object TypeInfo {
   //   }
 
   implicit object hNilFormat extends TypeInfo[HNil] {
+    def name = "HNil"
     def serialize(j: HNil)(implicit output: DataOutput) = output
 
     def deserialize(t: DataInput) = HNil
