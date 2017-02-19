@@ -11,10 +11,17 @@ import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen._
 import org.scalacheck.Prop.forAll
 import org.scalacheck._
+import org.scalacheck.Shapeless._
 
 import alcaudon.core.TypeInfo._
 
 object TypeInfoSpec extends Properties("TypeInfo") {
+
+  case class SampleClass(a: Int, b: Long, c: Float, d: Double, e: String, f: Boolean, g: List[Byte])
+  case class NestedClass(a: String, b: Option[String], c: SampleClass)
+
+  implicitly[Arbitrary[SampleClass]]
+  implicitly[Arbitrary[NestedClass]]
 
   def serialize[T](value: T)(implicit ti: TypeInfo[T]): Array[Byte] = {
     val outputBA = new ByteArrayOutputStream
@@ -27,6 +34,18 @@ object TypeInfoSpec extends Properties("TypeInfo") {
     val in = new ByteArrayInputStream(serialized)
     val input = new DataInputStream(in)
     ti.deserialize(input)
+  }
+
+  property("NestedClass") = forAll { (c: NestedClass) =>
+    val serialized = serialize(c)
+    val deserializedStr = deserialize[NestedClass](serialized)
+    c == deserializedStr
+  }
+
+  property("SampleClass") = forAll { (c: SampleClass) =>
+    val serialized = serialize(c)
+    val deserializedStr = deserialize[SampleClass](serialized)
+    c == deserializedStr
   }
 
   property("String") = forAll { (str: String) =>
