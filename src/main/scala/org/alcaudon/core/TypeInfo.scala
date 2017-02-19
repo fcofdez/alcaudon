@@ -1,6 +1,9 @@
 package alcaudon.core
 
 import java.io.{DataOutput, DataInput}
+import scala.collection.GenTraversable
+import scala.collection.generic.CanBuildFrom
+import scala.collection.mutable.ArrayBuffer
 
 import shapeless._
 import shapeless.labelled._
@@ -14,7 +17,53 @@ object TypeInfo {
 
   def apply[T](implicit f: Lazy[TypeInfo[T]]): TypeInfo[T] = f.value
 
-  //Missing Option/GenTraversable
+  implicit def genOptionFormat[Z[_], X](implicit evidence: Z[X] <:< Option[X],
+                                        ti: TypeInfo[X]): TypeInfo[Option[X]] =
+    new TypeInfo[Option[X]] {
+
+      def serialize(opt: Option[X])(implicit output: DataOutput) = {
+        opt match {
+          case Some(value) =>
+            output.writeBoolean(true)
+            ti.serialize(value)
+          case None =>
+            output.writeBoolean(false)
+            output
+        }
+      }
+
+      def deserialize(input: DataInput) = {
+        input.readBoolean match {
+          case true => Some(ti.deserialize(input))
+          case false => None
+        }
+      }
+    }
+
+  implicit def genTraversableFormat[T[_], E](
+      implicit evidence: T[E] <:< GenTraversable[E], // both of kind *->*
+      cbf: CanBuildFrom[T[E], E, T[E]],
+      ti: TypeInfo[E]
+  ): TypeInfo[T[E]] = new TypeInfo[T[E]] {
+    def deserialize(input: DataInput) = {
+      var listLength = input.readInt
+      val builder = cbf()
+      val l = ArrayBuffer[E]()
+      while (listLength > 0) {
+        l += ti.deserialize(input)
+        listLength -= 1
+      }
+      builder ++= l
+      builder.result()
+    }
+
+    def serialize(elements: T[E])(implicit output: DataOutput) = {
+      output.writeInt(elements.size)
+      elements.foreach(ti.serialize)
+      output
+    }
+  }
+
   implicit def genericObjectEncoder[A, H <: HList](
       implicit generic: LabelledGeneric.Aux[A, H],
       repFormat: Lazy[TypeInfo[H]]
