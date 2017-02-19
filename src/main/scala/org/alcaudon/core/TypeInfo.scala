@@ -31,36 +31,34 @@ object TypeInfo {
 
   implicit def hListFormat[Key <: Symbol, Value, Remaining <: HList](
       implicit key: Witness.Aux[Key],
-      lazyJfh: Lazy[TypeInfo[Value]],
-      lazyJft: Lazy[TypeInfo[Remaining]]
+      lazyTih: Lazy[TypeInfo[Value]],
+      lazyTit: Lazy[TypeInfo[Remaining]]
   ): TypeInfo[FieldType[Key, Value] :: Remaining] =
     new TypeInfo[FieldType[Key, Value] :: Remaining] {
 
-      val jfh = lazyJfh.value
-      val jft = lazyJft.value
+      val tih = lazyTih.value
+      val tit = lazyTit.value
 
       def serialize(hlist: FieldType[Key, Value] :: Remaining)(
           implicit output: DataOutput) = {
-        val headOutput = jfh.serialize(hlist.head)
-        jft.serialize(hlist.tail)(headOutput)
+        val headOutput = tih.serialize(hlist.head)
+        tit.serialize(hlist.tail)(headOutput)
       }
 
       def deserialize(input: DataInput) = {
-        val head = jfh.deserialize(input)
-        val tail = jft.deserialize(input)
+        val head = tih.deserialize(input)
+        val tail = tit.deserialize(input)
         field[Key](head) :: tail
       }
     }
 
   implicit object hNilFormat extends TypeInfo[HNil] {
-    def name = "HNil"
     def serialize(j: HNil)(implicit output: DataOutput) = output
 
     def deserialize(t: DataInput) = HNil
   }
 
   implicit object StringTypeInfo extends TypeInfo[String] {
-    def name = "String"
     def serialize(obj: String)(implicit output: DataOutput): DataOutput = {
       output.writeUTF(obj)
       output
@@ -69,7 +67,6 @@ object TypeInfo {
   }
 
   implicit object IntTypeInfo extends TypeInfo[Int] {
-    def name = "Int"
 
     def serialize(t: Int)(implicit output: DataOutput): DataOutput = {
       output.writeInt(t)
@@ -80,7 +77,6 @@ object TypeInfo {
   }
 
   implicit object LongTypeInfo extends TypeInfo[Long] {
-    def name = "Long"
 
     def serialize(t: Long)(implicit output: DataOutput): DataOutput = {
       output.writeLong(t)
@@ -91,7 +87,6 @@ object TypeInfo {
   }
 
   implicit object FloatTypeInfo extends TypeInfo[Float] {
-    def name = "Float"
 
     def serialize(t: Float)(implicit output: DataOutput): DataOutput = {
       output.writeFloat(t)
@@ -102,7 +97,6 @@ object TypeInfo {
   }
 
   implicit object DoubleTypeInfo extends TypeInfo[Double] {
-    def name = "Double"
 
     def serialize(t: Double)(implicit output: DataOutput): DataOutput = {
       output.writeDouble(t)
@@ -113,7 +107,6 @@ object TypeInfo {
   }
 
   implicit object BooleanTypeInfo extends TypeInfo[Boolean] {
-    def name = "Boolean"
 
     def serialize(t: Boolean)(implicit output: DataOutput): DataOutput = {
       output.writeBoolean(t)
@@ -124,7 +117,6 @@ object TypeInfo {
   }
 
   implicit object ByteTypeInfo extends TypeInfo[Byte] {
-    def name = "Byte"
 
     def serialize(t: Byte)(implicit output: DataOutput): DataOutput = {
       output.writeByte(t)
