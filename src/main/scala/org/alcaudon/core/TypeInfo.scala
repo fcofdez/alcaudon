@@ -7,10 +7,14 @@ import scala.collection.mutable.ArrayBuffer
 
 import shapeless._
 import shapeless.labelled._
+import shapeless.ops.record._
+import shapeless.record._
+import ops.hlist.ToList
 
 trait TypeInfo[T] {
   def serialize(obj: T)(implicit output: DataOutput): DataOutput
   def deserialize(t: DataInput): T
+  val fields: List[String] = List()
 }
 
 object TypeInfo {
@@ -64,9 +68,11 @@ object TypeInfo {
     }
   }
 
-  implicit def genericObjectEncoder[A, H <: HList](
+  implicit def genericObjectEncoder[A, H <: HList, O <: HList](
       implicit generic: LabelledGeneric.Aux[A, H],
-      repFormat: Lazy[TypeInfo[H]]
+      repFormat: Lazy[TypeInfo[H]],
+      keys: Keys.Aux[H, O],
+      ktl: ToList[O, Any]
   ): TypeInfo[A] =
     new TypeInfo[A] {
       def serialize(v: A)(implicit output: DataOutput) = {
@@ -75,6 +81,10 @@ object TypeInfo {
 
       def deserialize(input: DataInput) = {
         generic.from(repFormat.value.deserialize(input))
+      }
+
+      override val fields: List[String] = {
+        keys.apply.toList.map(_.toString).map(_.replace("\'", ""))
       }
     }
 
