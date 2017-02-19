@@ -3,14 +3,62 @@ package alcaudon.core
 import java.io.{DataOutput, DataInput}
 
 import shapeless._
+import shapeless.labelled._
 
 trait TypeInfo[T] {
-  def name: String
   def serialize(obj: T)(implicit output: DataOutput): DataOutput
   def deserialize(t: DataInput): T
 }
 
 object TypeInfo {
+
+  def apply[T](implicit f: Lazy[TypeInfo[T]]): TypeInfo[T] = f.value
+
+  //Missing Option/GenTraversable
+  implicit def genericObjectEncoder[A, H <: HList](
+      implicit generic: LabelledGeneric.Aux[A, H],
+      repFormat: Lazy[TypeInfo[H]]
+  ): TypeInfo[A] =
+    new TypeInfo[A] {
+      def serialize(v: A)(implicit output: DataOutput) = {
+        repFormat.value.serialize(generic.to(v))
+      }
+
+      def deserialize(input: DataInput) = {
+        generic.from(repFormat.value.deserialize(input))
+      }
+    }
+
+  implicit def hListFormat[Key <: Symbol, Value, Remaining <: HList](
+      implicit key: Witness.Aux[Key],
+      lazyJfh: Lazy[TypeInfo[Value]],
+      lazyJft: Lazy[TypeInfo[Remaining]]
+  ): TypeInfo[FieldType[Key, Value] :: Remaining] =
+    new TypeInfo[FieldType[Key, Value] :: Remaining] {
+
+      val jfh = lazyJfh.value
+      val jft = lazyJft.value
+
+      def serialize(hlist: FieldType[Key, Value] :: Remaining)(
+          implicit output: DataOutput) = {
+        val headOutput = jfh.serialize(hlist.head)
+        jft.serialize(hlist.tail)(headOutput)
+      }
+
+      def deserialize(input: DataInput) = {
+        val head = jfh.deserialize(input)
+        val tail = jft.deserialize(input)
+        field[Key](head) :: tail
+      }
+    }
+
+  implicit object hNilFormat extends TypeInfo[HNil] {
+    def name = "HNil"
+    def serialize(j: HNil)(implicit output: DataOutput) = output
+
+    def deserialize(t: DataInput) = HNil
+  }
+
   implicit object StringTypeInfo extends TypeInfo[String] {
     def name = "String"
     def serialize(obj: String)(implicit output: DataOutput): DataOutput = {
@@ -18,28 +66,6 @@ object TypeInfo {
       output
     }
     def deserialize(t: DataInput): String = t.readUTF()
-  }
-
-  // implicit def genericObjectEncoder[A, H <: HList](
-  //   implicit
-  //     generic: LabelledGeneric.Aux[A, H],
-  //   repFormat: Lazy[TypeInfo[H]]
-  // ): TypeInfo[A] =
-  //   new TypeInfo[A] {
-  //     def serialize(v: A)(implicit output: DataOutput) = {
-  //       generic.from(repFormat.value.decode(value))
-  //     }
-
-  //     def encode(v: A) = {
-  //       repFormat.value.encode(generic.to(v))
-  //     }
-  //   }
-
-  implicit object hNilFormat extends TypeInfo[HNil] {
-    def name = "HNil"
-    def serialize(j: HNil)(implicit output: DataOutput) = output
-
-    def deserialize(t: DataInput) = HNil
   }
 
   implicit object IntTypeInfo extends TypeInfo[Int] {
@@ -53,7 +79,6 @@ object TypeInfo {
     def deserialize(t: DataInput): Int = t.readInt()
   }
 
-
   implicit object LongTypeInfo extends TypeInfo[Long] {
     def name = "Long"
 
@@ -64,7 +89,6 @@ object TypeInfo {
 
     def deserialize(t: DataInput): Long = t.readLong()
   }
-
 
   implicit object FloatTypeInfo extends TypeInfo[Float] {
     def name = "Float"
@@ -98,7 +122,6 @@ object TypeInfo {
 
     def deserialize(t: DataInput): Boolean = t.readBoolean()
   }
-
 
   implicit object ByteTypeInfo extends TypeInfo[Byte] {
     def name = "Byte"
