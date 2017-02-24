@@ -2,7 +2,6 @@ package alcaudon.core
 
 import scala.collection.mutable.ArrayBuffer
 
-
 // This manages data transfer between operators.
 case class Collector[T]() {
   var records = ArrayBuffer[StreamRecord[T]]()

@@ -17,7 +17,13 @@ import alcaudon.core.TypeInfo._
 
 object TypeInfoSpec extends Properties("TypeInfo") {
 
-  case class SampleClass(a: Int, b: Long, c: Float, d: Double, e: String, f: Boolean, g: List[Byte])
+  case class SampleClass(a: Int,
+                         b: Long,
+                         c: Float,
+                         d: Double,
+                         e: String,
+                         f: Boolean,
+                         g: List[Byte])
   case class NestedClass(a: String, b: Option[String], c: SampleClass)
 
   implicitly[Arbitrary[SampleClass]]

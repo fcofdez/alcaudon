@@ -3,7 +3,6 @@ package alcaudon.core
 import shapeless._
 
 trait DataStream[T] {
-  type Type = T
   val streamingContext: StreamingContext
   val streamTransformation: StreamTransformation[T]
 
@@ -14,19 +13,36 @@ trait DataStream[T] {
     transform("filter", filterFn)
   }
 
-  // def keyBy(fields: Strings*): KeyedStream[T, HList] = {
-  //   val keyFn = new KeySelector[T, K] {
-  //     def extract(value: T): K =
-  //       fields.length
-  //       fn(value)
-  //   }
-  // }
+  def makeLens[T](b: String)(
+      implicit mkPath: shapeless.MkPathOptic[
+        T,
+        shapeless.::[
+          shapeless.Select[Symbol with shapeless.tag.Tagged[b.type]],
+          shapeless.HNil]]) = {
+    lens[T](Path.selectDynamic(b))
+  }
+
+  def keyBy(fields: String)(
+      implicit typeEvidence: TypeInfo[T],
+      mkPath: shapeless.MkPathOptic[
+        T,
+        shapeless.::[
+          shapeless.Select[Symbol with shapeless.tag.Tagged[fields.type]],
+          shapeless.HNil]]): DataStream[T] = {
+    val x = makeLens[T](fields)
+    this
+  }
 
   def keyBy[K](fn: T => K): KeyedStream[T, K] = {
     val keyFn = new KeySelector[T, K] {
       def extract(value: T): K = fn(value)
     }
     KeyedStream(streamingContext, streamTransformation, keyFn)
+  }
+
+  def flatMap[O: TypeInfo](fn: (T, Collector[O]) => Unit)(
+      implicit typeEvidence: TypeInfo[T]): DataStream[O] = {
+    transform("flatMap", StreamFlatMap(fn))
   }
 
   def map[O: TypeInfo](fn: T => O)(

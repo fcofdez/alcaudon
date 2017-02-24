@@ -11,7 +11,8 @@ trait StreamOperator[Out] {
   var output: Output[Out] = Output()
 }
 
-case class StreamFlatMap[T, O](fn: (T, Collector[O]) => Unit) extends OneInputStreamOperator[T, O] {
+case class StreamFlatMap[T, O](fn: (T, Collector[O]) => Unit)
+    extends OneInputStreamOperator[T, O] {
   val collector = Collector[O]()
   def processStreamRecord(record: StreamRecord[T]): Unit =
     fn(record.value, collector)
