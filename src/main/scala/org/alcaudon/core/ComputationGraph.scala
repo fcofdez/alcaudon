@@ -19,7 +19,7 @@ case class StreamNode[I, O](id: Int,
                             name: String = "")
 
 case class ComputationGraph(env: StreamingContext) {
-  val internalGraph = Graph[StremNode[_, _], LDiEdge]()
+  val internalGraph = Graph[StreamNode[_, _], LDiEdge]()
   val sources = Set[Int]()
   val sinks = Set[Int]()
   val nodes = Map[Int, StreamNode[_, _]]()
