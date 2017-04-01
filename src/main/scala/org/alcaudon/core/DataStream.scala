@@ -13,26 +13,6 @@ trait DataStream[T] {
     transform("filter", filterFn)
   }
 
-  def makeLens[T](b: String)(
-      implicit mkPath: shapeless.MkPathOptic[
-        T,
-        shapeless.::[
-          shapeless.Select[Symbol with shapeless.tag.Tagged[b.type]],
-          shapeless.HNil]]) = {
-    lens[T](Path.selectDynamic(b))
-  }
-
-  def keyBy(fields: String)(
-      implicit typeEvidence: TypeInfo[T],
-      mkPath: shapeless.MkPathOptic[
-        T,
-        shapeless.::[
-          shapeless.Select[Symbol with shapeless.tag.Tagged[fields.type]],
-          shapeless.HNil]]): DataStream[T] = {
-    val x = makeLens[T](fields)
-    this
-  }
-
   def keyBy[K](fn: T => K): KeyedStream[T, K] = {
     val keyFn = new KeySelector[T, K] {
       def extract(value: T): K = fn(value)

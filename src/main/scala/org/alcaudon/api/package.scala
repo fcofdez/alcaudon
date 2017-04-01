@@ -1,2 +1,1 @@
-package object alcaudon {
-}
+package object alcaudon {}

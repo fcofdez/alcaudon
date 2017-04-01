@@ -14,7 +14,8 @@ import ops.hlist.ToList
 trait TypeInfo[T] {
   def serialize(obj: T)(implicit output: DataOutput): DataOutput
   def deserialize(t: DataInput): T
-  val fields: List[String] = List()
+  val fieldNames: List[String] = List()
+  val fields: HList = HNil
 }
 
 object TypeInfo {
@@ -83,7 +84,7 @@ object TypeInfo {
         generic.from(repFormat.value.deserialize(input))
       }
 
-      override val fields: List[String] = {
+      override val fieldNames: List[String] = {
         keys.apply.toList.map(_.toString).map(_.replace("\'", ""))
       }
     }
