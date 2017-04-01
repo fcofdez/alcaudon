@@ -39,18 +39,23 @@ class StrCtx extends StreamingContext
 object Test extends App {
   import alcaudon.core.TypeInfo._
   val ctx = new StrCtx
-  case class Test(a: Int)
+  case class Test(a: Int) {
+    def +(other: Test): Test = Test(a + other.a)
+  }
   ctx.sourceFromCollection(1 to 100)
   val one = ctx.addSource({ (ctx: SourceContext[Test]) =>
     while (true) ctx.collect(Test(1), 1L)
   })
   val zz = ctx.fromSocket("localhost", 8080)
+  val yy = zz flatMap {_.split(" ")}
+  val sink = yy.addSink(println)
   val z = one.keyBy(_.a)
+  val reduced = z.reduce { _ + _ }
   // println(z.get(Test(1)))
 
   // val filtered = one.filter(_ < 20).map(_ * 2).map(_.toString).map(_ + "asd")
   // val z = filtered.keyBy((_, 1))
   // val sink = filtered.addSink(println)
-  // val graph = ComputationGraph.generateComputationGraph(ctx).internalGraph
-  // println(graph)
+  val graph = ComputationGraph.generateComputationGraph(ctx).internalGraph
+  println(graph)
 }

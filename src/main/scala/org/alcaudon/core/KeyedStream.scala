@@ -15,11 +15,22 @@ case class PartitionTransformation[T, K](
   val name: String = "Partition"
 }
 
-// case class ReduceOperator[T](fn: (T, T) => T) extended OneInputStreamOperator[T, T] {
-//   val collector = Collector[T]()
+case class ReduceOperator[T](fn: (T, T) => T) extends OneInputStreamOperator[T, T] {
+  var reducedValue: Option[T] = None
 
-//   def processStreamRecord(record: Streamj)
-// }
+  def processStreamRecord(record: StreamRecord[T]): Unit = {
+    val newValue = record.value
+    reducedValue match {
+      case Some(reducedVal) =>
+        val newReducedValue = fn(reducedValue.get, newValue)
+        output.collect(record.copy(value = newReducedValue))
+        reducedValue = Some(newReducedValue)
+      case None =>
+        output.collect(record.copy(value = newValue))
+        reducedValue = Some(newValue)
+    }
+  }
+}
 
 case class KeyedStream[T, K](streamingContext: StreamingContext,
                              input: StreamTransformation[T],
@@ -29,7 +40,9 @@ case class KeyedStream[T, K](streamingContext: StreamingContext,
   val streamTransformation =
     PartitionTransformation(input, KeyedStreamPartitioner(selector))
 
-  // def reduce(fn: (T, T) => T): DataStream[T] = {
-  // }
+  def reduce(fn: (T, T) => T)(
+    implicit typeEvidence: TypeInfo[T]): DataStream[T] = {
+    transform("reduce", ReduceOperator(fn))
+  }
 
 }

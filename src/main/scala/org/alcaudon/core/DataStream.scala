@@ -13,11 +13,18 @@ trait DataStream[T] {
     transform("filter", filterFn)
   }
 
-  def keyBy[K](fn: T => K): KeyedStream[T, K] = {
+  def keyBy[K: TypeInfo](fn: T => K): KeyedStream[T, K] = {
     val keyFn = new KeySelector[T, K] {
       def extract(value: T): K = fn(value)
     }
     KeyedStream(streamingContext, streamTransformation, keyFn)
+  }
+
+  def flatMap[O: TypeInfo](fun: T => TraversableOnce[O])(
+    implicit typeEvidence: TypeInfo[T]): DataStream[O] = {
+    flatMap((element: T, out: Collector[O]) =>
+      fun(element).foreach(out.collect)
+    )
   }
 
   def flatMap[O: TypeInfo](fn: (T, Collector[O]) => Unit)(
