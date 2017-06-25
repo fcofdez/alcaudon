@@ -6,11 +6,11 @@ import java.net.InetSocketAddress
 import java.net.Socket
 import scala.util.Try
 
-case class SocketSource(host: String, port: Int) extends SourceFn[String] {
-  val ConnectionTimeout = 0
+case class SocketSource(host: String, port: Int, recordExtractor: String => Record) extends SourceFunc {
+  val ConnectionTimeout = 10
   var socket = new Socket
 
-  def run(ctx: SourceContext[String]): Unit = {
+  def run(ctx: SourceCtx): Unit = {
     while (running) {
       socket.connect(new InetSocketAddress(host, port), ConnectionTimeout)
 
@@ -25,7 +25,7 @@ case class SocketSource(host: String, port: Int) extends SourceFn[String] {
           .appendAll(charBuf, 0, bytesRead)
           .split("\n".toCharArray)
           .foreach { line =>
-            ctx.collect(line, System.currentTimeMillis())
+            ctx.collect(recordExtractor(line))
           }
         buffer.clear
         bytesRead = in.read(charBuf)
@@ -33,9 +33,9 @@ case class SocketSource(host: String, port: Int) extends SourceFn[String] {
     }
   }
 
-  override def cancel: Unit = {
-    running = false
-    Try(socket.close())
-    ()
-  }
+  // override def cancel: Unit = {
+  //   running = false
+  //   Try(socket.close())
+  //   ()
+  // }
 }

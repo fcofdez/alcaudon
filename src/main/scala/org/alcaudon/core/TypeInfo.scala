@@ -110,6 +110,11 @@ object TypeInfo {
         val tail = tit.deserialize(input)
         field[Key](head) :: tail
       }
+
+      override val fieldNames: List[String] = {
+        println(key.value.name)
+        List()
+      }
     }
 
   implicit object hNilFormat extends TypeInfo[HNil] {
