@@ -2,26 +2,49 @@ package alcaudon.core
 
 import java.util.UUID
 
+import akka.actor.ActorRef
 
+import alcaudon.runtime.AbstracRuntimeContext
 
-trait Computation {
-  val inputStream: String
-  val id = UUID.randomUUID().toString
-
-  //TODO add id
-  // in
-  def processRecord(record: Record): Unit
-  def processTimer(timeStamp: Long): Unit
-
-  // out
-  private def setTimer(timeStamp: Long): Unit = {}
-  private def produceRecord(record: Record, stream: String) = {}
+trait RuntimeContext {
+  var context: AbstracRuntimeContext = null
 }
 
+trait ProduceAPI { environment: RuntimeContext =>
+  private def produceRecord(record: Record, stream: String): Unit = {
+  }
+}
 
-case class DummyComputation(inputStream: String) extends Computation {
+trait TimerAPI { environment: RuntimeContext =>
+  private def setTimer(tag: String, time: Long): Unit = {}
+}
+
+trait StateAPI { environment: RuntimeContext =>
+  private def set(key: String, value: Array[Byte]): Unit = {}
+  private def get(key: String): Array[Byte] = {
+    Array[Byte]()
+  }
+}
+
+trait Computation extends ProduceAPI with TimerAPI with StateAPI with RuntimeContext {
+  val id = UUID.randomUUID().toString
+  val inputStreams: List[String]
+  // val outputStreams: List[String]
+  private var subscribedStreams: Set[String] = Set.empty
+
+  def processRecord(record: Record): Unit
+  def processTimer(timer: Long): Unit
+
+  def setup(): Unit = {}
+}
+
+object DummyComputation {
+  def apply(listStreams: String*): DummyComputation = new DummyComputation(listStreams.toList)
+}
+
+class DummyComputation(val inputStreams: List[String]) extends Computation {
   def processRecord(record: Record): Unit = {
-    println(s"processing from $inputStream --> $record")
+    println(s"processing from $inputStreams --> $record")
   }
 
   def processTimer(timeStamp: Long): Unit = {}

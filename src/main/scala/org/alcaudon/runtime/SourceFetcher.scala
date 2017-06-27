@@ -11,12 +11,23 @@ object SourceFetcher {
   case class MessageReady(sourceId: String) //Backpressure?
   case class Message(record: Record)
 
+  //Backpressure message protocol
+  case object MessageReady
+  case object GetMessage
+  case class ACK(recordId: String)
+
   def worker(source: Source)(implicit factory: ActorRefFactory): ActorRef =
     factory.actorOf(Props(new SourceFetcherWorker(source)), name = source.id)
 
   def apply(source: Source)(implicit factory: ActorRefFactory): ActorRef =
     factory.actorOf(Props(new SourceFetcher(source)))
 }
+
+// class StreamDeliverer(dst: ActorRef) extends Actor with ActorLogging {
+//   import SourceFetcher._
+
+
+// }
 
 class SourceFetcher(source: Source) extends Actor with ActorLogging {
 
