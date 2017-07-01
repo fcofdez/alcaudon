@@ -15,7 +15,8 @@ case class PartitionTransformation[T, K](
   val name: String = "Partition"
 }
 
-case class ReduceOperator[T](fn: (T, T) => T) extends OneInputStreamOperator[T, T] {
+case class ReduceOperator[T](fn: (T, T) => T)
+    extends OneInputStreamOperator[T, T] {
   var reducedValue: Option[T] = None
 
   def processStreamRecord(record: StreamRecord[T]): Unit = {
@@ -41,7 +42,7 @@ case class KeyedStream[T, K](streamingContext: StreamingContext,
     PartitionTransformation(input, KeyedStreamPartitioner(selector))
 
   def reduce(fn: (T, T) => T)(
-    implicit typeEvidence: TypeInfo[T]): DataStream[T] = {
+      implicit typeEvidence: TypeInfo[T]): DataStream[T] = {
     transform("reduce", ReduceOperator(fn))
   }
 

@@ -1,4 +1,6 @@
-package alcaudon.core
+package alcaudon.core.sources
+
+import alcaudon.core.Record
 
 trait SourceCtx {
   def collect(record: Record): Unit
@@ -8,9 +10,10 @@ trait SourceCtx {
 trait SourceFunc {
   var running = true
   def run(ctx: SourceCtx): Unit
-  def close: Unit = running = false
+  def cancel: Unit = running = false
 }
 
 case class Source(sourceFn: SourceFunc, id: String) {
   def run(ctx: SourceCtx): Unit = sourceFn.run(ctx)
+  def close(): Unit = sourceFn.cancel
 }

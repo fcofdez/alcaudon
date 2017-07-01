@@ -21,10 +21,9 @@ trait DataStream[T] {
   }
 
   def flatMap[O: TypeInfo](fun: T => TraversableOnce[O])(
-    implicit typeEvidence: TypeInfo[T]): DataStream[O] = {
-    flatMap((element: T, out: Collector[O]) =>
-      fun(element).foreach(out.collect)
-    )
+      implicit typeEvidence: TypeInfo[T]): DataStream[O] = {
+    flatMap(
+      (element: T, out: Collector[O]) => fun(element).foreach(out.collect))
   }
 
   def flatMap[O: TypeInfo](fn: (T, Collector[O]) => Unit)(

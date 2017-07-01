@@ -1,17 +1,26 @@
 package alcaudon.api
 
-import alcaudon.core._
+import akka.actor.ActorSystem
+import org.alcaudon.api.Computation
 
-class StreamingExecutionEnvironment {
-  // def addSource[T: TypeInfo](srcFn: (SourceContext[T] => Unit)): DataStream[T] = {
-  //   val typeInfo = implicitly[TypeInfo[T]]
-  //   val sourceFn = new SourceFn[T] {
-  //     def run(ctx: SourceContext[T]): Unit = {
-  //       srcFn(ctx)
-  //     }
-  //   }
-  //   val streamSrc = new StreamSource[T](sourceFn)
-  //   val transformation = new SourceTransformation("id2", "src", streamSrc)
-  //   new DataStreamSource(this, transformation)
-  // }
+object StreamingExecutionEnvironment {
+  def apply(dataflowId: String): StreamingExecutionEnvironment = {
+    new StreamingExecutionEnvironment(dataflowId)
+  }
+}
+
+class StreamingExecutionEnvironment(dataflowId: String) {
+  val actorSystem = ActorSystem()
+
+  def addComputation(computation: Computation): Boolean = {
+    true
+  }
+
+  def addInjector(injector: String): Boolean = {
+    true
+  }
+
+  def addSink(sink: String): Boolean = {
+    true
+  }
 }
