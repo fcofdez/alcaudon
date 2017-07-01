@@ -8,6 +8,8 @@ import org.alcaudon.core.AlcaudonStream._
 
 import scala.collection.mutable.ArrayBuffer
 
+case class StreamRecord(id: Long, record: Record)
+
 private[core] case class StreamState(
     var currentId: Long = 0,
     var latestConsumed: Long = 0,
