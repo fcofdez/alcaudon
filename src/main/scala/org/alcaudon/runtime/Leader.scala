@@ -3,9 +3,11 @@ package alcaudon.runtime
 import akka.actor._
 import alcaudon.core._
 import alcaudon.core.sources._
+import alcaudon.runtime.SourceFetcher.Message
 import com.inv.invocable.Invokable
 import com.typesafe.config.ConfigFactory
 import org.alcaudon.api.{Computation, DummyComputation}
+import org.alcaudon.core.AlcaudonStream
 
 object Leader {
   object Protocol {
@@ -126,6 +128,17 @@ object X {
   }
 
   import Leader.Protocol._
+
+  def z(): Unit = {
+    val config = ConfigFactory.load()
+    val as = ActorSystem("alcaudon", config)
+    val x = as.actorOf(Props(new AlcaudonStream("asd")))
+    x ! Message(Record("asd", "asda", 12L))
+    x ! Message(Record("asd", "asda", 12L))
+    x ! Message(Record("asd", "asda", 12L))
+    x ! Message(Record("asd", "asda", 12L))
+    x ! Message(Record("asd", "asda", 12L))
+  }
   def run(): Unit = {
     val config = ConfigFactory.load()
     val as = ActorSystem("alcaudon", config)

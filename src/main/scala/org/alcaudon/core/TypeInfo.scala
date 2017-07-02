@@ -112,7 +112,6 @@ object TypeInfo {
       }
 
       override val fieldNames: List[String] = {
-        println(key.value.name)
         List()
       }
     }
