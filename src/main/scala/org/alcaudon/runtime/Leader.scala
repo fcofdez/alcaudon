@@ -4,7 +4,6 @@ import akka.actor._
 import alcaudon.core._
 import alcaudon.core.sources._
 import alcaudon.runtime.SourceFetcher.Message
-import com.inv.invocable.Invokable
 import com.typesafe.config.ConfigFactory
 import org.alcaudon.api.{Computation, DummyComputation}
 import org.alcaudon.core.AlcaudonStream
@@ -105,11 +104,6 @@ class Register extends Actor with ActorLogging {
 }
 
 object X {
-
-  trait Jarl { def run(): Unit }
-  class Man extends Invokable {
-    def run(): Unit = { println("running") }
-  }
   case class Grow(start: Int) extends SourceFunc {
     def run(ctx: SourceCtx): Unit = {
       var state = start
@@ -159,8 +153,8 @@ object X {
 
   def main(argv: Array[String]): Unit = {
 
-    val name = classOf[X.Man].getName
-    println(name)
+//    val name = classOf[X.Man].getName
+//    println(name)
     // val a = getInv(getClass().getClassLoader()).run()
     // val man  = clazz.newInstance().asInstanceOf[Man]
     // man.run()
