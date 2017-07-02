@@ -17,10 +17,10 @@ case class SubscriberInfo(actor: ActorRef, latestConsumedRecordSeq: Long)
 }
 
 case class StreamState(
-    private var latestRecordSeq: Long = 0L,
+    private var _latestRecordSeq: Long = 0L,
     private var latestAckRecordSeq: Long = 0L,
     private var minAckValue: Long = 0L,
-    private var pendingRecords: ArrayBuffer[StreamRecord] = ArrayBuffer.empty,
+    var pendingRecords: ArrayBuffer[StreamRecord] = ArrayBuffer.empty,
     private var subscribersInfo: Map[ActorRef, Long] = Map.empty,
     var subscribers: ArrayBuffer[ActorRef] = ArrayBuffer.empty) {
 
@@ -28,32 +28,34 @@ case class StreamState(
     pendingRecords.append(streamRecord) //Think about use a heap here to avoid sequential persists
   }
 
+  def latestRecordSeq = _latestRecordSeq
+
   def nextRecordSeq: Long = {
-    latestRecordSeq += 1
-    latestRecordSeq
+    _latestRecordSeq += 1
+    _latestRecordSeq
   }
 
   def addSubscriber(subscriber: ActorRef): Unit = {
     subscribers.append(subscriber)
-    subscribersInfo += (subscriber -> latestRecordSeq)
+    subscribersInfo += (subscriber -> _latestRecordSeq)
   }
 
   def ack(subscriber: ActorRef, lastSeqNr: Long): Unit = {
     subscribersInfo += (subscriber -> lastSeqNr)
+    //optimize, keep the min
     minAckValue = subscribersInfo.values.min
   }
 
   def gc(): Unit = {
-    pendingRecords = pendingRecords.slice(
-      (minAckValue - latestRecordSeq).toInt,
-      pendingRecords.length)
+    pendingRecords.remove(0, (minAckValue - latestAckRecordSeq).toInt)
+    latestAckRecordSeq = minAckValue
   }
 
   def getRecord(actor: ActorRef, requestedOffset: Long): Option[StreamRecord] = {
     subscribersInfo.get(actor) match {
       case Some(latestConsumedOffset)
           if latestConsumedOffset < requestedOffset =>
-        Some(pendingRecords((requestedOffset - latestRecordSeq).toInt))
+        Some(pendingRecords((requestedOffset - _latestRecordSeq).toInt))
       case None =>
         None
     }
@@ -66,6 +68,8 @@ object AlcaudonStream {
   case class ReceiveACK(id: String)
   case class Subscribe(actor: ActorRef)
   case class SubscriptionSuccess(name: String, latestOffset: Long)
+  case object GetSize
+  case class Size(elements: Int)
 
   case class InvalidOffset(offset: Long)
 
@@ -82,7 +86,7 @@ class AlcaudonStream(name: String) extends PersistentActor with ActorLogging {
     case Subscribe(actor) => state.addSubscriber(actor)
     case ack: ACK => state.addSubscriber(ack.actor)
     case SnapshotOffer(metadata, snapshot: StreamState) =>
-      log.info("Restoring snapshot for actor {} - {}", name, snapshot)
+      log.info("Restoring snapshot for actor {} - {}", name, metadata)
       state = snapshot
   }
 
@@ -103,14 +107,18 @@ class AlcaudonStream(name: String) extends PersistentActor with ActorLogging {
       }
 
     case ack: ACK =>
-      persistAsync(ack) { savedACK =>
+      persist(ack) { savedACK =>
         state.ack(savedACK.actor, savedACK.offset)
       }
+
+    case GetSize =>
+      sender() ! Size(state.pendingRecords.length)
 
     case Pull(offset) if offset > lastSequenceNr =>
       sender() ! InvalidOffset(offset)
 
     case Pull(offset) =>
+      log.debug("pull {}", offset)
       state.getRecord(sender(), offset) match {
         case Some(record) => sender() ! record.record
         case None => sender() ! InvalidOffset(offset)
@@ -119,16 +127,20 @@ class AlcaudonStream(name: String) extends PersistentActor with ActorLogging {
     case subscribe @ Subscribe(actor) =>
       persist(subscribe) { subscribeRequest =>
         state.addSubscriber(subscribeRequest.actor)
-        subscribeRequest.actor ! SubscriptionSuccess(name, lastSequenceNr)
+        subscribeRequest.actor ! SubscriptionSuccess(name,
+                                                     state.latestRecordSeq)
       }
 
     case success: SaveSnapshotSuccess =>
       deleteMessages(success.metadata.sequenceNr)
       state.gc()
+
     case failure: SaveSnapshotFailure =>
       log.error("Error saving the snapshot {}", failure)
     case success: DeleteMessagesSuccess =>
-      log.info("Garbage collection on stream {} worked correctly", name)
+      log.info("Garbage collection on stream {} worked correctly {}",
+               name,
+               state.pendingRecords)
     case failure: DeleteMessagesFailure =>
       log.error("Garbage collection on stream {} failed", name)
   }
