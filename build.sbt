@@ -21,8 +21,9 @@ scalacOptions ++= Seq(
 val akkaVersion = "2.4.18"
 libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.3.2",
-  "org.scala-graph" %% "graph-core" % "1.11.4",
+  "org.scala-graph" %% "graph-core" % "1.11.5",
   "org.scala-graph" %% "graph-json" % "1.11.0",
+  "org.scala-graph" %% "graph-dot" % "1.11.5",
   "com.twitter" % "hbc-core" % "2.2.0",
   "com.fasterxml.jackson.core" % "jackson-core" % "2.9.0.pr4",
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.0.pr4",

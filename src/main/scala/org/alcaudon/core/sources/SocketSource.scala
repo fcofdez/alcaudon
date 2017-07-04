@@ -13,7 +13,7 @@ case class SocketSource(host: String,
                         recordExtractor: String => Record)
     extends SourceFunc {
   val ConnectionTimeout = 10
-  var socket = new Socket
+  @transient var socket = new Socket
   var retries = 0
 
   def run(ctx: SourceCtx): Unit = {

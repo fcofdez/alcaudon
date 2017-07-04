@@ -27,8 +27,8 @@ object TwitterSourceConfig {
 
 case class TwitterSource(credentials: TwitterSourceConfig.OAuth1)
     extends SourceFunc {
-  val waitLock = new Object()
-  var client: BasicClient = null
+  @transient val waitLock = new Object()
+  @transient var client: BasicClient = null
 
   def run(ctx: SourceCtx): Unit = {
     val endpoint = new StatusesSampleEndpoint()
