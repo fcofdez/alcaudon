@@ -2,7 +2,7 @@ package org.alcaudon.core
 
 import akka.actor.{ActorLogging, ActorRef, Props}
 import akka.persistence._
-import alcaudon.core.Record
+import alcaudon.core.{RawRecord, Record}
 import alcaudon.runtime.SourceFetcher.Message
 import org.alcaudon.core.AlcaudonStream._
 

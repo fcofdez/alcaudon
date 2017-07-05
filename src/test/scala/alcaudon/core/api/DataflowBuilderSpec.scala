@@ -52,8 +52,9 @@ class DataflowBuilderSpec
     "build a dataflow graph" in {
       val dataflow = DataflowBuilder("othertest")
         .addSource("twitter", TwitterSource(OAuth1("", "", "", "")))
+        .addComputation("computationTest", StubComputation, InputStreams("twitter"), OutputStreams("test"))
         .addComputation("languageFilter", StubComputation, InputStreams("twitter"), OutputStreams("filteredTwitter"))
-        .addComputation("sentimentAnalysis", StubComputation, InputStreams("filteredTwitter"), OutputStreams("sink"))
+        .addComputation("sentimentAnalysis", StubComputation, InputStreams("filteredTwitter", "test"), OutputStreams("sink"))
         .addSink("sink")
         .build()
       import scalax.collection.Graph
