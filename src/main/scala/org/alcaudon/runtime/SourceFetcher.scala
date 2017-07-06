@@ -11,11 +11,14 @@ object SourceFetcher {
   def worker(source: Source)(implicit factory: ActorRefFactory): ActorRef =
     factory.actorOf(Props(new SourceFetcherWorker(source)), name = source.id)
 
-  def apply(source: Source, streamRef: ActorRef)(implicit factory: ActorRefFactory): ActorRef =
+  def apply(source: Source, streamRef: ActorRef)(
+      implicit factory: ActorRefFactory): ActorRef =
     factory.actorOf(Props(new SourceFetcher(source, streamRef)))
 }
 
-class SourceFetcher(source: Source, streamRef: ActorRef) extends Actor with ActorLogging {
+class SourceFetcher(source: Source, streamRef: ActorRef)
+    extends Actor
+    with ActorLogging {
 
   val worker = SourceFetcher.worker(source)
   context.watch(worker)
@@ -24,7 +27,7 @@ class SourceFetcher(source: Source, streamRef: ActorRef) extends Actor with Acto
 
   def receive = {
     case Terminated(worker) => //Restart
-    log.info("SourceFetcher worker terminated received {}", worker)
+      log.info("SourceFetcher worker terminated received {}", worker)
     case record: RawRecord =>
       buffer.append(record)
       streamRef ! record
@@ -35,7 +38,8 @@ class SourceFetcher(source: Source, streamRef: ActorRef) extends Actor with Acto
 class SourceFetcherWorker(source: Source)
     extends Actor
     with ActorLogging
-    with SourceCtx with TimestampExtractor {
+    with SourceCtx
+    with TimestampExtractor {
 
   override def preStart(): Unit = {
     source.run(this)

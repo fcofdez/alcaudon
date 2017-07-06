@@ -1,12 +1,13 @@
 package org.alcaudon.core
 
 import akka.actor.ActorRef
-import alcaudon.core.Record
 
 import scala.collection.mutable.ArrayBuffer
 
-case class SubscriberInfo(actor: ActorRef, keyExtractor: KeyExtractor, var _latestConsumedOffset: Long)
-  extends Ordered[SubscriberInfo] {
+case class SubscriberInfo(actor: ActorRef,
+                          @transient keyExtractor: KeyExtractor,
+                          var _latestConsumedOffset: Long)
+    extends Ordered[SubscriberInfo] {
 
   def latestConsumedOffset = _latestConsumedOffset
 
@@ -20,18 +21,18 @@ case class SubscriberInfo(actor: ActorRef, keyExtractor: KeyExtractor, var _late
 }
 
 case class StreamState(
-                        private var _latestRecordSeq: Long = 0L,
+                        private var _latestRecordSeq: Long = -1L,
                         private var latestAckRecordSeq: Long = 0L,
                         private var minAckValue: Long = 0L,
-                        var pendingRecords: ArrayBuffer[StreamRawRecord] = ArrayBuffer.empty,
+                        var pendingRecords: ArrayBuffer[StreamRecord] = ArrayBuffer.empty,
                         private var subscribersInfo: Map[ActorRef, SubscriberInfo] = Map.empty,
                         var subscribers: ArrayBuffer[SubscriberInfo] = ArrayBuffer.empty) {
 
-  def update(streamRecord: StreamRawRecord): Unit = {
+  def update(streamRecord: StreamRecord): Unit = {
     pendingRecords.append(streamRecord) //Think about use a heap here to avoid sequential persists
   }
 
-  def latestRecordSeq = _latestRecordSeq
+  def latestRecordSeq = if (_latestRecordSeq == -1) 0L else _latestRecordSeq
 
   def nextRecordSeq: Long = {
     _latestRecordSeq += 1
@@ -39,7 +40,8 @@ case class StreamState(
   }
 
   def addSubscriber(subscriber: ActorRef, keyExtractor: KeyExtractor): Unit = {
-    val subscriberInfo = SubscriberInfo(subscriber, keyExtractor, _latestRecordSeq)
+    val subscriberInfo =
+      SubscriberInfo(subscriber, keyExtractor, _latestRecordSeq)
     subscribers.append(subscriberInfo)
     subscribersInfo += (subscriber -> subscriberInfo)
   }
@@ -49,7 +51,7 @@ case class StreamState(
       case Some(subscriberInfo) =>
         subscriberInfo.updateOffset(lastSeqNr)
       case None =>
-        // TODO Log error
+      // TODO Log error
     }
     // TODO optimize
     minAckValue = subscribersInfo.values.min.latestConsumedOffset
@@ -60,16 +62,22 @@ case class StreamState(
     latestAckRecordSeq = minAckValue
   }
 
+  // TODO try to avoid allocating one optional per StreamRecord
   def getRecord(actor: ActorRef, requestedOffset: Long): Option[StreamRecord] = {
     subscribersInfo.get(actor) match {
       case Some(subscriberInfo)
-        if subscriberInfo.latestConsumedOffset < requestedOffset =>
-        // TODO return just record
-        val streamRawRecord = pendingRecords((requestedOffset - _latestRecordSeq).toInt)
-        Some(StreamRecord(streamRawRecord.id, Record(subscriberInfo.keyExtractor.extractKey(streamRawRecord.record.value), streamRawRecord.record)))
+          if subscriberInfo.latestConsumedOffset <= requestedOffset =>
+        // TODO try to allocate less objects //Think about observables
+        val streamRecord = pendingRecords(
+          (requestedOffset - latestAckRecordSeq).toInt)
+        val key =
+          subscriberInfo.keyExtractor.extractKey(streamRecord.value)
+        streamRecord.addKey(key)
+        Some(streamRecord)
       case None =>
+        None
+      case _ =>
         None
     }
   }
 }
-

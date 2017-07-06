@@ -34,7 +34,8 @@ class Leader extends Actor with ActorLogging {
   def handleLogic(registeredStreams: Map[String, ActorRef]): Receive = {
     case RegisterInjector(id, definition) =>
       context.become(
-        handleLogic(registeredStreams + (id -> SourceFetcher(definition, self))))
+        handleLogic(
+          registeredStreams + (id -> SourceFetcher(definition, self))))
       sender() ! InjectorRegistered(id)
     case RegisterComputation(computation, inputStreams, outputStreams) =>
       log.info("Computation class {}", computation.getClass.getName)
@@ -49,7 +50,9 @@ class Leader extends Actor with ActorLogging {
           streamId <- streamIds
           stream <- registeredStreams.get(streamId)
         } yield {
-          stream ! Subscribe(c, KeyExtractor { x: String => x })
+          stream ! Subscribe(c, KeyExtractor { x: String =>
+            x
+          })
           streamId
         }
         sender() ! ComputationRegistered(computation.id, subs.toList)
@@ -58,7 +61,6 @@ class Leader extends Actor with ActorLogging {
       }
   }
 }
-
 
 class Register extends Actor with ActorLogging {
 

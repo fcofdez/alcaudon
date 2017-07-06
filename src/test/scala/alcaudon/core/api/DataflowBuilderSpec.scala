@@ -7,7 +7,12 @@ import alcaudon.core.Record
 import alcaudon.core.sources.TwitterSource
 import alcaudon.core.sources.TwitterSourceConfig.OAuth1
 import org.alcaudon.api.Computation
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecLike}
+import org.scalatest.{
+  BeforeAndAfterAll,
+  BeforeAndAfterEach,
+  Matchers,
+  WordSpecLike
+}
 
 import scalax.collection.GraphEdge.DiEdge
 import scalax.collection.Graph
@@ -42,19 +47,31 @@ class DataflowBuilderSpec
     "allow to add computations" in {
       val dataflow = DataflowBuilder("othertest")
         .addSource("twitter", TwitterSource(OAuth1("", "", "", "")))
-        .addComputation("computationId", StubComputation, InputStreams("twitter"), OutputStreams("test"))
+        .addComputation("computationId",
+                        StubComputation,
+                        InputStreams("twitter"),
+                        OutputStreams("test"))
 
       dataflow.streams should contain("twitter")
       dataflow.streams should contain("test")
-      dataflow.computations.length should be (1)
+      dataflow.computations.length should be(1)
     }
 
     "build a dataflow graph" in {
       val dataflow = DataflowBuilder("othertest")
         .addSource("twitter", TwitterSource(OAuth1("", "", "", "")))
-        .addComputation("computationTest", StubComputation, InputStreams("twitter"), OutputStreams("test"))
-        .addComputation("languageFilter", StubComputation, InputStreams("twitter"), OutputStreams("filteredTwitter"))
-        .addComputation("sentimentAnalysis", StubComputation, InputStreams("filteredTwitter", "test"), OutputStreams("sink"))
+        .addComputation("computationTest",
+                        StubComputation,
+                        InputStreams("twitter"),
+                        OutputStreams("test"))
+        .addComputation("languageFilter",
+                        StubComputation,
+                        InputStreams("twitter"),
+                        OutputStreams("filteredTwitter"))
+        .addComputation("sentimentAnalysis",
+                        StubComputation,
+                        InputStreams("filteredTwitter", "test"),
+                        OutputStreams("sink"))
         .addSink("sink")
         .build()
       import scalax.collection.Graph
@@ -62,10 +79,12 @@ class DataflowBuilderSpec
       import scalax.collection.io.dot._
       import implicits._
 
-      val root = DotRootGraph(directed = true,
-        id       = Some("dot"))
-      def edgeTransformer(innerEdge: Graph[StreamNode, DiEdge]#EdgeT): Option[(DotGraph,DotEdgeStmt)] = {
-        Some((root, DotEdgeStmt(innerEdge.source.toString, innerEdge.target.toString)))
+      val root = DotRootGraph(directed = true, id = Some("dot"))
+      def edgeTransformer(innerEdge: Graph[StreamNode, DiEdge]#EdgeT)
+        : Option[(DotGraph, DotEdgeStmt)] = {
+        Some(
+          (root,
+           DotEdgeStmt(innerEdge.source.toString, innerEdge.target.toString)))
       }
       val x = dataflow.toDot(root, edgeTransformer)
       println(x)

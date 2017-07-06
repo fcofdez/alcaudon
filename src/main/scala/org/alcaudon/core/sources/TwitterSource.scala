@@ -25,7 +25,8 @@ object TwitterSourceConfig {
 }
 
 case class TwitterSource(credentials: TwitterSourceConfig.OAuth1)
-    extends SourceFunc with TimestampExtractor {
+    extends SourceFunc
+    with TimestampExtractor {
   @transient val waitLock = new Object()
   @transient var client: BasicClient = null
   @transient val mapper = new ObjectMapper()

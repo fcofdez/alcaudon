@@ -5,8 +5,18 @@ import akka.persistence._
 import alcaudon.core.{RawRecord, Record}
 import org.alcaudon.core.AlcaudonStream._
 
-case class StreamRawRecord(id: Long, record: RawRecord)
-case class StreamRecord(id: Long, record: Record)
+case class StreamRecord(id: Long, rawRecord: RawRecord) {
+  var record: Record = _
+  def value = rawRecord.value
+  def timestamp = rawRecord.timestamp
+  def key = if (record != null) record.key else ""
+
+  def addKey(key: String): Unit = {
+    if (record != null)
+      record = Record(key, rawRecord)
+  }
+}
+case class StreamRecordOld(id: Long, record: Record)
 
 object KeyExtractor {
   def apply(fn: String => String): KeyExtractor = (msg: String) => fn(msg)
@@ -15,7 +25,6 @@ object KeyExtractor {
 trait KeyExtractor extends Serializable {
   def extractKey(msg: String): String
 }
-
 
 object AlcaudonStream {
   case class ACK(actor: ActorRef, id: String, offset: Long)
@@ -36,7 +45,7 @@ object AlcaudonStream {
 class AlcaudonStream(name: String) extends PersistentActor with ActorLogging {
 
   val receiveRecover: Receive = {
-    case msg: StreamRawRecord => state.update(msg)
+    case msg: StreamRecord => state.update(msg)
     case Subscribe(actor, extractor) => state.addSubscriber(actor, extractor)
     case ack: ACK => state.ack(ack.actor, ack.offset)
     case SnapshotOffer(metadata, snapshot: StreamState) =>
@@ -52,9 +61,9 @@ class AlcaudonStream(name: String) extends PersistentActor with ActorLogging {
   def receiveCommand: Receive = {
     case record: RawRecord =>
       val origin = sender()
-      persist(StreamRawRecord(state.nextRecordSeq, record)) { event =>
+      persist(StreamRecord(state.nextRecordSeq, record)) { event =>
         state.update(event)
-        origin ! ReceiveACK(event.record.id)
+        origin ! ReceiveACK(event.rawRecord.id)
         state.subscribers.foreach(_.actor ! PushReady(name))
         if (lastSequenceNr % snapShotInterval == 0 && lastSequenceNr != 0)
           saveSnapshot(state)
@@ -72,9 +81,9 @@ class AlcaudonStream(name: String) extends PersistentActor with ActorLogging {
       sender() ! InvalidOffset(offset)
 
     case Pull(offset) =>
-      log.debug("pull {}", offset)
+      log.debug("Pull {}", offset)
       state.getRecord(sender(), offset) match {
-        case Some(record) => sender() ! record.record
+        case Some(streamRecord) => sender() ! streamRecord
         case None => sender() ! InvalidOffset(offset)
       }
 

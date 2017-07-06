@@ -6,7 +6,7 @@ import alcaudon.runtime.AbstracRuntimeContext
 import org.alcaudon.api.Computation
 
 class ComputationReifier(computation: Computation)
-  extends Actor
+    extends Actor
     with ActorLogging {
 
   var x: AbstracRuntimeContext = null

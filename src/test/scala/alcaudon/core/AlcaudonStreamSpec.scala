@@ -3,7 +3,7 @@ package alcaudon.core
 import akka.actor.ActorRef
 import akka.testkit.{ImplicitSender, TestKit, TestProbe}
 import org.alcaudon.core.AlcaudonStream._
-import org.alcaudon.core.{AlcaudonStream, KeyExtractor}
+import org.alcaudon.core.{AlcaudonStream, KeyExtractor, StreamRecord}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecLike}
 
 import scala.util.Random
@@ -24,7 +24,9 @@ class AlcaudonStreamSpec
     TestKit.shutdownActorSystem(system)
   }
 
-  val keyExtractor = KeyExtractor {x: String => "key"}
+  val keyExtractor = new KeyExtractor {
+    override def extractKey(msg: String): String = "key"
+  }
 
   def sendRecord(streamName: String,
                  stream: ActorRef,
@@ -35,7 +37,9 @@ class AlcaudonStreamSpec
     expectMsg(ReceiveACK(record.id))
     expectMsg(PushReady(streamName))
     stream ! Pull(offset)
-    expectMsg(Record("key", record))
+    val streamRecord = StreamRecord(offset, record)
+    streamRecord.addKey("key")
+    expectMsg(streamRecord)
     stream ! ACK(testActor, streamName, offset)
   }
 
@@ -99,7 +103,7 @@ class AlcaudonStreamSpec
 
       stream ! Subscribe(testActor, keyExtractor)
       expectMsg(SubscriptionSuccess(streamName, 0L))
-      sendRecord(streamName, stream, record, 1)
+      sendRecord(streamName, stream, record, 0)
       system.stop(stream)
     }
 
@@ -110,7 +114,7 @@ class AlcaudonStreamSpec
 
       stream ! Subscribe(testActor, keyExtractor)
       expectMsg(SubscriptionSuccess(streamName, 0L))
-      (1 to 10).foreach { i =>
+      (0 to 10).foreach { i =>
         sendRecord(streamName, stream, record, i)
       }
 
@@ -125,7 +129,6 @@ class AlcaudonStreamSpec
       val streamName = s"writes-${Random.nextInt()}"
       val stream = system.actorOf(AlcaudonStream.props(streamName))
 
-      val record = RawRecord("value", 1L)
       val secondConsumer = TestProbe()
 
       stream ! Subscribe(testActor, keyExtractor)
@@ -135,7 +138,8 @@ class AlcaudonStreamSpec
                   secondConsumer.testActor)
       secondConsumer.expectMsg(SubscriptionSuccess(streamName, 0L))
 
-      (1 to 10).foreach { i =>
+      (0 to 9).foreach { i =>
+        val record = RawRecord(s"value-${i}", 1L)
         sendRecord(streamName, stream, record, i)
       }
 

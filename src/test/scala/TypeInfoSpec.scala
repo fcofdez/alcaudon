@@ -1,6 +1,11 @@
 package alcaudon.core
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream}
+import java.io.{
+  ByteArrayInputStream,
+  ByteArrayOutputStream,
+  DataInputStream,
+  DataOutputStream
+}
 
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen._

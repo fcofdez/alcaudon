@@ -2,7 +2,12 @@ package alcaudon.api
 
 import java.util.UUID
 
-import alcaudon.api.DataflowBuilder.{ComputationType, SourceType, StreamNode, StreamType}
+import alcaudon.api.DataflowBuilder.{
+  ComputationType,
+  SourceType,
+  StreamNode,
+  StreamType
+}
 import alcaudon.core.sources.{Source, SourceFunc}
 import org.alcaudon.api.{Computation, ComputationRepresentation}
 
@@ -27,7 +32,6 @@ object DataflowBuilder {
   case object SinkType extends Kind
   case class StreamNode(id: String, kind: Kind)
 }
-
 
 case class DataflowGraphBuilder(o: Int = 0) {
   var internalGraph = Graph[DataflowBuilder.StreamNode, DiEdge]()
@@ -64,7 +68,8 @@ case class DataflowGraphBuilder(o: Int = 0) {
     val srcNode = nodes.get(src)
     val dstNode = nodes.get(dst)
     val res = srcNode.zip(dstNode).map {
-      case (srcN: DataflowBuilder.StreamNode, dstN: DataflowBuilder.StreamNode) =>
+      case (srcN: DataflowBuilder.StreamNode,
+            dstN: DataflowBuilder.StreamNode) =>
         internalGraph = internalGraph + srcN ~> dstN
         true
     }

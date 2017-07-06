@@ -9,7 +9,8 @@ case class SocketSource(host: String,
                         port: Int,
                         maxRetry: Int,
                         delayBetweenRetries: Long)
-    extends SourceFunc with TimestampExtractor {
+    extends SourceFunc
+    with TimestampExtractor {
   val ConnectionTimeout = 10
   @transient var socket = new Socket
   var retries = 0
