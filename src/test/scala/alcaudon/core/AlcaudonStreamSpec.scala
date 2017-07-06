@@ -1,16 +1,10 @@
 package alcaudon.core
 
-import akka.actor.{ActorRef, ActorSystem, PoisonPill}
+import akka.actor.ActorRef
 import akka.testkit.{ImplicitSender, TestKit, TestProbe}
-import alcaudon.runtime.SourceFetcher.Message
-import org.alcaudon.core.AlcaudonStream
 import org.alcaudon.core.AlcaudonStream._
-import org.scalatest.{
-  BeforeAndAfterAll,
-  BeforeAndAfterEach,
-  Matchers,
-  WordSpecLike
-}
+import org.alcaudon.core.{AlcaudonStream, KeyExtractor}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecLike}
 
 import scala.util.Random
 
@@ -30,16 +24,18 @@ class AlcaudonStreamSpec
     TestKit.shutdownActorSystem(system)
   }
 
+  val keyExtractor = KeyExtractor {x: String => "key"}
+
   def sendRecord(streamName: String,
                  stream: ActorRef,
-                 record: Record,
+                 record: RawRecord,
                  offset: Long) = {
 
-    stream ! Message(record)
+    stream ! record
     expectMsg(ReceiveACK(record.id))
     expectMsg(PushReady(streamName))
     stream ! Pull(offset)
-    expectMsg(record)
+    expectMsg(Record("key", record))
     stream ! ACK(testActor, streamName, offset)
   }
 
@@ -49,7 +45,7 @@ class AlcaudonStreamSpec
       val streamName = Random.nextString(4)
       val stream = system.actorOf(AlcaudonStream.props(streamName))
 
-      stream ! Subscribe(testActor)
+      stream ! Subscribe(testActor, keyExtractor)
       expectMsg(SubscriptionSuccess(streamName, 0L))
 
       system.stop(stream)
@@ -59,11 +55,11 @@ class AlcaudonStreamSpec
       val streamName = Random.nextString(4)
       val stream = system.actorOf(AlcaudonStream.props(streamName))
 
-      stream ! Subscribe(testActor)
+      stream ! Subscribe(testActor, keyExtractor)
       expectMsg(SubscriptionSuccess(streamName, 0L))
 
-      val record = Record("key", "value", 1L)
-      stream ! Message(record)
+      val record = RawRecord("value", 1L)
+      stream ! record
       expectMsg(ReceiveACK(record.id))
       expectMsg(PushReady(streamName))
 
@@ -74,11 +70,11 @@ class AlcaudonStreamSpec
       val streamName = Random.nextString(4)
       val stream = system.actorOf(AlcaudonStream.props(streamName))
 
-      stream ! Subscribe(testActor)
+      stream ! Subscribe(testActor, keyExtractor)
       expectMsg(SubscriptionSuccess(streamName, 0L))
 
-      val record = Record("key", "value", 1L)
-      stream ! Message(record)
+      val record = RawRecord("value", 1L)
+      stream ! record
       expectMsg(ReceiveACK(record.id))
       expectMsg(PushReady(streamName))
       system.stop(stream)
@@ -88,7 +84,7 @@ class AlcaudonStreamSpec
       val streamName = Random.nextString(4)
       val stream = system.actorOf(AlcaudonStream.props(streamName))
 
-      stream ! Subscribe(testActor)
+      stream ! Subscribe(testActor, keyExtractor)
       expectMsg(SubscriptionSuccess(streamName, 0L))
 
       stream ! Pull(12L)
@@ -99,9 +95,9 @@ class AlcaudonStreamSpec
     "return records aftter PushReady signal" in {
       val streamName = Random.nextString(4)
       val stream = system.actorOf(AlcaudonStream.props(streamName))
-      val record = Record("key", "value", 1L)
+      val record = RawRecord("value", 1L)
 
-      stream ! Subscribe(testActor)
+      stream ! Subscribe(testActor, keyExtractor)
       expectMsg(SubscriptionSuccess(streamName, 0L))
       sendRecord(streamName, stream, record, 1)
       system.stop(stream)
@@ -110,9 +106,9 @@ class AlcaudonStreamSpec
     "perform garbage collection after configured amount of acks" in {
       val streamName = s"writes-${Random.nextInt()}"
       val stream = system.actorOf(AlcaudonStream.props(streamName))
-      val record = Record("key", "value", 1L)
+      val record = RawRecord("value", 1L)
 
-      stream ! Subscribe(testActor)
+      stream ! Subscribe(testActor, keyExtractor)
       expectMsg(SubscriptionSuccess(streamName, 0L))
       (1 to 10).foreach { i =>
         sendRecord(streamName, stream, record, i)
@@ -120,7 +116,7 @@ class AlcaudonStreamSpec
 
       stream ! GetSize
       val size = expectMsgType[Size].elements
-      assert(size < 10)
+      size should be < 10
 
       system.stop(stream)
     }
@@ -128,13 +124,14 @@ class AlcaudonStreamSpec
     "keeps data until all consumer get all messages" in {
       val streamName = s"writes-${Random.nextInt()}"
       val stream = system.actorOf(AlcaudonStream.props(streamName))
-      val record = Record("key", "value", 1L)
+
+      val record = RawRecord("value", 1L)
       val secondConsumer = TestProbe()
 
-      stream ! Subscribe(testActor)
+      stream ! Subscribe(testActor, keyExtractor)
       expectMsg(SubscriptionSuccess(streamName, 0L))
 
-      stream.tell(Subscribe(secondConsumer.testActor),
+      stream.tell(Subscribe(secondConsumer.testActor, keyExtractor),
                   secondConsumer.testActor)
       secondConsumer.expectMsg(SubscriptionSuccess(streamName, 0L))
 

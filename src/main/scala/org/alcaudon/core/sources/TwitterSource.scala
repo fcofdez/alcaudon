@@ -2,16 +2,15 @@ package alcaudon.core.sources
 
 import java.io.InputStream
 
-import alcaudon.core.Record
-import com.twitter.hbc.common.DelimitedStreamReader
-import com.twitter.hbc.core.processor.HosebirdMessageProcessor
+import alcaudon.core.RawRecord
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.twitter.hbc.ClientBuilder
+import com.twitter.hbc.common.DelimitedStreamReader
 import com.twitter.hbc.core.Constants
 import com.twitter.hbc.core.endpoint.StatusesSampleEndpoint
-import com.twitter.hbc.httpclient.auth.{OAuth1 => TwitterOAuth1}
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.twitter.hbc.core.processor.HosebirdMessageProcessor
 import com.twitter.hbc.httpclient.BasicClient
+import com.twitter.hbc.httpclient.auth.{OAuth1 => TwitterOAuth1}
 
 object TwitterSourceConfig {
 
@@ -26,9 +25,10 @@ object TwitterSourceConfig {
 }
 
 case class TwitterSource(credentials: TwitterSourceConfig.OAuth1)
-    extends SourceFunc {
+    extends SourceFunc with TimestampExtractor {
   @transient val waitLock = new Object()
   @transient var client: BasicClient = null
+  @transient val mapper = new ObjectMapper()
 
   def run(ctx: SourceCtx): Unit = {
     val endpoint = new StatusesSampleEndpoint()
@@ -52,19 +52,7 @@ case class TwitterSource(credentials: TwitterSourceConfig.OAuth1)
         override def process(): Boolean = {
           try {
             val line = reader.readLine()
-            val json = mapper.readValue(line, classOf[JsonNode])
-            val key =
-              if (json.has("user") && json.get("user").has("lang"))
-                json.get("user").get("lang").asText()
-              else "unknown"
-
-            val recordTime =
-              if (json.has("timestamp_ms"))
-                json.get("timestamp_ms").asLong()
-              else
-                System.currentTimeMillis()
-            val text = if (json.has("text")) json.get("text").asText() else ""
-            ctx.collect(Record(key, text, recordTime))
+            ctx.collect(RawRecord(line, extractTimestamp(line)))
             true
           } catch {
             case e: Exception =>
@@ -90,5 +78,13 @@ case class TwitterSource(credentials: TwitterSourceConfig.OAuth1)
     waitLock.synchronized {
       waitLock.notify()
     }
+  }
+
+  override def extractTimestamp(rawRecord: String): Long = {
+    val json = mapper.readValue(rawRecord, classOf[JsonNode])
+    if (json.has("timestamp_ms"))
+      json.get("timestamp_ms").asLong()
+    else
+      System.currentTimeMillis()
   }
 }

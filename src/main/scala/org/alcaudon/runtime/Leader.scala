@@ -1,12 +1,11 @@
 package alcaudon.runtime
 
 import akka.actor._
-import alcaudon.core._
 import alcaudon.core.sources._
-import alcaudon.runtime.SourceFetcher.Message
-import com.typesafe.config.ConfigFactory
 import org.alcaudon.api.{Computation, DummyComputation}
-import org.alcaudon.core.AlcaudonStream
+import org.alcaudon.core.AlcaudonStream.Subscribe
+import org.alcaudon.core.KeyExtractor
+import org.alcaudon.runtime.ComputationReifier
 
 object Leader {
   object Protocol {
@@ -29,14 +28,13 @@ object Leader {
 class Leader extends Actor with ActorLogging {
 
   import Leader.Protocol._
-  import SourceFetcher._
 
   def receive = handleLogic(Map())
 
   def handleLogic(registeredStreams: Map[String, ActorRef]): Receive = {
     case RegisterInjector(id, definition) =>
       context.become(
-        handleLogic(registeredStreams + (id -> SourceFetcher(definition))))
+        handleLogic(registeredStreams + (id -> SourceFetcher(definition, self))))
       sender() ! InjectorRegistered(id)
     case RegisterComputation(computation, inputStreams, outputStreams) =>
       log.info("Computation class {}", computation.getClass.getName)
@@ -51,7 +49,7 @@ class Leader extends Actor with ActorLogging {
           streamId <- streamIds
           stream <- registeredStreams.get(streamId)
         } yield {
-          stream ! Subscribe(c)
+          stream ! Subscribe(c, KeyExtractor { x: String => x })
           streamId
         }
         sender() ! ComputationRegistered(computation.id, subs.toList)
@@ -61,32 +59,6 @@ class Leader extends Actor with ActorLogging {
   }
 }
 
-class ComputationReifier(computation: Computation)
-    extends Actor
-    with ActorLogging {
-  // One input --> many outputs
-  import SourceFetcher._
-
-  var x: AbstracRuntimeContext = null
-
-  override def preStart(): Unit = {
-    x = new AbstracRuntimeContext {
-      override val storageRef: ActorRef = self
-      implicit val executionContext = context.dispatcher
-    }
-    computation.setup(x)
-    super.preStart()
-  }
-
-  def receive = {
-    case msg: Message =>
-      try {
-        computation.processRecord(msg.record)
-      }
-      val pendingToCommitState = x.state
-
-  }
-}
 
 class Register extends Actor with ActorLogging {
 
@@ -104,46 +76,17 @@ class Register extends Actor with ActorLogging {
 }
 
 object X {
-  case class Grow(start: Int) extends SourceFunc {
-    def run(ctx: SourceCtx): Unit = {
-      var state = start
-      while (running) {
-        ctx.collect(
-          Record(state.toString, state.toString, System.currentTimeMillis()))
-        state += 1
-        Thread.sleep(1000)
-      }
-    }
-  }
-
-  def extractRecord(line: String): Record = {
-    val fields = line.split(",")
-    Record(fields(0), fields(1), fields(2).toLong)
-  }
-
-  import Leader.Protocol._
-
-  def z(): Unit = {
-    val config = ConfigFactory.load()
-    val as = ActorSystem("alcaudon", config)
-    val x = as.actorOf(Props(new AlcaudonStream("asd")))
-    x ! Message(Record("asd", "asda", 12L))
-    x ! Message(Record("asd", "asda", 12L))
-    x ! Message(Record("asd", "asda", 12L))
-    x ! Message(Record("asd", "asda", 12L))
-    x ! Message(Record("asd", "asda", 12L))
-  }
-  def run(): Unit = {
-    val config = ConfigFactory.load()
-    val as = ActorSystem("alcaudon", config)
-    val leader = as.actorOf(Props[Leader])
-    val register = as.actorOf(Props[Register])
-//    val tw = TwitterSource(auth)
-//    leader.tell(RegisterInjector("test", Source(tw, "test")), register)
-    // differenciate between local environ and remote one.
-  }
-
-  import java.net.{URL, URLClassLoader}
+//  case class Grow(start: Int) extends SourceFunc {
+//    def run(ctx: SourceCtx): Unit = {
+//      var state = start
+//      while (running) {
+//        ctx.collect(
+//          RawRecord(state.toString, System.currentTimeMillis()))
+//        state += 1
+//        Thread.sleep(1000)
+//      }
+//    }
+//  }
 
   // def getInv(cl: ClassLoader): Jarl = {
   //   val name = classOf[X.Man].getName

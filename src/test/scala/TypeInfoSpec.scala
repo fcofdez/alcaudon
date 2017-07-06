@@ -1,19 +1,13 @@
 package alcaudon.core
 
-import java.io.{
-  DataOutputStream,
-  DataInputStream,
-  ByteArrayOutputStream,
-  ByteArrayInputStream
-}
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream}
 
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen._
 import org.scalacheck.Prop.forAll
 import org.scalacheck._
 import org.scalacheck.Shapeless._
-
-import alcaudon.core.TypeInfo._
+import org.alcaudon.core.serialization.TypeInfo
 
 object TypeInfoSpec extends Properties("TypeInfo") {
 

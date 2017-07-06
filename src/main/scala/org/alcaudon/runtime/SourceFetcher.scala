@@ -1,64 +1,41 @@
 package alcaudon.runtime
 
 import akka.actor._
-import alcaudon.core.sources.{Source, SourceCtx}
-import alcaudon.core.Record
+import alcaudon.core.RawRecord
+import alcaudon.core.sources.{Source, SourceCtx, TimestampExtractor}
+import org.alcaudon.core.AlcaudonStream.ReceiveACK
 
 import scala.collection.mutable.ArrayBuffer
 
 object SourceFetcher {
-
-  case class Subscribe(ref: ActorRef)
-  case class Subscribed(ref: ActorRef)
-
-  case class MessageReady(sourceId: String) //Backpressure?
-  case class Message(record: Record)
-
-  //Backpressure message protocol
-  case object MessageReady
-  case object GetMessage
-  case class ACK(recordId: String)
-
-  case class SourceSubscription(subscriber: ActorRef,
-                                mapping: String => Record)
-
   def worker(source: Source)(implicit factory: ActorRefFactory): ActorRef =
     factory.actorOf(Props(new SourceFetcherWorker(source)), name = source.id)
 
-  def apply(source: Source)(implicit factory: ActorRefFactory): ActorRef =
-    factory.actorOf(Props(new SourceFetcher(source)))
+  def apply(source: Source, streamRef: ActorRef)(implicit factory: ActorRefFactory): ActorRef =
+    factory.actorOf(Props(new SourceFetcher(source, streamRef)))
 }
 
-class SourceFetcher(source: Source) extends Actor with ActorLogging {
-
-  import SourceFetcher._
+class SourceFetcher(source: Source, streamRef: ActorRef) extends Actor with ActorLogging {
 
   val worker = SourceFetcher.worker(source)
   context.watch(worker)
 
-  var buffer: ArrayBuffer[Message] = ArrayBuffer[Message]()
+  var buffer: ArrayBuffer[RawRecord] = ArrayBuffer[RawRecord]()
 
-  def receive = subscribing(Set[ActorRef]())
-
-  def subscribing(subscribed: Set[ActorRef]): Receive = {
-    case Subscribe(ref) =>
-      context.become(subscribing(subscribed + ref))
-      sender() ! Subscribed(ref)
-
+  def receive = {
     case Terminated(worker) => //Restart
-    case msg: Message =>
-      buffer.append(msg)
-      subscribed.foreach(_ ! msg)
-    // log.info("Message received {}", msg.record)
+    log.info("SourceFetcher worker terminated received {}", worker)
+    case record: RawRecord =>
+      buffer.append(record)
+      streamRef ! record
+    case ReceiveACK(id) =>
   }
 }
 
 class SourceFetcherWorker(source: Source)
     extends Actor
     with ActorLogging
-    with SourceCtx {
-
-  import SourceFetcher._
+    with SourceCtx with TimestampExtractor {
 
   override def preStart(): Unit = {
     source.run(this)
@@ -69,8 +46,8 @@ class SourceFetcherWorker(source: Source)
     super.postStop()
   }
 
-  def collect(record: Record): Unit = {
-    context.parent ! Message(record)
+  def collect(record: RawRecord): Unit = {
+    context.parent ! record
   }
 
   def close(): Unit = {
@@ -78,7 +55,7 @@ class SourceFetcherWorker(source: Source)
   }
 
   def receive = {
-    case col =>
+    case _ =>
   }
 
 }

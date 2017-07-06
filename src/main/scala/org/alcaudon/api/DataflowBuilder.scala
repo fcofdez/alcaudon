@@ -110,7 +110,7 @@ class DataflowBuilder(dataflowId: String) {
   def addSource(name: String, sourceFN: SourceFunc): DataflowBuilder = {
     graph.addSource(name)
     streams += name
-    sources += Source(sourceFN, name)
+    sources += Source(name, sourceFN)
     this
   }
 

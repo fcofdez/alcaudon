@@ -1,9 +1,9 @@
 package org.alcaudon.core
 
-import scala.concurrent.duration.Duration
+import java.time.Instant
 
 object Timer {
   sealed trait Timer
-  case class FixedTimer(duration: Duration) extends Timer
+  case class FixedTimer(deadline: Instant) extends Timer
   case class LowWatermark(watermarkId: String) extends Timer
 }

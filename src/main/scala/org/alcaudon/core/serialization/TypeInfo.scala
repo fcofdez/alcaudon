@@ -1,15 +1,15 @@
-package alcaudon.core
+package org.alcaudon.core.serialization
 
-import java.io.{DataOutput, DataInput}
-import scala.collection.GenTraversable
-import scala.collection.generic.CanBuildFrom
-import scala.collection.mutable.ArrayBuffer
+import java.io.{DataInput, DataOutput}
 
 import shapeless._
 import shapeless.labelled._
+import shapeless.ops.hlist.ToList
 import shapeless.ops.record._
-import shapeless.record._
-import ops.hlist.ToList
+
+import scala.collection.GenTraversable
+import scala.collection.generic.CanBuildFrom
+import scala.collection.mutable.ArrayBuffer
 
 trait TypeInfo[T] {
   def serialize(obj: T)(implicit output: DataOutput): DataOutput

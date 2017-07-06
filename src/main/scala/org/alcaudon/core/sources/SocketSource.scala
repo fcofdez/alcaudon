@@ -1,17 +1,15 @@
 package alcaudon.core.sources
 
 import java.io.{BufferedReader, IOException, InputStreamReader}
-import java.net.InetSocketAddress
-import java.net.Socket
+import java.net.{InetSocketAddress, Socket}
 
-import alcaudon.core.Record
+import alcaudon.core.RawRecord
 
 case class SocketSource(host: String,
                         port: Int,
                         maxRetry: Int,
-                        delayBetweenRetries: Long,
-                        recordExtractor: String => Record)
-    extends SourceFunc {
+                        delayBetweenRetries: Long)
+    extends SourceFunc with TimestampExtractor {
   val ConnectionTimeout = 10
   @transient var socket = new Socket
   var retries = 0
@@ -34,7 +32,7 @@ case class SocketSource(host: String,
             .appendAll(charBuf, 0, bytesRead)
             .split("\n".toCharArray)
             .foreach { line =>
-              ctx.collect(recordExtractor(line))
+              ctx.collect(RawRecord(line, extractTimestamp(line)))
             }
           buffer.clear
           bytesRead = in.read(charBuf)
