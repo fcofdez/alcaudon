@@ -5,6 +5,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import alcaudon.core.Record
 import org.alcaudon.core.State._
+import org.alcaudon.core.Timer.LowWatermark
 
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.ExecutionContext
@@ -22,7 +23,7 @@ trait AbstracRuntimeContext {
   }
 
   def setTimer(tag: String, time: Long): Unit = {
-    state.append(SetTimer(tag, time))
+    state.append(SetTimer(tag, LowWatermark("as")))
   }
 
   def set(key: String, value: Array[Byte]): Unit = {

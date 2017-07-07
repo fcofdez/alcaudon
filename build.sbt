@@ -29,6 +29,7 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.0.pr4",
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
   "com.typesafe.akka" %% "akka-persistence" % akkaVersion,
+  "com.typesafe.akka" %% "akka-distributed-data" % "2.5.3",
   "com.typesafe.akka" %% "akka-persistence-cassandra" % "0.29",
   "com.github.romix.akka" %% "akka-kryo-serialization" % "0.5.1",
   "ch.qos.logback" % "logback-classic" % "1.1.3" % Runtime
