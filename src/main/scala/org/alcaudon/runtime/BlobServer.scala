@@ -7,6 +7,7 @@ import java.util.UUID
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, ReceiveTimeout}
 import com.amazonaws.auth.BasicAWSCredentials
 import org.alcaudon.core.ActorConfig
+import org.alcaudon.runtime.BlobLocation.AWSInformation
 
 import scala.util.{Failure, Success, Try}
 
@@ -30,9 +31,10 @@ class BlobDownloader(uuid: String)
   import BlobDownloader._
 
   val downloadTimeout = config.getDuration("alcaudon.blob.download-timeout")
-  implicit val awsCredentials = new BasicAWSCredentials(
+  val awsCredentials = new BasicAWSCredentials(
     config.getString("alcaudon.blob.s3.access-key"),
     config.getString("alcaudon.blob.s3.secret-key"))
+  implicit val awsInfo = AWSInformation(config.getString("alcaudon.blob.s3.region"), awsCredentials)
 
   context.setReceiveTimeout(downloadTimeout)
 

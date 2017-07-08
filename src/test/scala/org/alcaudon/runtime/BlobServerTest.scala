@@ -6,21 +6,40 @@ import java.net.URI
 import akka.actor.Props
 import akka.testkit.{ImplicitSender, TestKit}
 import alcaudon.core.TestActorSystem
+import com.typesafe.config.ConfigFactory
 import org.alcaudon.runtime.BlobServer.{BlobFetchFailed, BlobURL, GetBlob}
 import org.scalatest._
-import scala.concurrent.duration._
 
+import scala.concurrent.duration._
 import scala.io.Source
+
+object BlobServerTest {
+  def config(): Map[String, String] = {
+    val credentialsPath = getClass.getResource("/s3.creds").getPath
+    val file = new File(credentialsPath)
+    if (file.exists()) {
+      val awsConfig = ConfigFactory.parseFile(file)
+      Map(
+        "alcaudon.blob.directory" -> "/tmp/alcaudontest",
+        "alcaudon.blob.s3.access-key" -> awsConfig.getString("alcaudon.blob.s3.access-key-test"),
+        "alcaudon.blob.s3.secret-key" -> awsConfig.getString("alcaudon.blob.s3.secret-key-test")
+      )
+    } else {
+      val env = System.getenv()
+      Map(
+        "alcaudon.blob.directory" -> "/tmp/alcaudontest",
+        "alcaudon.blob.s3.access-key" -> env.getOrDefault("AWS_ACCESS", ""),
+        "alcaudon.blob.s3.secret-key" -> env.getOrDefault("AWS_SECRET", "")
+      )
+    }
+  }
+}
 
 class BlobServerTest
     extends TestKit(
       TestActorSystem(
         "AlcaudonStreamSpec",
-        Map(
-          "alcaudon.blob.directory" -> "/tmp/alcaudontest",
-          "alcaudon.blob.s3.access-key" -> "AKIAIE4T6R5CW22MNX5A", //Just to read in one bucket ;)
-          "alcaudon.blob.s3.secret-key" -> "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"
-        )
+        BlobServerTest.config()
       ))
     with WordSpecLike
     with Matchers
@@ -37,6 +56,7 @@ class BlobServerTest
   }
 
   override def afterAll(): Unit = {
+    directory.listFiles().foreach(_.delete())
     directory.delete()
   }
 

@@ -11,16 +11,20 @@ import com.amazonaws.services.s3.{AmazonS3ClientBuilder, AmazonS3URI}
 import scala.util.Try
 
 object BlobLocation {
+  case class AWSInformation(region: String, credentials: BasicAWSCredentials)
   sealed trait BlobLocation {
     def download(target: File): Try[Path]
   }
 
-  case class S3Location(uri: URI)(implicit credentials: BasicAWSCredentials)
+  case class S3Location(uri: URI)(implicit awsInfo: AWSInformation)
     extends BlobLocation {
+
     val s3Client = AmazonS3ClientBuilder
       .standard()
-      .withCredentials(new AWSStaticCredentialsProvider(credentials))
+      .withCredentials(new AWSStaticCredentialsProvider(awsInfo.credentials))
+      .withRegion(awsInfo.region)
       .build()
+
     def download(target: File): Try[Path] = {
       val s3URI = new AmazonS3URI(uri)
       for {
@@ -52,7 +56,7 @@ object BlobLocation {
     }
   }
 
-  def apply(uri: URI)(implicit cred: BasicAWSCredentials): BlobLocation = uri.getScheme match {
+  def apply(uri: URI)(implicit cred: AWSInformation): BlobLocation = uri.getScheme match {
     case "s3" => S3Location(uri)
     case "http" | "https" => HTTPLocation(uri)
     case "file" => LocalFile(uri)
