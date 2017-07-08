@@ -60,7 +60,7 @@ class BlobServerTest
 
     "Support s3 buckets" in {
       server ! GetBlob("tests3.jar", new URI("s3://alcaudontest/test.jar"))
-      val msg = expectMsgType[BlobURL]
+      val msg = expectMsgType[BlobURL](30.seconds)
       msg.key should be("tests3.jar")
       val fileContent = Source.fromFile(msg.blobFile).getLines().toList
       fileContent should be(List("this is a s3jar"))
@@ -76,7 +76,7 @@ class BlobServerTest
       server ! GetBlob(
         "testpublic.jar",
         new URI("https://s3.amazonaws.com/alcaudontest/testpublic.jar"))
-      val msg = expectMsgType[BlobURL]
+      val msg = expectMsgType[BlobURL](30.seconds)
       msg.key should be("testpublic.jar")
       val fileContent = Source.fromFile(msg.blobFile).getLines().toList
       fileContent should be(List("this is a http public jar"))
