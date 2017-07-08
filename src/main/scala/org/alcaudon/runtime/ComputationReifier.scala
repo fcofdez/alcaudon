@@ -10,8 +10,9 @@ import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
 
 class ComputationReifier(computation: Computation)
-  extends PersistentActor
-    with ActorLogging with AbstracRuntimeContext {
+    extends PersistentActor
+    with ActorLogging
+    with AbstracRuntimeContext {
 
   override def persistenceId: String = computation.id
   val storageRef: ActorRef = self
@@ -23,7 +24,9 @@ class ComputationReifier(computation: Computation)
 
   val receiveRecover: Receive = {
     case SnapshotOffer(metadata, snapshot: Int) =>
-      log.info("Restoring snapshot for actor {} - {}", computation.id, metadata)
+      log.info("Restoring snapshot for actor {} - {}",
+               computation.id,
+               metadata)
 //      state = snapshot
   }
 

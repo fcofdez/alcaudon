@@ -5,7 +5,8 @@ import com.typesafe.config.ConfigFactory
 import collection.JavaConverters._
 
 object TestActorSystem {
-  def apply(name: String, initialConfig: Map[String, String]): ActorSystem = {
+  def apply(name: String,
+            initialConfig: Map[String, String] = Map.empty): ActorSystem = {
     ActorSystem(name,
                 ConfigFactory
                   .parseMap(initialConfig.asJava)

@@ -4,7 +4,12 @@ import akka.actor.ActorRef
 import akka.testkit.{ImplicitSender, TestKit, TestProbe}
 import org.alcaudon.core.AlcaudonStream._
 import org.alcaudon.core.{AlcaudonStream, KeyExtractor, StreamRecord}
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecLike}
+import org.scalatest.{
+  BeforeAndAfterAll,
+  BeforeAndAfterEach,
+  Matchers,
+  WordSpecLike
+}
 
 import scala.util.Random
 

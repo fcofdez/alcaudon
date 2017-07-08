@@ -1,90 +1,107 @@
 package org.alcaudon.runtime
 
 import java.io.File
-import java.net.{URI, URL}
-import java.nio.file.{Files, Paths}
+import java.net.URI
+import java.util.UUID
 
-import akka.actor.{Actor, ActorLogging, ActorRef}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props, ReceiveTimeout}
+import com.amazonaws.auth.BasicAWSCredentials
+import org.alcaudon.core.ActorConfig
 
-object BlobLocation {
-  sealed trait BlobLocation
-  case class S3Location(uri: URI) extends BlobLocation
-  case class HTTPLocation(uri: URI) extends BlobLocation
-  case class LocalFile(uri: URI) extends BlobLocation
-
-  def apply(uri: URI): BlobLocation = uri.getScheme match {
-    case "s3" => S3Location(uri)
-    case "http" | "https" => HTTPLocation(uri)
-    case "file" => LocalFile(uri)
-    case _ => HTTPLocation(uri)
-  }
-
-  trait BlobDL[A <: BlobLocation] {
-    def download(uriLocation: A): Array[Byte]
-  }
-
-  implicit object blobdls3TypeClass extends BlobDL[S3Location] {
-    def download(uriLocation: S3Location): Array[Byte] = Array.emptyByteArray
-  }
-
-  implicit object blobdlhttpTypeClass extends BlobDL[HTTPLocation] {
-    def download(uriLocation: HTTPLocation): Array[Byte] = Array.emptyByteArray
-  }
-
-  implicit object blobdfileTypeClass extends BlobDL[LocalFile] {
-    def download(uriLocation: LocalFile): Array[Byte] = {
-      Files.readAllBytes(Paths.get(uriLocation.uri))
-    }
-  }
-
-  implicit class BlobDownloader[A](x: A) {
-    def download(implicit dl: BlobDL[A]) = {
-      dl.download(x)
-    }
-  }
-
-}
+import scala.util.{Failure, Success, Try}
 
 object BlobServer {
   case class GetBlob(key: String, remoteURI: URI)
-  case class BlobURL(blobURL: URL)
+  case class BlobURL(key: String, blobFile: File)
+  case class BlobFetchFailed(key: String, reason: Throwable)
 }
 
+object BlobDownloader {
+  case class DownloadBlob(uri: URI, file: File)
+  case class DownloadFinished(uuid: String, file: File)
+  case class DownloadFailed(uuid: String, reason: Throwable)
+  case class DownloadTimeout(msg: String) extends Throwable
+}
 
+class BlobDownloader(uuid: String)
+    extends Actor
+    with ActorLogging
+    with ActorConfig {
+  import BlobDownloader._
 
-class BlobDownloader(key: String) extends Actor with ActorLogging {
+  val downloadTimeout = config.getDuration("alcaudon.blob.download-timeout")
+  implicit val awsCredentials = new BasicAWSCredentials(
+    config.getString("alcaudon.blob.s3.access-key"),
+    config.getString("alcaudon.blob.s3.secret-key"))
 
-  import BlobServer._
+  context.setReceiveTimeout(downloadTimeout)
 
   def receive = {
-    case GetBlob(key, uri) =>
+    case DownloadBlob(uri: URI, file: File) =>
+      BlobLocation(uri).download(file) match {
+        case Success(path) =>
+          sender() ! DownloadFinished(uuid, file)
+        case Failure(reason) =>
+          sender() ! DownloadFailed(uuid, reason)
+      }
+      context.stop(self)
+    case ReceiveTimeout =>
+      sender() ! DownloadFailed(
+        uuid,
+        DownloadTimeout(s"Timeout downloading $uuid, after $downloadTimeout"))
+      context.stop(self)
   }
 }
 
 // This actor is intented to be running in each server.
 // It's responsible for downloading the user JARs into a server location
 // so it's possible to use a class loader and get the code running.
-class BlobServer extends Actor with ActorLogging {
+class BlobServer extends Actor with ActorLogging with ActorConfig {
 
+  import BlobDownloader._
   import BlobServer._
-  import BlobLocation._
 
-  val STORAGE_PATH = context.system.settings.config.getString("alcaudon.blob.directory")
+  val STORAGE_PATH = config.getString("alcaudon.blob.directory")
   val BLOB_FILE_PREFIX = "blob_"
+
+  override def preStart(): Unit = {
+    val directory = new File(STORAGE_PATH)
+    if (!directory.exists())
+      Try(directory.mkdir()) match {
+        case Success(_) =>
+        case Failure(reason) =>
+          log.error("Failure creating directory for blobs {}", reason)
+      }
+  }
 
   def receive = receiveWaiting(Map.empty)
 
-  def download[T <: BlobLocation](location: T)(implicit dl: BlobDL[T]) = dl.download(location)
-
-  def receiveWaiting(clients: Map[ActorRef, String]) : Receive = {
+  def receiveWaiting(clients: Map[String, (ActorRef, String)]): Receive = {
     case GetBlob(key, uri) =>
       val localFile = new File(STORAGE_PATH, BLOB_FILE_PREFIX + key)
       if (localFile.exists())
-        sender() ! BlobURL(localFile.toURI.toURL)
+        sender() ! BlobURL(key, localFile)
       else {
-        val a = BlobLocation(uri).download
+        val jobId = UUID.randomUUID().toString
+        context.actorOf(Props(new BlobDownloader(jobId))) ! DownloadBlob(
+          uri,
+          localFile)
+        val state = (sender(), key)
+        context.become(receiveWaiting(clients + (jobId -> state)))
       }
-
+    case DownloadFinished(uuid, file) =>
+      for {
+        (client, key) <- clients.get(uuid)
+      } {
+        client ! BlobURL(key, file)
+        context.become(receiveWaiting(clients - uuid))
+      }
+    case DownloadFailed(uuid, reason) =>
+      for {
+        (client, key) <- clients.get(uuid)
+      } {
+        client ! BlobFetchFailed(key, reason)
+        context.become(receiveWaiting(clients - uuid))
+      }
   }
 }
-

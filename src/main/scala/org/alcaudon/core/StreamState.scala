@@ -21,12 +21,12 @@ case class SubscriberInfo(actor: ActorRef,
 }
 
 case class StreamState(
-                        private var _latestRecordSeq: Long = -1L,
-                        private var latestAckRecordSeq: Long = 0L,
-                        private var minAckValue: Long = 0L,
-                        var pendingRecords: ArrayBuffer[StreamRecord] = ArrayBuffer.empty,
-                        private var subscribersInfo: Map[ActorRef, SubscriberInfo] = Map.empty,
-                        var subscribers: ArrayBuffer[SubscriberInfo] = ArrayBuffer.empty) {
+    private var _latestRecordSeq: Long = -1L,
+    private var latestAckRecordSeq: Long = 0L,
+    private var minAckValue: Long = 0L,
+    var pendingRecords: ArrayBuffer[StreamRecord] = ArrayBuffer.empty,
+    private var subscribersInfo: Map[ActorRef, SubscriberInfo] = Map.empty,
+    var subscribers: ArrayBuffer[SubscriberInfo] = ArrayBuffer.empty) {
 
   def update(streamRecord: StreamRecord): Unit = {
     pendingRecords.append(streamRecord) //Think about use a heap here to avoid sequential persists
