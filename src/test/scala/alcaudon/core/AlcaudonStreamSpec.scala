@@ -119,10 +119,11 @@ class AlcaudonStreamSpec
 
       stream ! Subscribe(testActor, keyExtractor)
       expectMsg(SubscriptionSuccess(streamName, 0L))
-      (0 to 10).foreach { i =>
+      (0 to 9).foreach { i =>
         sendRecord(streamName, stream, record, i)
       }
 
+      Thread.sleep(2000)
       stream ! GetSize
       val size = expectMsgType[Size].elements
       size should be < 10
