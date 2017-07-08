@@ -17,7 +17,7 @@ object BlobLocation {
   }
 
   case class S3Location(uri: URI)(implicit awsInfo: AWSInformation)
-    extends BlobLocation {
+      extends BlobLocation {
 
     val s3Client = AmazonS3ClientBuilder
       .standard()
@@ -34,8 +34,8 @@ object BlobLocation {
         objectData = s3Object.getObjectContent
         _ <- Try(
           Files.copy(objectData,
-            target.toPath,
-            StandardCopyOption.REPLACE_EXISTING))
+                     target.toPath,
+                     StandardCopyOption.REPLACE_EXISTING))
       } yield target.toPath
     }
   }
@@ -44,7 +44,8 @@ object BlobLocation {
     def download(target: File): Try[Path] = {
       for {
         in <- Try(uri.toURL.openStream)
-        _ <- Try(Files.copy(in, target.toPath, StandardCopyOption.REPLACE_EXISTING))
+        _ <- Try(
+          Files.copy(in, target.toPath, StandardCopyOption.REPLACE_EXISTING))
         _ <- Try(in.close())
       } yield target.toPath
     }
@@ -56,10 +57,11 @@ object BlobLocation {
     }
   }
 
-  def apply(uri: URI)(implicit cred: AWSInformation): BlobLocation = uri.getScheme match {
-    case "s3" => S3Location(uri)
-    case "http" | "https" => HTTPLocation(uri)
-    case "file" => LocalFile(uri)
-    case _ => HTTPLocation(uri)
-  }
+  def apply(uri: URI)(implicit cred: AWSInformation): BlobLocation =
+    uri.getScheme match {
+      case "s3" => S3Location(uri)
+      case "http" | "https" => HTTPLocation(uri)
+      case "file" => LocalFile(uri)
+      case _ => HTTPLocation(uri)
+    }
 }

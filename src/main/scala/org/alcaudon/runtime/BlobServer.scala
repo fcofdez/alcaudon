@@ -34,7 +34,8 @@ class BlobDownloader(uuid: String)
   val awsCredentials = new BasicAWSCredentials(
     config.getString("alcaudon.blob.s3.access-key"),
     config.getString("alcaudon.blob.s3.secret-key"))
-  implicit val awsInfo = AWSInformation(config.getString("alcaudon.blob.s3.region"), awsCredentials)
+  implicit val awsInfo =
+    AWSInformation(config.getString("alcaudon.blob.s3.region"), awsCredentials)
 
   context.setReceiveTimeout(downloadTimeout)
 

@@ -15,14 +15,17 @@ import scala.io.Source
 
 object BlobServerTest {
   def config(): Map[String, String] = {
-    val credentialsPath = getClass.getResource("/s3.creds").getPath
-    val file = new File(credentialsPath)
-    if (file.exists()) {
+    val credentials = getClass.getResource("/s3.creds")
+    if (credentials != null) {
+      val credentialsPath = credentials.getPath
+      val file = new File(credentialsPath)
       val awsConfig = ConfigFactory.parseFile(file)
       Map(
         "alcaudon.blob.directory" -> "/tmp/alcaudontest",
-        "alcaudon.blob.s3.access-key" -> awsConfig.getString("alcaudon.blob.s3.access-key-test"),
-        "alcaudon.blob.s3.secret-key" -> awsConfig.getString("alcaudon.blob.s3.secret-key-test")
+        "alcaudon.blob.s3.access-key" -> awsConfig.getString(
+          "alcaudon.blob.s3.access-key-test"),
+        "alcaudon.blob.s3.secret-key" -> awsConfig.getString(
+          "alcaudon.blob.s3.secret-key-test")
       )
     } else {
       val env = System.getenv()
@@ -75,7 +78,7 @@ class BlobServerTest
       server ! GetBlob("testnon.jar", uri)
 
       val msg = expectMsgType[BlobFetchFailed]
-      msg.key should be ("testnon.jar")
+      msg.key should be("testnon.jar")
     }
 
     "Support s3 buckets" in {
@@ -87,9 +90,10 @@ class BlobServerTest
     }
 
     "Fails gracefully when the object doesn't exists in the bucket" in {
-      server ! GetBlob("tests3nonexistent.jar", new URI("s3://alcaudontest/testnonexistent.jar"))
+      server ! GetBlob("tests3nonexistent.jar",
+                       new URI("s3://alcaudontest/testnonexistent.jar"))
       val msg = expectMsgType[BlobFetchFailed]
-      msg.key should be ("tests3nonexistent.jar")
+      msg.key should be("tests3nonexistent.jar")
     }
 
     "Support http location files and download to a local folder" in {
@@ -105,9 +109,24 @@ class BlobServerTest
     "Fails gracefully when the object doesn't exists in the http server" in {
       server ! GetBlob(
         "testpublichttpnonexistent.jar",
-        new URI("https://s3.amazonaws.com/alcaudontest/testpublicnonexistent.jar"))
+        new URI(
+          "https://s3.amazonaws.com/alcaudontest/testpublicnonexistent.jar"))
       val msg = expectMsgType[BlobFetchFailed](10.seconds)
-      msg.key should be ("testpublichttpnonexistent.jar")
+      msg.key should be("testpublichttpnonexistent.jar")
+    }
+
+    "Cache already downloaded files" in {
+      server ! GetBlob("tests3.jar", new URI("s3://alcaudontest/test.jar"))
+      val msg = expectMsgType[BlobURL]
+      msg.key should be("tests3.jar")
+      val fileContent = Source.fromFile(msg.blobFile).getLines().toList
+      fileContent should be(List("this is a s3jar"))
+
+      server ! GetBlob("tests3.jar", new URI("s3://alcaudontest/test.jar"))
+      val secondMsg = expectMsgType[BlobURL]
+      secondMsg.key should be(msg.key)
+      val sameFileContent = Source.fromFile(secondMsg.blobFile).getLines().toList
+      sameFileContent should be(fileContent)
     }
 
   }
