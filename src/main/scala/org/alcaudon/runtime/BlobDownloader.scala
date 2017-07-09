@@ -35,6 +35,7 @@ class BlobDownloader(uuid: String)
 
   def receive = {
     case DownloadBlob(uri: URI, file: File) =>
+      log.debug("Download {} to {}", uri, file)
       BlobLocation(uri).download(file) match {
         case Success(path) =>
           sender() ! DownloadFinished(uuid, file)
@@ -43,6 +44,7 @@ class BlobDownloader(uuid: String)
       }
       context.stop(self)
     case ReceiveTimeout =>
+      log.warning("Timeout waiting for download of {}", uuid)
       sender() ! DownloadFailed(
         uuid,
         DownloadTimeout(s"Timeout downloading $uuid, after $downloadTimeout"))

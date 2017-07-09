@@ -2,7 +2,14 @@ package alcaudon.core
 
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory
-import collection.JavaConverters._
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecLike}
+
+import scala.collection.JavaConverters._
+
+trait AlcaudonTest extends WordSpecLike
+with Matchers
+with BeforeAndAfterAll
+with BeforeAndAfterEach
 
 object TestActorSystem {
   def apply(name: String,

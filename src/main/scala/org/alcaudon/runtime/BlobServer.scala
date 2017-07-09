@@ -42,6 +42,7 @@ private[alcaudon] class BlobServer extends Actor with ActorLogging with ActorCon
 
   def receiveWaiting(clients: Map[String, (ActorRef, String)]): Receive = {
     case GetBlob(key, uri) =>
+      log.debug("Get blob key {}", key)
       val localFile = new File(STORAGE_PATH, BLOB_FILE_PREFIX + key)
       if (localFile.exists())
         sender() ! BlobURL(key, localFile.toURL)
@@ -54,6 +55,7 @@ private[alcaudon] class BlobServer extends Actor with ActorLogging with ActorCon
         context.become(receiveWaiting(clients + (jobId -> state)))
       }
     case DownloadFinished(uuid, file) =>
+      log.debug("Download finished blob key {}", uuid)
       for {
         (client, key) <- clients.get(uuid)
       } {

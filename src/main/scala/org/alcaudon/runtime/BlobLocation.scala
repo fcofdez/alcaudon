@@ -53,15 +53,18 @@ object BlobLocation {
 
   case class LocalFile(uri: URI) extends BlobLocation {
     def download(target: File): Try[Path] = {
+      println(s"$uri - $target")
       Try(Files.copy(Paths.get(uri), target.toPath()))
     }
   }
 
-  def apply(uri: URI)(implicit cred: AWSInformation): BlobLocation =
+  def apply(uri: URI)(implicit cred: AWSInformation): BlobLocation = {
+    println(uri)
     uri.getScheme match {
       case "s3" => S3Location(uri)
       case "http" | "https" => HTTPLocation(uri)
       case "file" => LocalFile(uri)
       case _ => HTTPLocation(uri)
     }
+  }
 }
