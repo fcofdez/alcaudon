@@ -4,7 +4,8 @@ import java.io.File
 
 import akka.actor.{ActorRef, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import alcaudon.core.{AlcaudonTest, TestActorSystem}
+import alcaudon.core.{AlcaudonTest, RawRecord, Record, TestActorSystem}
+import org.alcaudon.api.Computation
 import org.alcaudon.core.DataflowJob
 import org.alcaudon.runtime.LibraryManager._
 
@@ -87,6 +88,22 @@ class LibraryManagerSpec
       manager ! RemoveClassLoaderForDataflow("unknownDataflowId")
 
       expectMsgType[UnknownClassLoaderForDataflow]
+    }
+
+    "return an usable user class loader" in withLibraryManager { (manager, dataflowJob) =>
+      manager ! RegisterDataflow(dataflowJob)
+      expectMsgType[DataflowRegistered]
+
+      manager ! GetClassLoaderForDataflow(dataflowJob.id)
+
+      val dataflowCL = expectMsgType[ClassLoaderForDataflow]
+
+      def getComputation(name: String, cl: ClassLoader): Computation = {
+        Class.forName(name, true, cl).asSubclass(classOf[Computation]).newInstance()
+      }
+
+      val computation = getComputation("client.ExampleComputation", dataflowCL.userClassLoader)
+      computation.processRecord(Record("key", RawRecord("asd", 1L)))
     }
   }
 }
