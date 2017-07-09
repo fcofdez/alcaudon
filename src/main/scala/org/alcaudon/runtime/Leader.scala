@@ -76,37 +76,3 @@ class Register extends Actor with ActorLogging {
       log.info("Computation {} registered", id)
   }
 }
-
-object X {
-//  case class Grow(start: Int) extends SourceFunc {
-//    def run(ctx: SourceCtx): Unit = {
-//      var state = start
-//      while (running) {
-//        ctx.collect(
-//          RawRecord(state.toString, System.currentTimeMillis()))
-//        state += 1
-//        Thread.sleep(1000)
-//      }
-//    }
-//  }
-
-  // def getInv(cl: ClassLoader): Jarl = {
-  //   val name = classOf[X.Man].getName
-  //   println(name)
-  //   Class.forName(name, true, cl).asSubclass(classOf[Jarl]).newInstance()
-  // }
-
-  def main(argv: Array[String]): Unit = {
-
-//    val name = classOf[X.Man].getName
-//    println(name)
-    // val a = getInv(getClass().getClassLoader()).run()
-    // val man  = clazz.newInstance().asInstanceOf[Man]
-    // man.run()
-
-    // a.run()
-    // val cl = getClass().getClassLoader()
-    // run()
-  }
-
-}
