@@ -50,8 +50,7 @@ class DataflowGraphBuilder {
     val srcNode = nodes.get(src)
     val dstNode = nodes.get(dst)
     val res = srcNode.zip(dstNode).map {
-      case (srcN: DataflowNode,
-            dstN: DataflowNode) =>
+      case (srcN: DataflowNode, dstN: DataflowNode) =>
         internalGraph = internalGraph + srcN ~> dstN
         true
     }

@@ -16,13 +16,16 @@ private[alcaudon] object LibraryManager {
 
   // Responses
   case class DataflowRegistered(dataflowId: String)
-  case class ClassLoaderForDataflow(dataflowId: String, userClassLoader: ClassLoader)
+  case class ClassLoaderForDataflow(dataflowId: String,
+                                    userClassLoader: ClassLoader)
   case class ClassLoaderForDataflowNotReady(dataflowId: String)
   case class ClassLoaderForDataflowRemoved(dataflowId: String)
   case class UnknownClassLoaderForDataflow(dataflowId: String)
 
   // Internal API
-  case class LibraryEntry(dataflowId: String, expectedNumberOfJars: Int, jarFiles: MMap[String, URL] = MMap.empty) {
+  case class LibraryEntry(dataflowId: String,
+                          expectedNumberOfJars: Int,
+                          jarFiles: MMap[String, URL] = MMap.empty) {
 
     var userClassLoader: Option[URLClassLoader] = None
 
@@ -37,7 +40,8 @@ private[alcaudon] object LibraryManager {
     def classLoader(): Option[URLClassLoader] = {
       if (ready && userClassLoader.isEmpty) {
         val files = jarFiles.values.toArray
-        userClassLoader = Some(new URLClassLoader(files, this.getClass.getClassLoader))
+        userClassLoader = Some(
+          new URLClassLoader(files, this.getClass.getClassLoader))
       }
       userClassLoader
     }
@@ -50,8 +54,10 @@ private[alcaudon] object LibraryManager {
   * for keeping track of user code class loader. It's also responsible
   * for releasing unused class loaders once the dataflow job has been done.
   *
- */
-private[alcaudon] class LibraryManager(blobServer: ActorRef) extends Actor with ActorLogging {
+  */
+private[alcaudon] class LibraryManager(blobServer: ActorRef)
+    extends Actor
+    with ActorLogging {
 
   import LibraryManager._
 
@@ -69,8 +75,11 @@ private[alcaudon] class LibraryManager(blobServer: ActorRef) extends Actor with 
         blobServer ! GetBlob(jarInfo.key, jarInfo.uri)
         (jarInfo.key -> dataflow.id)
       }
-      cache += (dataflow.id -> LibraryEntry(dataflow.id, dataflow.requiredJars.size))
-      log.debug("Register dataflow {} - Pending jobs {}", dataflow.id, pending ++ pendingJobs)
+      cache += (dataflow.id -> LibraryEntry(dataflow.id,
+                                            dataflow.requiredJars.size))
+      log.debug("Register dataflow {} - Pending jobs {}",
+                dataflow.id,
+                pending ++ pendingJobs)
       context.become(receivePending(pending ++ pendingJobs))
       sender() ! DataflowRegistered(dataflow.id)
 
@@ -96,8 +105,7 @@ private[alcaudon] class LibraryManager(blobServer: ActorRef) extends Actor with 
       val response = cache.remove(id).map { entry =>
         entry.closeClassLoader()
         ClassLoaderForDataflowRemoved(id)
-      } getOrElse(UnknownClassLoaderForDataflow(id))
+      } getOrElse (UnknownClassLoaderForDataflow(id))
       sender() ! response
   }
 }
-

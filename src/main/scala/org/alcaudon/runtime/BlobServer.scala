@@ -20,7 +20,10 @@ private[alcaudon] object BlobServer {
  * It's responsible for downloading the user JARs into a server location
  * so it's possible to use a class loader and get the code running.
  */
-private[alcaudon] class BlobServer extends Actor with ActorLogging with ActorConfig {
+private[alcaudon] class BlobServer
+    extends Actor
+    with ActorLogging
+    with ActorConfig {
 
   import BlobDownloader._
   import BlobServer._

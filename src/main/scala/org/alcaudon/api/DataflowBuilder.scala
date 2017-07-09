@@ -13,9 +13,11 @@ object DataflowBuilder {
   }
 
   object AlcaudonInputStream {
-    def apply(name: String)(keyFn: Array[Byte] => String) = new AlcaudonInputStream(name, new KeyExtractor {
-      override def extractKey(msg: String): String = keyFn(msg.toArray.map(_.toByte))
-    })
+    def apply(name: String)(keyFn: Array[Byte] => String) =
+      new AlcaudonInputStream(name, new KeyExtractor {
+        override def extractKey(msg: String): String =
+          keyFn(msg.toArray.map(_.toByte))
+      })
   }
 
   case class AlcaudonInputStream(name: String, keyExtractor: KeyExtractor)
@@ -29,7 +31,6 @@ class DataflowBuilder(dataflowName: String) {
   val sources = Map[String, Source]()
   val sinks = Map[String, String]()
   val graphBuilder = new DataflowGraphBuilder
-
 
   def withComputation(id: String,
                       computation: Computation,
@@ -51,7 +52,8 @@ class DataflowBuilder(dataflowName: String) {
       graphBuilder.addEdge(id, outputStream)
     }
 
-    computations += (id -> ComputationRepresentation(computation.getClass.getName,
+    computations += (id -> ComputationRepresentation(
+      computation.getClass.getName,
       inputStreams.toList,
       outputStreams))
     this
@@ -70,12 +72,12 @@ class DataflowBuilder(dataflowName: String) {
 
   def build() = {
     DataflowGraph(dataflowName,
-      id,
-      graphBuilder.internalGraph,
-      computations.toMap,
-      streams.toSet,
-      sources.toMap,
-      sinks.toMap,
-      graphBuilder.nodes.toMap)
+                  id,
+                  graphBuilder.internalGraph,
+                  computations.toMap,
+                  streams.toSet,
+                  sources.toMap,
+                  sinks.toMap,
+                  graphBuilder.nodes.toMap)
   }
 }

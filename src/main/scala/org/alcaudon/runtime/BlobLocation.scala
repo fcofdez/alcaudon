@@ -63,5 +63,5 @@ object BlobLocation {
       case "http" | "https" => HTTPLocation(uri)
       case "file" => LocalFile(uri)
       case _ => HTTPLocation(uri)
-  }
+    }
 }

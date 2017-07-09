@@ -10,7 +10,6 @@ import org.alcaudon.runtime.BlobLocation.AWSInformation
 
 import scala.util.{Failure, Success}
 
-
 object BlobDownloader {
   case class DownloadBlob(uri: URI, file: File)
   case class DownloadFinished(uuid: String, file: File)
@@ -19,13 +18,14 @@ object BlobDownloader {
 }
 
 class BlobDownloader(uuid: String)
-  extends Actor
+    extends Actor
     with ActorLogging
     with ActorConfig {
   import BlobDownloader._
 
   val downloadTimeout = config.blob.downloadTimeout
-  val awsCredentials = new BasicAWSCredentials(config.blob.s3.accessKey, config.blob.s3.secretKey)
+  val awsCredentials =
+    new BasicAWSCredentials(config.blob.s3.accessKey, config.blob.s3.secretKey)
   implicit val awsInfo =
     AWSInformation(config.blob.s3.region, awsCredentials)
 

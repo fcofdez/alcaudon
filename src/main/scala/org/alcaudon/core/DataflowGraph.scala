@@ -19,9 +19,6 @@ case class DataflowGraph(name: String,
   def sourceIds = sources.keys
   def sinkIds = sinks.keys
 }
-
-
-
 //import scalax.collection.Graph
 //import scalax.collection.GraphEdge.DiEdge
 //import scalax.collection.io.dot._
