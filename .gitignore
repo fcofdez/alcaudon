@@ -1,6 +1,7 @@
 *.class
 *.log
 *twitter.conf
+*notes*
 
 # sbt specific
 .cache

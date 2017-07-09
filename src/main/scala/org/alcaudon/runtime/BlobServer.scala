@@ -25,7 +25,7 @@ private[alcaudon] class BlobServer extends Actor with ActorLogging with ActorCon
   import BlobDownloader._
   import BlobServer._
 
-  val STORAGE_PATH = config.getString("alcaudon.blob.directory")
+  val STORAGE_PATH = config.blob.directory
   val BLOB_FILE_PREFIX = "blob_"
 
   override def preStart(): Unit = {

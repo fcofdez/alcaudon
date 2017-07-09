@@ -24,12 +24,10 @@ class BlobDownloader(uuid: String)
     with ActorConfig {
   import BlobDownloader._
 
-  val downloadTimeout = config.getDuration("alcaudon.blob.download-timeout")
-  val awsCredentials = new BasicAWSCredentials(
-    config.getString("alcaudon.blob.s3.access-key"),
-    config.getString("alcaudon.blob.s3.secret-key"))
+  val downloadTimeout = config.blob.downloadTimeout
+  val awsCredentials = new BasicAWSCredentials(config.blob.s3.accessKey, config.blob.s3.secretKey)
   implicit val awsInfo =
-    AWSInformation(config.getString("alcaudon.blob.s3.region"), awsCredentials)
+    AWSInformation(config.blob.s3.region, awsCredentials)
 
   context.setReceiveTimeout(downloadTimeout)
 
