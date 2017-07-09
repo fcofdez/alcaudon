@@ -69,7 +69,7 @@ class BlobServerTest
       server ! GetBlob("test.jar", localJarURL.toURI)
       val msg = expectMsgType[BlobURL]
       msg.key should be("test.jar")
-      val fileContent = Source.fromFile(msg.blobFile).getLines().toList
+      val fileContent = Source.fromURL(msg.blobURL).getLines().toList
       fileContent should be(List("this is a jar"))
     }
 
@@ -85,7 +85,7 @@ class BlobServerTest
       server ! GetBlob("tests3.jar", new URI("s3://alcaudontest/test.jar"))
       val msg = expectMsgType[BlobURL](30.seconds)
       msg.key should be("tests3.jar")
-      val fileContent = Source.fromFile(msg.blobFile).getLines().toList
+      val fileContent = Source.fromURL(msg.blobURL).getLines().toList
       fileContent should be(List("this is a s3jar"))
     }
 
@@ -102,7 +102,7 @@ class BlobServerTest
         new URI("https://s3.amazonaws.com/alcaudontest/testpublic.jar"))
       val msg = expectMsgType[BlobURL](30.seconds)
       msg.key should be("testpublic.jar")
-      val fileContent = Source.fromFile(msg.blobFile).getLines().toList
+      val fileContent = Source.fromURL(msg.blobURL).getLines().toList
       fileContent should be(List("this is a http public jar"))
     }
 
@@ -119,13 +119,13 @@ class BlobServerTest
       server ! GetBlob("tests3.jar", new URI("s3://alcaudontest/test.jar"))
       val msg = expectMsgType[BlobURL]
       msg.key should be("tests3.jar")
-      val fileContent = Source.fromFile(msg.blobFile).getLines().toList
+      val fileContent = Source.fromURL(msg.blobURL).getLines().toList
       fileContent should be(List("this is a s3jar"))
 
       server ! GetBlob("tests3.jar", new URI("s3://alcaudontest/test.jar"))
       val secondMsg = expectMsgType[BlobURL]
       secondMsg.key should be(msg.key)
-      val sameFileContent = Source.fromFile(secondMsg.blobFile).getLines().toList
+      val sameFileContent = Source.fromURL(secondMsg.blobURL).getLines().toList
       sameFileContent should be(fileContent)
     }
 

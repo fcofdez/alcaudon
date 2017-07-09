@@ -1,4 +1,4 @@
-package org.alcaudon.core.serialization
+package org.alcaudon.api.serialization
 
 import java.io.{DataInput, DataOutput}
 

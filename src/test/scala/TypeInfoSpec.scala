@@ -12,7 +12,7 @@ import org.scalacheck.Gen._
 import org.scalacheck.Prop.forAll
 import org.scalacheck._
 import org.scalacheck.Shapeless._
-import org.alcaudon.core.serialization.TypeInfo
+import org.alcaudon.api.serialization.TypeInfo
 
 object TypeInfoSpec extends Properties("TypeInfo") {
 

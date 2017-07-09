@@ -1,3 +1,3 @@
-package org.alcaudon.core.serialization
+package org.alcaudon.api.serialization
 
 class DefaultComputationSerialization {}

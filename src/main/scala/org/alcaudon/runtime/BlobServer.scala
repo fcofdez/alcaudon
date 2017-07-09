@@ -1,7 +1,7 @@
 package org.alcaudon.runtime
 
 import java.io.File
-import java.net.URI
+import java.net.{URI, URL}
 import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
@@ -9,16 +9,18 @@ import org.alcaudon.core.ActorConfig
 
 import scala.util.{Failure, Success, Try}
 
-object BlobServer {
+private[alcaudon] object BlobServer {
   case class GetBlob(key: String, remoteURI: URI)
-  case class BlobURL(key: String, blobFile: File)
+  case class BlobURL(key: String, blobURL: URL)
   case class BlobFetchFailed(key: String, reason: Throwable)
 }
 
-// This actor is intented to be running in each server.
-// It's responsible for downloading the user JARs into a server location
-// so it's possible to use a class loader and get the code running.
-class BlobServer extends Actor with ActorLogging with ActorConfig {
+/*
+ * This actor is intented to be running in each server.
+ * It's responsible for downloading the user JARs into a server location
+ * so it's possible to use a class loader and get the code running.
+ */
+private[alcaudon] class BlobServer extends Actor with ActorLogging with ActorConfig {
 
   import BlobDownloader._
   import BlobServer._
@@ -42,7 +44,7 @@ class BlobServer extends Actor with ActorLogging with ActorConfig {
     case GetBlob(key, uri) =>
       val localFile = new File(STORAGE_PATH, BLOB_FILE_PREFIX + key)
       if (localFile.exists())
-        sender() ! BlobURL(key, localFile)
+        sender() ! BlobURL(key, localFile.toURL)
       else {
         val jobId = UUID.randomUUID().toString
         context.actorOf(Props(new BlobDownloader(jobId))) ! DownloadBlob(
@@ -55,7 +57,7 @@ class BlobServer extends Actor with ActorLogging with ActorConfig {
       for {
         (client, key) <- clients.get(uuid)
       } {
-        client ! BlobURL(key, file)
+        client ! BlobURL(key, file.toURL)
         context.become(receiveWaiting(clients - uuid))
       }
     case DownloadFailed(uuid, reason) =>
