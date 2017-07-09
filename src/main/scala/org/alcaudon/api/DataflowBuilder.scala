@@ -2,18 +2,13 @@ package alcaudon.api
 
 import java.util.UUID
 
-import alcaudon.api.DataflowBuilder.{
-  ComputationType,
-  SourceType,
-  StreamNode,
-  StreamType
-}
+import alcaudon.api.DataflowBuilder._
 import alcaudon.core.sources.{Source, SourceFunc}
 import org.alcaudon.api.{Computation, ComputationRepresentation}
+import org.alcaudon.core.KeyExtractor
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{Map, Set}
-
 import scalax.collection.Graph
 import scalax.collection.GraphEdge._
 import scalax.collection.GraphPredef._
@@ -23,8 +18,15 @@ object DataflowBuilder {
     new DataflowBuilder(dataflowId)
   }
 
-  def InputStreams(streams: String*): List[String] = streams.toList
+  object AlcaudonInputStream {
+    def apply(name: String)(keyFn: Array[Byte] => String) = new AlcaudonInputStream(name, new KeyExtractor {
+      override def extractKey(msg: String): String = keyFn(msg.toArray.map(_.toByte))
+    })
+  }
+
+  case class AlcaudonInputStream(name: String, keyExtractor: KeyExtractor)
   def OutputStreams(streams: String*): List[String] = streams.toList
+
   sealed trait Kind
   case object ComputationType extends Kind
   case object SourceType extends Kind
@@ -85,19 +87,20 @@ class DataflowBuilder(dataflowId: String) {
   val sinks = Set[String]()
   val graph = DataflowGraphBuilder()
 
-  def addComputation(id: String,
-                     computation: Computation,
-                     inputStreams: List[String],
-                     outputStreams: List[String]): DataflowBuilder = {
 
-    streams ++= inputStreams
+  def withComputation(id: String,
+                      computation: Computation,
+                      outputStreams: List[String],
+                      inputStreams: AlcaudonInputStream*): DataflowBuilder = {
+
+    streams ++= inputStreams.map(_.name)
     streams ++= outputStreams
 
     graph.addComputation(id)
 
     inputStreams.foreach { inputStream =>
-      graph.addStream(inputStream)
-      graph.addEdge(inputStream, id)
+      graph.addStream(inputStream.name)
+      graph.addEdge(inputStream.name, id)
     }
 
     outputStreams.foreach { outputStream =>
@@ -107,19 +110,19 @@ class DataflowBuilder(dataflowId: String) {
 
     computations.append(
       ComputationRepresentation(computation.getClass.getName,
-                                inputStreams,
+                                inputStreams.toList,
                                 outputStreams))
     this
   }
 
-  def addSource(name: String, sourceFN: SourceFunc): DataflowBuilder = {
+  def withSource(name: String, sourceFN: SourceFunc): DataflowBuilder = {
     graph.addSource(name)
     streams += name
     sources += Source(name, sourceFN)
     this
   }
 
-  def addSink(sink: String): DataflowBuilder = {
+  def withSink(sink: String): DataflowBuilder = {
     this
   }
 

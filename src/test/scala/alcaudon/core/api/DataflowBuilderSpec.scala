@@ -40,17 +40,17 @@ class DataflowBuilderSpec
     }
     "allow to add sources" in {
       val dataflow = DataflowBuilder("mytest")
-        .addSource("testSource", TwitterSource(OAuth1("", "", "", "")))
+        .withSource("testSource", TwitterSource(OAuth1("", "", "", "")))
       dataflow.streams should contain("testSource")
     }
 
     "allow to add computations" in {
       val dataflow = DataflowBuilder("othertest")
-        .addSource("twitter", TwitterSource(OAuth1("", "", "", "")))
-        .addComputation("computationId",
+        .withSource("twitter", TwitterSource(OAuth1("", "", "", "")))
+        .withComputation("computationId",
                         StubComputation,
-                        InputStreams("twitter"),
-                        OutputStreams("test"))
+                        OutputStreams("test"),
+                        AlcaudonInputStream("test")(_ => "asd"))
 
       dataflow.streams should contain("twitter")
       dataflow.streams should contain("test")
@@ -58,22 +58,24 @@ class DataflowBuilderSpec
     }
 
     "build a dataflow graph" in {
+      def dummyKeyExtractor(x: Array[Byte]): String = x.toString()
       val dataflow = DataflowBuilder("othertest")
-        .addSource("twitter", TwitterSource(OAuth1("", "", "", "")))
-        .addComputation("computationTest",
-                        StubComputation,
-                        InputStreams("twitter"),
-                        OutputStreams("test"))
-        .addComputation("languageFilter",
-                        StubComputation,
-                        InputStreams("twitter"),
-                        OutputStreams("filteredTwitter"))
-        .addComputation("sentimentAnalysis",
-                        StubComputation,
-                        InputStreams("filteredTwitter", "test"),
-                        OutputStreams("sink"))
-        .addSink("sink")
+        .withSource("twitter", TwitterSource(OAuth1("", "", "", "")))
+        .withComputation("computationTest",
+          StubComputation,
+          OutputStreams("test"),
+          AlcaudonInputStream("twitter")(x => x.toString()))
+        .withComputation("languageFilter",
+          StubComputation,
+          OutputStreams("filteredTwitter"),
+          AlcaudonInputStream("twitter")(x => x.toString()))
+        .withComputation("sentimentAnalysis",
+          StubComputation,
+          OutputStreams("sink"),
+          AlcaudonInputStream("filteredTwitter")(dummyKeyExtractor))
+        .withSink("sink")
         .build()
+
       import scalax.collection.Graph
       import scalax.collection.GraphEdge.DiEdge
       import scalax.collection.io.dot._
