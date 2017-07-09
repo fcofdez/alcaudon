@@ -1,9 +1,9 @@
-package alcaudon.core.sources
+package org.alcaudon.core.sources
 
 import java.io.{BufferedReader, IOException, InputStreamReader}
 import java.net.{InetSocketAddress, Socket}
 
-import alcaudon.core.RawRecord
+import org.alcaudon.core.RawRecord
 
 case class SocketSource(host: String,
                         port: Int,

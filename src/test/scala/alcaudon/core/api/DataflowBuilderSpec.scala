@@ -1,21 +1,12 @@
-package alcaudon.core.api
+package org.alcaudon.core.api
 
-import akka.actor.{ActorRef, ActorSystem, PoisonPill}
-import akka.testkit.{ImplicitSender, TestKit, TestProbe}
-import alcaudon.api.DataflowBuilder
-import alcaudon.core.Record
-import alcaudon.core.sources.TwitterSource
-import alcaudon.core.sources.TwitterSourceConfig.OAuth1
-import org.alcaudon.api.Computation
-import org.scalatest.{
-  BeforeAndAfterAll,
-  BeforeAndAfterEach,
-  Matchers,
-  WordSpecLike
-}
-
-import scalax.collection.GraphEdge.DiEdge
-import scalax.collection.Graph
+import akka.actor.ActorSystem
+import akka.testkit.{ImplicitSender, TestKit}
+import org.alcaudon.api.{Computation, DataflowBuilder}
+import org.alcaudon.core.Record
+import org.alcaudon.core.sources.TwitterSource
+import org.alcaudon.core.sources.TwitterSourceConfig.OAuth1
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecLike}
 
 class DataflowBuilderSpec
     extends TestKit(ActorSystem("DataflowBuilderSpec"))
@@ -38,6 +29,7 @@ class DataflowBuilderSpec
 
       override def processTimer(timer: Long): Unit = {}
     }
+
     "allow to add sources" in {
       val dataflow = DataflowBuilder("mytest")
         .withSource("testSource", TwitterSource(OAuth1("", "", "", "")))
@@ -54,7 +46,7 @@ class DataflowBuilderSpec
 
       dataflow.streams should contain("twitter")
       dataflow.streams should contain("test")
-      dataflow.computations.length should be(1)
+      dataflow.computations.keys.size should be(1)
     }
 
     "build a dataflow graph" in {
@@ -76,20 +68,8 @@ class DataflowBuilderSpec
         .withSink("sink")
         .build()
 
-      import scalax.collection.Graph
-      import scalax.collection.GraphEdge.DiEdge
-      import scalax.collection.io.dot._
-      import implicits._
-
-      val root = DotRootGraph(directed = true, id = Some("dot"))
-      def edgeTransformer(innerEdge: Graph[StreamNode, DiEdge]#EdgeT)
-        : Option[(DotGraph, DotEdgeStmt)] = {
-        Some(
-          (root,
-           DotEdgeStmt(innerEdge.source.toString, innerEdge.target.toString)))
-      }
-      val x = dataflow.toDot(root, edgeTransformer)
-      println(x)
+      dataflow.sources.keys.toList should be (List("twitter"))
+      dataflow.computations.keys should be (Set("computationTest", "languageFilter", "sentimentAnalysis"))
     }
   }
 }

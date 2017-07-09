@@ -2,8 +2,8 @@ package org.alcaudon.api
 
 import java.util.UUID
 
-import alcaudon.core._
-import alcaudon.runtime.AbstracRuntimeContext
+import org.alcaudon.core._
+import org.alcaudon.runtime.AbstracRuntimeContext
 
 trait RuntimeContext {
   var context: AbstracRuntimeContext = null

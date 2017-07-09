@@ -2,7 +2,6 @@ package org.alcaudon.core
 
 import akka.actor.{ActorLogging, ActorRef, Props}
 import akka.persistence._
-import alcaudon.core.{RawRecord, Record}
 import org.alcaudon.core.AlcaudonStream._
 
 case class StreamRecord(id: Long, rawRecord: RawRecord) {

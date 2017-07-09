@@ -1,4 +1,4 @@
-package alcaudon.core
+package org.alcaudon.core
 
 import java.util.UUID
 

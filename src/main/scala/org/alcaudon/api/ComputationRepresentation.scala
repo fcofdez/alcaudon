@@ -1,6 +1,6 @@
 package org.alcaudon.api
 
-import alcaudon.api.DataflowBuilder.AlcaudonInputStream
+import org.alcaudon.api.DataflowBuilder.AlcaudonInputStream
 
 case class ComputationRepresentation(computationClassName: String,
                                      inputStreams: List[AlcaudonInputStream],

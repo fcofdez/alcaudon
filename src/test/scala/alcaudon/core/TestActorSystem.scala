@@ -1,4 +1,4 @@
-package alcaudon.core
+package org.alcaudon.core
 
 import akka.actor.ActorSystem
 import com.typesafe.config.ConfigFactory

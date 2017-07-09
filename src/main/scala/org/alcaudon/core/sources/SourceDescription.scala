@@ -1,6 +1,6 @@
-package alcaudon.core.sources
+package org.alcaudon.core.sources
 
-import alcaudon.core.RawRecord
+import org.alcaudon.core.RawRecord
 
 trait SourceCtx {
   def collect(record: RawRecord): Unit

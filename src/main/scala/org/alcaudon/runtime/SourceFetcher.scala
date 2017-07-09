@@ -1,8 +1,8 @@
-package alcaudon.runtime
+package org.alcaudon.runtime
 
 import akka.actor._
-import alcaudon.core.RawRecord
-import alcaudon.core.sources.{Source, SourceCtx, TimestampExtractor}
+import org.alcaudon.core.RawRecord
+import org.alcaudon.core.sources.{Source, SourceCtx, TimestampExtractor}
 import org.alcaudon.core.AlcaudonStream.ReceiveACK
 
 import scala.collection.mutable.ArrayBuffer

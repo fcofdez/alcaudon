@@ -1,6 +1,5 @@
 package org.alcaudon.core
 
-import alcaudon.core.Record
 import org.alcaudon.core.Timer.Timer
 
 object State {

@@ -1,9 +1,9 @@
-package alcaudon.runtime
+package org.alcaudon.runtime
 
 import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
-import alcaudon.core.Record
+import org.alcaudon.core.Record
 import org.alcaudon.core.State._
 import org.alcaudon.core.Timer.LowWatermark
 

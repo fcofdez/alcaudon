@@ -2,8 +2,7 @@ package org.alcaudon.runtime
 
 import akka.actor.{ActorLogging, ActorRef}
 import akka.persistence.{PersistentActor, SnapshotOffer}
-import alcaudon.core.Record
-import alcaudon.runtime.AbstracRuntimeContext
+import org.alcaudon.core.Record
 import org.alcaudon.api.Computation
 
 import scala.concurrent.ExecutionContext

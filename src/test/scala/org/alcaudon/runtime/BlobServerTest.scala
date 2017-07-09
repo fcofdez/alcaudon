@@ -5,7 +5,7 @@ import java.net.URI
 
 import akka.actor.Props
 import akka.testkit.{ImplicitSender, TestKit}
-import alcaudon.core.TestActorSystem
+import org.alcaudon.core.TestActorSystem
 import com.typesafe.config.ConfigFactory
 import org.alcaudon.runtime.BlobServer.{BlobFetchFailed, BlobURL, GetBlob}
 import org.scalatest._

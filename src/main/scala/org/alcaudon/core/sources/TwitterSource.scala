@@ -1,8 +1,8 @@
-package alcaudon.core.sources
+package org.alcaudon.core.sources
 
 import java.io.InputStream
 
-import alcaudon.core.RawRecord
+import org.alcaudon.core.RawRecord
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.twitter.hbc.ClientBuilder
 import com.twitter.hbc.common.DelimitedStreamReader

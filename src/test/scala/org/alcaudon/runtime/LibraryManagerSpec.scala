@@ -4,7 +4,7 @@ import java.io.File
 
 import akka.actor.{ActorRef, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import alcaudon.core.{AlcaudonTest, RawRecord, Record, TestActorSystem}
+import org.alcaudon.core.{AlcaudonTest, RawRecord, Record, TestActorSystem}
 import org.alcaudon.api.Computation
 import org.alcaudon.core.DataflowJob
 import org.alcaudon.runtime.LibraryManager._
@@ -27,7 +27,7 @@ class LibraryManagerSpec
     directory.delete()
   }
 
-  def withLibraryManager(testCode: (ActorRef, DataflowJob) => Any) {
+  def withLibraryManager(testCode: (ActorRef, DataflowJob) => Any): Unit = {
     val manager = system.actorOf(Props(new LibraryManager(blobServer)))
 
     val userJar = getClass.getResource("/user.jar").toURI
