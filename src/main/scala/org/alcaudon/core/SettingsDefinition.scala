@@ -29,6 +29,10 @@ class SettingsDefinition(config: com.typesafe.config.Config) {
 
   }
 
+  final lazy val computationBloomFilterRecords =
+    config.getInt("alcaudon.computation-bloom-filter-records")
+  final lazy val computationTimeout = getDuration(
+    "alcaudon.computation-timeout")
   final lazy val consistencyConstraint =
     config.getString("alcaudon.consistency-constraint")
 }

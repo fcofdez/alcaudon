@@ -1,45 +1,27 @@
 package org.alcaudon.runtime
 
-import akka.actor.ActorRef
-import akka.pattern.ask
-import akka.util.Timeout
 import org.alcaudon.core.Record
 import org.alcaudon.core.State._
 import org.alcaudon.core.Timer.LowWatermark
 
-import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.ExecutionContext
-import scala.util.{Failure, Success}
-import scala.concurrent.duration._
+import scala.collection.mutable.{ArrayBuffer, Map}
 
 trait AbstracRuntimeContext {
 
-  var state: ArrayBuffer[Operation] = ArrayBuffer.empty
-  val storageRef: ActorRef
-  implicit val executionContext: ExecutionContext
+  protected var pendingChanges: ArrayBuffer[Operation] = ArrayBuffer.empty
+  protected val kv: Map[String, Array[Byte]] = Map.empty
 
-  def produceRecord(record: Record, stream: String): Unit = {
-    state.append(ProduceRecord(record, stream))
-  }
+  def produceRecord(record: Record, stream: String): Unit =
+    pendingChanges.append(ProduceRecord(record, stream))
 
-  def setTimer(tag: String, time: Long): Unit = {
-    state.append(SetTimer(tag, LowWatermark("as")))
-  }
+  def setTimer(tag: String, time: Long): Unit =
+    pendingChanges.append(SetTimer(tag, LowWatermark("as")))
 
-  def set(key: String, value: Array[Byte]): Unit = {
-    state.append(SetValue(key, value))
-  }
+  def set(key: String, value: Array[Byte]): Unit =
+    pendingChanges.append(SetValue(key, value))
 
-  def get(key: String): Array[Byte] = {
-    implicit val timeout = Timeout(2.seconds)
-    (storageRef ? key).mapTo[StateRecord] onComplete {
-      case Success(record) => record.value
-      case Failure(_) =>
-        Array[Byte]()
-      //log
-    }
-    Array[Byte]()
-  }
+  def get(key: String): Array[Byte] =
+    kv.get(key).getOrElse(Array[Byte]())
 
-  def clearState(): Unit = state.clear()
+  def clearState(): Unit = pendingChanges.clear()
 }

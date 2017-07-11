@@ -41,6 +41,17 @@ object AlcaudonStream {
   def props(name: String): Props = Props(new AlcaudonStream(name))
 }
 
+//val childProps = Props(classOf[EchoActor])
+//
+//val supervisor = BackoffSupervisor.props(
+//Backoff.onStop(
+//childProps,
+//childName = "myEcho",
+//minBackoff = 3.seconds,
+//maxBackoff = 30.seconds,
+//randomFactor = 0.2 // adds 20% "noise" to vary the intervals slightly
+//))
+
 class AlcaudonStream(name: String) extends PersistentActor with ActorLogging {
 
   val receiveRecover: Receive = {

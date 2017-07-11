@@ -9,4 +9,6 @@ object State {
   case class ProduceRecord(record: Record, stream: String) extends Operation
 
   case class StateRecord(key: String, value: Array[Byte])
+
+  case class Transaction(operations: List[Operation])
 }

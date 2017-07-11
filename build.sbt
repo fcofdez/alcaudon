@@ -32,7 +32,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-persistence-cassandra" % "0.29",
   "com.github.romix.akka" %% "akka-kryo-serialization" % "0.5.1",
   "com.amazonaws" % "aws-java-sdk-s3" % "1.11.160",
-  "ch.qos.logback" % "logback-classic" % "1.1.3" % Runtime
+  "ch.qos.logback" % "logback-classic" % "1.1.3" % Runtime,
+  "com.google.guava" % "guava" % "22.0"
 )
 
 resolvers += Resolver.sonatypeRepo("releases")
