@@ -9,7 +9,7 @@ import scala.collection.mutable.{ArrayBuffer, Map}
 trait AbstracRuntimeContext {
 
   protected var pendingChanges: ArrayBuffer[Operation] = ArrayBuffer.empty
-  protected val kv: Map[String, Array[Byte]] = Map.empty
+  protected val kv: Map[String, Array[Byte]]
 
   def produceRecord(record: Record, stream: String): Unit =
     pendingChanges.append(ProduceRecord(record, stream))
@@ -23,5 +23,5 @@ trait AbstracRuntimeContext {
   def get(key: String): Array[Byte] =
     kv.get(key).getOrElse(Array[Byte]())
 
-  def clearState(): Unit = pendingChanges.clear()
+  def clearPendingChanges(): Unit = pendingChanges.clear()
 }
