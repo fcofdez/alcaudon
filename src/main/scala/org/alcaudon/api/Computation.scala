@@ -3,10 +3,10 @@ package org.alcaudon.api
 import java.util.UUID
 
 import org.alcaudon.core._
-import org.alcaudon.runtime.AbstracRuntimeContext
+import org.alcaudon.runtime.AbstractRuntimeContext
 
 trait RuntimeContext {
-  var context: AbstracRuntimeContext = null
+  var context: AbstractRuntimeContext = null
 
   def runtimeProduceRecord(record: Record, stream: String): Unit =
     context.produceRecord(record, stream)
@@ -52,7 +52,7 @@ trait Computation
   def processRecord(record: Record): Unit
   def processTimer(timer: Long): Unit
 
-  def setup(runtimeContext: AbstracRuntimeContext): Unit = {
+  def setup(runtimeContext: AbstractRuntimeContext): Unit = {
     context = runtimeContext
   }
 }

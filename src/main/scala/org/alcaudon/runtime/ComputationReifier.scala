@@ -1,29 +1,17 @@
 package org.alcaudon.runtime
 
-import akka.actor.{
-  Actor,
-  ActorLogging,
-  ActorRef,
-  Props,
-  ReceiveTimeout,
-  Terminated
-}
-import akka.pattern.{AskTimeoutException, after, ask, pipe}
+import java.nio.charset.Charset
+
+import akka.actor.{ActorLogging, ActorRef, Props, Terminated}
 import akka.persistence.{PersistentActor, SnapshotOffer}
-import akka.util.Timeout
-import com.google.common.hash.{BloomFilter, Funnels}
+import com.github.mgunlogson.cuckoofilter4j.CuckooFilter
+import com.google.common.hash.Funnels
 import org.alcaudon.api.Computation
 import org.alcaudon.core.AlcaudonStream.ACK
-import org.alcaudon.core.{ActorConfig, Record}
-import org.alcaudon.core.State.{ProduceRecord, SetTimer, SetValue, Transaction}
+import org.alcaudon.core.State.{ProduceRecord, Transaction}
 import org.alcaudon.core.Timer.Timer
-import org.alcaudon.runtime.ComputationReifier.{
-  ComputationFinished,
-  ComputationTimedOut
-}
+import org.alcaudon.core.{ActorConfig, Record}
 
-import scala.concurrent.{ExecutionContext, Future, TimeoutException}
-import scala.concurrent.duration._
 import scala.collection.mutable.Map
 
 object ComputationReifier {
@@ -31,239 +19,160 @@ object ComputationReifier {
   def executorProps(computation: Computation): Props =
     Props(new ComputationExecutor(computation))
 
+  case object GetState
+  case object InjectFailure
+  case object FinishComputation
+
   sealed trait ComputationResult
-  case object ComputationTimedOut extends ComputationResult
-  case object ComputationFinished extends ComputationResult
+  case class ComputationTimedOut(recordId: String) extends ComputationResult
+  case class ComputationFinished(recordId: String) extends ComputationResult
   case class ComputationFailed(reason: Throwable, msg: Option[Record])
       extends ComputationResult
 
   case object ComputationAlreadyRunning
+  case class RecordAlreadyProcessed(recordId: String)
   case object ComputationWorkerStopped
-}
 
-class ComputationExecutor(computation: Computation)
-    extends Actor
-    with ActorConfig
-    with ActorLogging {
-
-  import ComputationReifier._
-
-  import context.dispatcher
-  implicit val timeout = Timeout(config.computationTimeout)
-
-  override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
-    context.parent ! ComputationFailed(reason,
-                                       message.map(_.asInstanceOf[Record]))
-    super.preRestart(reason, message)
+  def createCuckooFilter(bloomFilterRecords: Int): CuckooFilter[String] = {
+    new CuckooFilter.Builder[String](
+      Funnels.stringFunnel(Charset.defaultCharset()),
+      bloomFilterRecords).build()
   }
 
-  override def postStop(): Unit = {
-    context.parent ! ComputationWorkerStopped
-  }
-
-  import scala.concurrent._
-
-  def interruptableFuture[T](fun: Future[T] => T)(
-      implicit ex: ExecutionContext): (Future[T], () => Boolean) = {
-    val p = Promise[T]()
-    val f = p.future
-    val lock = new Object
-    var currentThread: Thread = null
-    def updateCurrentThread(newThread: Thread): Thread = {
-      val old = currentThread
-      currentThread = newThread
-      old
+  case class ComputationState(kv: Map[String, Array[Byte]],
+                              timers: Map[String, Timer],
+                              bloomFilter: CuckooFilter[String],
+                              var processedRecords: Long = 0,
+                              var failedRecords: Long = 0) {
+    def setValue(key: String, data: Array[Byte]) = {
+      kv += (key -> data)
     }
-    p tryCompleteWith Future {
-      if (f.isCompleted) throw new CancellationException
-      else {
-        val thread = Thread.currentThread
-        lock.synchronized { updateCurrentThread(thread) }
-        try fun(f)
-        finally {
-          val wasInterrupted = lock.synchronized { updateCurrentThread(null) } ne thread
-          //Deal with interrupted flag of this thread in desired
-        }
-      }
-    }
+    def setTimer(key: String, timer: Timer) = timers += (key -> timer)
 
-    (f,
-     () =>
-       lock.synchronized {
-         Option(updateCurrentThread(null)) exists { t =>
-           t.interrupt()
-           p.tryFailure(new CancellationException)
-         }
-     })
+    def newProcessedRecord(): Unit = processedRecords += 1
+
+    def newFailedRecord(): Unit = failedRecords += 1
   }
 
-  def receive = {
-    case record: Record =>
-      val x = Future {
-        computation.processRecord(record)
-        ComputationFinished
-      }
-      val f = after(2.seconds, context.system.scheduler)(
-        Future.failed(new TimeoutException("Future timed out!")))
-      val z = Future.firstCompletedOf(Seq(f, x))
-
-      val result = z.recover {
-        case _: TimeoutException =>
-          ComputationTimedOut
-      }
-      result pipeTo sender
-  }
-}
-
-class Z extends Actor {
-  import context.dispatcher
-  def receive = {
-    case 1 =>
-      val x = Future {
-        Thread.sleep(3000)
-        println("holaaaa")
-        ComputationFinished
-      }
-      val f = after(2.seconds, context.system.scheduler)(
-        Future.failed(new TimeoutException("Future timed out!")))
-      val z = Future.firstCompletedOf(Seq(f, x))
-
-      val result = z.recover {
-        case _: TimeoutException =>
-          ComputationTimedOut
-      }
-      result pipeTo sender
-  }
-}
-
-class A extends Actor {
-  val a = context.actorOf(Props[Z])
-  def receive = {
-    case 2 =>
-      a ! 1
-    case ComputationTimedOut => println("timeout")
-    case x => println(x)
-  }
-}
-
-case class ComputationState(kv: Map[String, Array[Byte]],
-                            timers: Map[String, Timer],
-                            bloomFilter: BloomFilter[Array[Byte]]) {
-  def setValue(key: String, data: Array[Byte]) = kv += (key -> data)
-  def setTimer(key: String, timer: Timer) = timers += (key -> timer)
 }
 
 class ComputationReifier(computation: Computation)
     extends PersistentActor
     with ActorLogging
     with ActorConfig
-    with AbstracRuntimeContext {
+    with AbstractRuntimeContext {
 
   import ComputationReifier._
 
-  implicit val executionContext: ExecutionContext = context.dispatcher
   override def persistenceId: String = computation.id
-  implicit val timeout = Timeout(config.computationTimeout)
 
-  var failuresCount = 0
-  val bloomFilter = BloomFilter.create[Array[Byte]](
-    Funnels.byteArrayFunnel,
-    config.computationBloomFilterRecords)
-  var state = ComputationState(Map.empty, Map.empty, bloomFilter)
-  var msgsProcessed = 0
+  var state = ComputationState(
+    Map.empty,
+    Map.empty,
+    createCuckooFilter(config.computation.bloomFilterRecords))
+  val cuckooFilter = state.bloomFilter
   val kv = state.kv
   var timers = state.timers
-  val snapShotInterval = 1000
 
-  val executor = context.actorOf(executorProps(computation),
-                                 name = s"executor-${computation.id}")
+  val snapShotInterval = config.computation.snapshotInterval
+
+  var executor = context.actorOf(
+    executorProps(computation), //.withDispatcher("computation-dispatcher"),
+    name = s"executor-${computation.id}")
   context.watch(executor)
 
   override def preStart(): Unit = {
     computation.setup(this)
   }
 
+  def applyTx(transaction: Transaction): Unit = {
+    val pending = transaction.operations.flatMap(_.applyTx(state))
+    pending.foreach {
+      case msg: ProduceRecord => context.parent ! msg
+      case unknown =>
+        log.error("Uknonw operation unapplied {}", unknown)
+    }
+  }
+
   val receiveRecover: Receive = {
     case tx: Transaction =>
-      tx.operations.flatMap(_.applyTx(state))
+      applyTx(tx)
     case SnapshotOffer(metadata, snapshot: ComputationState) =>
+      log.info("Recovering with snapshot {}", metadata)
       state = snapshot
+    case _ =>
   }
 
   def hasBeenProcessed(record: Record): Boolean = {
-    bloomFilter.mightContain(record.id.getBytes) // && redis.get
+    cuckooFilter.mightContain(record.id) // && redis.get
   }
 
-  def receiveCommand = {
+  def receiveCommand: Receive = {
+    case record: Record if hasBeenProcessed(record) =>
+      sender() ! ACK(self, record.id, 0l)
     case record: Record =>
       clearPendingChanges()
-      if (!hasBeenProcessed(record)) {
-        val computation = (executor ? record).mapTo[ComputationResult]
-        val result = computation.recover {
-          case _: AskTimeoutException =>
-            ComputationTimedOut
-        }
-        context.become(receiveCommandRunningComputation(sender(), record))
-        result pipeTo self
-        if (msgsProcessed % snapShotInterval == 0 && msgsProcessed != 0)
-          saveSnapshot(state)
+      executor ! record
+      context.become(working(sender(), record))
+      if (state.processedRecords % snapShotInterval == 0 && state.processedRecords != 0)
+        saveSnapshot(state)
+    case GetState =>
+      sender() ! state
+    case cf: ComputationFinished =>
+      persist(Transaction(pendingChanges.toList)) { transaction =>
+        applyTx(transaction)
+        context.become(receiveCommand)
+        cuckooFilter.put(cf.recordId)
+        clearPendingChanges()
+        // record cannot be ack but it has been processed, so
+        // this is a best effort
       }
-    case unknown =>
-      log.error("Received {} on waitingState", unknown)
+//    case unknown =>
+//      log.error("Received {} on waitingState", unknown)
   }
 
-  def receiveCommandRunningComputation(origin: ActorRef,
-                                       currentRecord: Record): Receive = {
+  def working(origin: ActorRef, currentRecord: Record): Receive = {
     case _: Record =>
       sender() ! ComputationAlreadyRunning
 
-    case ComputationFailed(_, _) if failuresCount >= 12 =>
+    case ComputationFailed(_, _) if state.failedRecords >= 12 =>
       log.error("Computation {} failed for {}-nth",
                 computation.id,
-                failuresCount)
+                state.failedRecords)
       context.stop(self)
 
     case ComputationFailed(reason, record) =>
-      failuresCount += 1
+      state.newFailedRecord()
       log.warning(
         "Computation {} failed {} times for record {} with reason {}",
         computation.id,
-        failuresCount,
+        state.failedRecords,
         record,
         reason)
       context.become(receiveCommand)
-      log.debug("retry message processing {} for {} time",
-                currentRecord.id,
-                failuresCount)
       self.tell(currentRecord, origin)
 
     case ComputationTimedOut =>
-      // Handle this case better
-      context.stop(executor)
-      failuresCount += 1
       context.become(receiveCommand)
-      log.debug("Computation timeout message processing {} for {} time",
+      log.debug("Computation timeout message processing {} after {}",
                 currentRecord.id,
-                failuresCount)
-      self.tell(currentRecord, origin)
-    // retry
+                config.computation.timeout)
 
-    case ComputationFinished =>
+    case cf: ComputationFinished =>
       persist(Transaction(pendingChanges.toList)) { transaction =>
-        val pending = transaction.operations.flatMap(_.applyTx(state))
-        pending match {
-          case msg: ProduceRecord => context.parent ! msg
-          case unknown =>
-            log.error("Uknonw operation unapplied {}", unknown)
-        }
+        applyTx(transaction)
         context.become(receiveCommand)
+        cuckooFilter.put(currentRecord.id)
         clearPendingChanges()
         origin ! ACK(self, currentRecord.id, 0l)
       }
 
-    case Terminated(`executor`) =>
-    // Persist data and stop self
+    case InjectFailure =>
+      throw new Exception("injected failure")
 
+    case Terminated(executor) =>
+      log.info("Terminated executor {}", executor)
+    // Persist data and stop self
   }
 
 }

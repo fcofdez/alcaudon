@@ -6,7 +6,7 @@ import org.alcaudon.core.Timer.LowWatermark
 
 import scala.collection.mutable.{ArrayBuffer, Map}
 
-trait AbstracRuntimeContext {
+trait AbstractRuntimeContext {
 
   protected var pendingChanges: ArrayBuffer[Operation] = ArrayBuffer.empty
   protected val kv: Map[String, Array[Byte]]

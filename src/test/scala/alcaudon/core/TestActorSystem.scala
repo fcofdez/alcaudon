@@ -6,6 +6,24 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecL
 
 import scala.collection.JavaConverters._
 
+import akka.persistence.PersistentActor
+
+
+object RestartableActor {
+
+  trait RestartableActor extends PersistentActor {
+
+    abstract override def receiveCommand = super.receiveCommand orElse {
+      case RestartActor => throw RestartActorException
+    }
+
+  }
+
+  case object RestartActor
+
+  private object RestartActorException extends Exception
+}
+
 trait AlcaudonTest extends WordSpecLike
 with Matchers
 with BeforeAndAfterAll

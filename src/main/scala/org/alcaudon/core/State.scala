@@ -1,7 +1,7 @@
 package org.alcaudon.core
 
 import org.alcaudon.core.Timer.Timer
-import org.alcaudon.runtime.ComputationState
+import org.alcaudon.runtime.ComputationReifier.ComputationState
 
 object State {
   sealed trait Operation {
