@@ -2,7 +2,7 @@ package org.alcaudon.runtime
 
 import java.nio.charset.Charset
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props, Terminated}
+import akka.actor.{ActorLogging, ActorRef, Props, Terminated}
 import akka.persistence.{PersistentActor, SaveSnapshotSuccess, SnapshotOffer}
 import com.github.mgunlogson.cuckoofilter4j.CuckooFilter
 import com.google.common.hash.Funnels
@@ -129,14 +129,15 @@ class ComputationReifier(computation: Computation)
         context.become(receiveCommand)
         cuckooFilter.put(cf.recordId)
         clearPendingChanges()
-        // record cannot be ack but it has been processed, so
-        // this is a best effort
+      // record cannot be ack but it has been processed, so
+      // this is a best effort
       }
 
     case InjectFailure =>
       throw new Exception("injected failure")
 
     case success: SaveSnapshotSuccess =>
+      log.info("Performing garbage collection")
       deleteMessages(success.metadata.sequenceNr)
 
     case unknown =>
@@ -147,7 +148,8 @@ class ComputationReifier(computation: Computation)
     case _: Record =>
       sender() ! ComputationAlreadyRunning
 
-    case ComputationFailed(_, _) if state.failedRecords >= config.computation.maxFailures =>
+    case ComputationFailed(_, _)
+        if state.failedRecords >= config.computation.maxFailures =>
       log.error("Computation {} failed for {}-nth",
                 computation.id,
                 state.failedRecords)
@@ -174,6 +176,7 @@ class ComputationReifier(computation: Computation)
         applyTx(transaction, origin)
         context.become(receiveCommand)
         cuckooFilter.put(currentRecord.id)
+        state.newProcessedRecord()
         clearPendingChanges()
         origin ! ACK(self, currentRecord.id, 0l)
       }
@@ -181,8 +184,8 @@ class ComputationReifier(computation: Computation)
     case InjectFailure =>
       throw new Exception("injected failure")
 
-
     case success: SaveSnapshotSuccess =>
+      log.info("Performing garbage collection")
       deleteMessages(success.metadata.sequenceNr)
 
     case Terminated(executor) =>

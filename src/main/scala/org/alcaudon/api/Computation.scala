@@ -1,6 +1,11 @@
 package org.alcaudon.api
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream}
+import java.io.{
+  ByteArrayInputStream,
+  ByteArrayOutputStream,
+  DataInputStream,
+  DataOutputStream
+}
 import java.util.UUID
 
 import org.alcaudon.api.serialization.TypeInfo
@@ -14,7 +19,8 @@ trait RuntimeContext {
   protected def runtimeProduceRecord(record: RawRecord, stream: String): Unit =
     context.produceRecord(record, stream)
 
-  protected def setState(key: String, value: Array[Byte]): Unit = context.set(key, value)
+  protected def setState(key: String, value: Array[Byte]): Unit =
+    context.set(key, value)
   protected def getState(key: String): Array[Byte] = context.get(key)
 
   protected def createTimer(timer: Timer): Unit = context.setTimer(timer)

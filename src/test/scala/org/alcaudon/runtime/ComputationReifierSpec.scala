@@ -6,10 +6,11 @@ import org.alcaudon.api.Computation
 import org.alcaudon.core.AlcaudonStream._
 import org.alcaudon.core.RestartableActor.RestartableActor
 import org.alcaudon.core.State.ProduceRecord
-import org.alcaudon.core.Timer.FixedTimerWithDeadline
+import org.alcaudon.core.Timer.FixedTimer
 import org.alcaudon.core.{RawRecord, Record, TestActorSystem}
 import org.alcaudon.runtime.ComputationReifier.{ComputationState, GetState, InjectFailure}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecLike}
+
 import scala.concurrent.duration._
 
 class ComputationImpl extends Computation {
@@ -40,7 +41,7 @@ class ComputationImpl extends Computation {
         produceRecord(RawRecord(result.toString, 4L), "my-stream")
       case "can-user-serialization-for-adts" =>
       case "create-timer" =>
-        setTimer(FixedTimerWithDeadline("my-timer", 2.hours.fromNow))
+        setTimer(FixedTimer("my-timer", 2.hours))
       case _ =>
     }
   }
@@ -54,7 +55,9 @@ class ComputationSpec
     Map(
       "akka.persistence.journal.plugin" -> "inmemory-journal",
       "akka.persistence.snapshot-store.plugin" -> "inmemory-snapshot-store",
-      "alcaudon.computation.timeout" -> "6s")))
+      "alcaudon.computation.timeout" -> "6s",
+      "alcaudon.computation.snapshot-interval" -> "3"
+    )))
     with WordSpecLike
     with Matchers
     with BeforeAndAfterAll
@@ -150,8 +153,28 @@ class ComputationSpec
       state.timers.get("my-timer").map(_.tag) should be(Some("my-timer"))
     }
 
-    "garbage collection" in {
-      1 should be(2)
+    "perform garbage collection" in {
+      val computation = new ComputationImpl
+      val computationReifier = system.actorOf(Props(new ComputationReifier(computation) with RestartableActor))
+      computationReifier ! Record("regular-without-state", RawRecord("timer", 0L))
+      expectMsgType[ACK]
+      computationReifier ! Record("regular-without-state", RawRecord("timer", 0L))
+      expectMsgType[ACK]
+      computationReifier ! Record("regular-without-state", RawRecord("timer", 0L))
+      expectMsgType[ACK]
+      computationReifier ! Record("regular-without-state", RawRecord("timer", 0L))
+      expectMsgType[ACK]
+    }
+
+    "avoid processing the same message twice" in {
+      val computation = new ComputationImpl
+      val computationReifier = system.actorOf(Props(new ComputationReifier(computation) with RestartableActor))
+      val record = Record("regular-without-state", RawRecord("timer", 0L))
+      computationReifier ! record
+      expectMsgType[ACK]
+
+      computationReifier ! record
+      expectMsgType[ACK]
     }
   }
 }

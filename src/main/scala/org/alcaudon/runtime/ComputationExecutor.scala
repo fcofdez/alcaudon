@@ -27,8 +27,9 @@ class ComputationExecutor(computation: Computation)
 
   override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
     cancelFunction()
-    context.parent ! ComputationFailed(reason,
-                                       message.map(_.asInstanceOf[Record]).map(_.id).get)
+    context.parent ! ComputationFailed(
+      reason,
+      message.map(_.asInstanceOf[Record]).map(_.id).get)
     super.preRestart(reason, message)
   }
 

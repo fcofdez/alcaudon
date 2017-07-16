@@ -19,7 +19,8 @@ object State {
       None
     }
   }
-  case class ProduceRecord(record: RawRecord, stream: String) extends Operation {
+  case class ProduceRecord(record: RawRecord, stream: String)
+      extends Operation {
     def applyTx(state: ComputationState): Option[Operation] = {
       Some(this)
     }
