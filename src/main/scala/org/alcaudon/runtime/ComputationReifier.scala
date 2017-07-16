@@ -2,8 +2,8 @@ package org.alcaudon.runtime
 
 import java.nio.charset.Charset
 
-import akka.actor.{ActorLogging, ActorRef, Props, Terminated}
-import akka.persistence.{PersistentActor, SnapshotOffer}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props, Terminated}
+import akka.persistence.{PersistentActor, SaveSnapshotSuccess, SnapshotOffer}
 import com.github.mgunlogson.cuckoofilter4j.CuckooFilter
 import com.google.common.hash.Funnels
 import org.alcaudon.api.Computation
@@ -26,7 +26,7 @@ object ComputationReifier {
   sealed trait ComputationResult
   case class ComputationTimedOut(recordId: String) extends ComputationResult
   case class ComputationFinished(recordId: String) extends ComputationResult
-  case class ComputationFailed(reason: Throwable, msg: Option[Record])
+  case class ComputationFailed(reason: Throwable, recordId: String)
       extends ComputationResult
 
   case object ComputationAlreadyRunning
@@ -47,7 +47,7 @@ object ComputationReifier {
     def setValue(key: String, data: Array[Byte]) = {
       kv += (key -> data)
     }
-    def setTimer(key: String, timer: Timer) = timers += (key -> timer)
+    def setTimer(timer: Timer) = timers += (timer.tag -> timer)
 
     def newProcessedRecord(): Unit = processedRecords += 1
 
@@ -85,10 +85,11 @@ class ComputationReifier(computation: Computation)
     computation.setup(this)
   }
 
-  def applyTx(transaction: Transaction): Unit = {
+  def applyTx(transaction: Transaction, origin: ActorRef): Unit = {
     val pending = transaction.operations.flatMap(_.applyTx(state))
     pending.foreach {
-      case msg: ProduceRecord => context.parent ! msg
+      case msg: ProduceRecord =>
+        origin ! msg
       case unknown =>
         log.error("Uknonw operation unapplied {}", unknown)
     }
@@ -96,7 +97,7 @@ class ComputationReifier(computation: Computation)
 
   val receiveRecover: Receive = {
     case tx: Transaction =>
-      applyTx(tx)
+      applyTx(tx, context.parent)
     case SnapshotOffer(metadata, snapshot: ComputationState) =>
       log.info("Recovering with snapshot {}", metadata)
       state = snapshot
@@ -108,34 +109,45 @@ class ComputationReifier(computation: Computation)
   }
 
   def receiveCommand: Receive = {
+
     case record: Record if hasBeenProcessed(record) =>
       sender() ! ACK(self, record.id, 0l)
+
     case record: Record =>
       clearPendingChanges()
       executor ! record
       context.become(working(sender(), record))
       if (state.processedRecords % snapShotInterval == 0 && state.processedRecords != 0)
         saveSnapshot(state)
+
     case GetState =>
       sender() ! state
+
     case cf: ComputationFinished =>
       persist(Transaction(pendingChanges.toList)) { transaction =>
-        applyTx(transaction)
+        applyTx(transaction, context.parent)
         context.become(receiveCommand)
         cuckooFilter.put(cf.recordId)
         clearPendingChanges()
         // record cannot be ack but it has been processed, so
         // this is a best effort
       }
-//    case unknown =>
-//      log.error("Received {} on waitingState", unknown)
+
+    case InjectFailure =>
+      throw new Exception("injected failure")
+
+    case success: SaveSnapshotSuccess =>
+      deleteMessages(success.metadata.sequenceNr)
+
+    case unknown =>
+      log.error("Received {} on waitingState", unknown)
   }
 
   def working(origin: ActorRef, currentRecord: Record): Receive = {
     case _: Record =>
       sender() ! ComputationAlreadyRunning
 
-    case ComputationFailed(_, _) if state.failedRecords >= 12 =>
+    case ComputationFailed(_, _) if state.failedRecords >= config.computation.maxFailures =>
       log.error("Computation {} failed for {}-nth",
                 computation.id,
                 state.failedRecords)
@@ -150,7 +162,6 @@ class ComputationReifier(computation: Computation)
         record,
         reason)
       context.become(receiveCommand)
-      self.tell(currentRecord, origin)
 
     case ComputationTimedOut =>
       context.become(receiveCommand)
@@ -160,7 +171,7 @@ class ComputationReifier(computation: Computation)
 
     case cf: ComputationFinished =>
       persist(Transaction(pendingChanges.toList)) { transaction =>
-        applyTx(transaction)
+        applyTx(transaction, origin)
         context.become(receiveCommand)
         cuckooFilter.put(currentRecord.id)
         clearPendingChanges()
@@ -170,9 +181,14 @@ class ComputationReifier(computation: Computation)
     case InjectFailure =>
       throw new Exception("injected failure")
 
+
+    case success: SaveSnapshotSuccess =>
+      deleteMessages(success.metadata.sequenceNr)
+
     case Terminated(executor) =>
       log.info("Terminated executor {}", executor)
-    // Persist data and stop self
+      saveSnapshot(state)
+      context.stop(self)
   }
 
 }

@@ -1,48 +1,63 @@
 package org.alcaudon.api
 
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream}
 import java.util.UUID
 
+import org.alcaudon.api.serialization.TypeInfo
+import org.alcaudon.core.Timer.Timer
 import org.alcaudon.core._
 import org.alcaudon.runtime.AbstractRuntimeContext
 
 trait RuntimeContext {
   var context: AbstractRuntimeContext = null
 
-  def runtimeProduceRecord(record: Record, stream: String): Unit =
+  protected def runtimeProduceRecord(record: RawRecord, stream: String): Unit =
     context.produceRecord(record, stream)
 
-  def setState(key: String, value: Array[Byte]): Unit = context.set(key, value)
-  def getState(key: String): Array[Byte] = context.get(key)
+  protected def setState(key: String, value: Array[Byte]): Unit = context.set(key, value)
+  protected def getState(key: String): Array[Byte] = context.get(key)
 
-  def createTimer(tag: String, time: Long): Unit = context.setTimer(tag, time)
+  protected def createTimer(timer: Timer): Unit = context.setTimer(timer)
 
 }
 
 trait ProduceAPI { environment: RuntimeContext =>
-  private def produceRecord(record: Record, stream: String): Unit = {
+  protected def produceRecord(record: RawRecord, stream: String): Unit = {
     environment.runtimeProduceRecord(record, stream)
   }
 }
 
 trait TimerAPI { environment: RuntimeContext =>
-  private def setTimer(tag: String, time: Long): Unit = {}
+  protected def setTimer(timer: Timer): Unit = environment.createTimer(timer)
 }
 
 trait StateAPI { environment: RuntimeContext =>
-  private def set(key: String, value: Array[Byte]): Unit =
+  protected def set(key: String, value: Array[Byte]): Unit =
     environment.setState(key, value)
-  private def get(key: String): Array[Byte] = environment.getState(key)
+  protected def get(key: String): Array[Byte] = environment.getState(key)
 }
 
 trait SerializationAPI {
-  def serialize[T](data: T): Array[Byte]
-  def deserialize[T](binary: Array[Byte]): T
+
+  def serialize[T](data: T)(implicit ti: TypeInfo[T]): Array[Byte] = {
+    val outputBA = new ByteArrayOutputStream
+    implicit val output = new DataOutputStream(outputBA)
+    ti.serialize(data)
+    outputBA.toByteArray
+  }
+
+  def deserialize[T](binary: Array[Byte])(implicit ti: TypeInfo[T]): T = {
+    val in = new ByteArrayInputStream(binary)
+    val input = new DataInputStream(in)
+    ti.deserialize(input)
+  }
 }
 
 trait Computation
     extends ProduceAPI
     with TimerAPI
     with StateAPI
+    with SerializationAPI
     with RuntimeContext {
   val id = UUID.randomUUID().toString
   val inputStreams: List[String] = List.empty

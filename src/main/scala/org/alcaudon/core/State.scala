@@ -13,13 +13,13 @@ object State {
       None
     }
   }
-  case class SetTimer(key: String, time: Timer) extends Operation {
+  case class SetTimer(timer: Timer) extends Operation {
     def applyTx(state: ComputationState): Option[Operation] = {
-      state.setTimer(key, time)
+      state.setTimer(timer)
       None
     }
   }
-  case class ProduceRecord(record: Record, stream: String) extends Operation {
+  case class ProduceRecord(record: RawRecord, stream: String) extends Operation {
     def applyTx(state: ComputationState): Option[Operation] = {
       Some(this)
     }
