@@ -49,14 +49,14 @@ times.
 
 \subsection{Implement a cluster scheduler}
 
-Users of Alcaudon provide a directed acyclic graph of computations, and those
+Users of Alcaudon provide a directed acyclic graph of computations. Those
 tasks should be placed into the cluster available resources. Cluster scheduling
 usually leads to an NP-hard problem. The system will implement a scheduler based
 on heuristics to set the tasks into the computing nodes.
 
 
 \subsection{Allow extensibility of sources and sinks}
-Some implementations for unbounded data sources, like socket, scala collections
+Some implementations for unbounded data sources, like TCP sockets, scala collections
 and twitter will be available. But users will be able to extend Alcaudon to add
 custom Sources and Sinks.
 
@@ -71,11 +71,11 @@ The system should have the properties described in the reactive manifesto(citati
 \end{itemize}
 
 It should make easy to add new nodes to the cluster, so the resources available
-can change depending on the needs. This design towards a more cloud could make
-easy to offer Alcaudon as a service.
+can change depending on the needs. This design towards a more cloud oriented
+architecture could facilitate offering Alcaudon as a service.
 
 \subsection{Provide tools for observability}
 
-Since Alcaudon is a distributed system, debugging that kind of applications is
-hard. Providing metrics on the state of the cluster as well as centralized logging
-is mandatory.
+The project should be designed with observability in mind. Metrics and logging
+should be exposed. This allows an easier operability, giving the site
+reliability engineers tools to reason about the behaviour of the system.
