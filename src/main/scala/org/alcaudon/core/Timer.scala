@@ -6,8 +6,7 @@ object Timer {
   sealed trait Timer {
     val tag: String
   }
-  case class FixedTimer(tag: String, deadline: FiniteDuration)
-      extends Timer
+  case class FixedTimer(tag: String, deadline: FiniteDuration) extends Timer
   /*
   This represent a window like 5 minutes, since the point.
    */

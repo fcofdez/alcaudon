@@ -71,7 +71,7 @@ trait Computation
   private var subscribedStreams: Set[String] = Set.empty
 
   def processRecord(record: Record): Unit
-  def processTimer(timer: Long): Unit
+  def processTimer(timer: Timer): Unit
 
   def setup(runtimeContext: AbstractRuntimeContext): Unit = {
     context = runtimeContext
@@ -90,5 +90,5 @@ class DummyComputation extends Computation {
       println(s"ignoring record with ${record.key}")
   }
 
-  def processTimer(timeStamp: Long): Unit = {}
+  def processTimer(timeStamp: Timer): Unit = {}
 }

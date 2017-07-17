@@ -123,6 +123,8 @@ class ComputationReifier(computation: Computation)
     case GetState =>
       sender() ! state
 
+//    case ExecuteTimer ¡:
+
     case cf: ComputationFinished =>
       persist(Transaction(pendingChanges.toList)) { transaction =>
         applyTx(transaction, context.parent)

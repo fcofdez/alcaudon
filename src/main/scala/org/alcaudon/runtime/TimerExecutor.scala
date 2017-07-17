@@ -1,25 +1,39 @@
 package org.alcaudon.runtime
 
 import akka.actor.{Actor, ActorRef}
-import org.alcaudon.core.Timer.{FixedTimer, Timer}
+import akka.cluster.Cluster
+import akka.cluster.ddata.DistributedData
+import akka.cluster.ddata.LWWMap
+import org.alcaudon.core.Timer.{FixedTimer, LowWatermark, Timer}
 
 object TimerExecutor {
   case class CreateTimer(timer: Timer)
+  case class ExecuteTimer(timer: Timer)
 }
 
-class TimerExecutor extends Actor {
+
+/*
+  TimerExecutor subscribes to the CRDTs that emit watermarks for the sources
+  and calculates watermark windows in base of that watermarks.
+ */
+class TimerExecutor(computationId: String, sources: Set[String]) extends Actor {
 
   import TimerExecutor._
   import context.dispatcher
 
+  val replicator = DistributedData(context.system).replicator
+  implicit val node = Cluster(context.system)
   // CRDT for watermarks
   // scheduler for wall timers
-  var timers = Map[ActorRef, Timer]()
 
-  def receive = {
+  def receive = working(Map.empty, Map.empty)
+
+  def working(timers: Map[ActorRef, FixedTimer], watermarkTimers: Map[ActorRef, LowWatermark]): Receive = {
     case CreateTimer(timer: FixedTimer) =>
-      timers = timers + (sender() -> timer)
-      context.system.scheduler.scheduleOnce(timer.deadline, sender(), 1)
+      context.system.scheduler.scheduleOnce(timer.deadline, sender(), ExecuteTimer(timer))
+      context.become(working(timers + (sender() -> timer), watermarkTimers))
+    case CreateTimer(timer: LowWatermark) =>
+      context.become(working(timers, watermarkTimers + (sender() -> timer)))
   }
 
 }

@@ -6,7 +6,7 @@ import org.alcaudon.api.Computation
 import org.alcaudon.core.AlcaudonStream._
 import org.alcaudon.core.RestartableActor.RestartableActor
 import org.alcaudon.core.State.ProduceRecord
-import org.alcaudon.core.Timer.FixedTimer
+import org.alcaudon.core.Timer.{FixedTimer, Timer}
 import org.alcaudon.core.{RawRecord, Record, TestActorSystem}
 import org.alcaudon.runtime.ComputationReifier.{ComputationState, GetState, InjectFailure}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecLike}
@@ -17,6 +17,8 @@ class ComputationImpl extends Computation {
   def processRecord(record: Record): Unit = {
     record.key match {
       case "regular-without-state" =>
+      case "semi-long-computation" =>
+        Thread.sleep(1000)
       case "long-computation" =>
         Thread.sleep(4000)
         set(record.key, record.value.getBytes())
@@ -46,7 +48,7 @@ class ComputationImpl extends Computation {
     }
   }
 
-  def processTimer(timer: Long): Unit = {}
+  def processTimer(timer: Timer): Unit = {}
 }
 
 class ComputationSpec
@@ -174,7 +176,7 @@ class ComputationSpec
       expectMsgType[ACK]
 
       computationReifier ! record
-      expectMsgType[ACK]
+      expectMsgType[ACK](200.millis)
     }
   }
 }
