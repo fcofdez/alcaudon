@@ -4,6 +4,7 @@ import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import org.alcaudon.api.{Computation, DataflowBuilder}
 import org.alcaudon.core.Record
+import org.alcaudon.core.Timer.Timer
 import org.alcaudon.core.sources.TwitterSource
 import org.alcaudon.core.sources.TwitterSourceConfig.OAuth1
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecLike}
@@ -27,7 +28,7 @@ class DataflowBuilderSpec
     case object StubComputation extends Computation {
       override def processRecord(record: Record): Unit = {}
 
-      override def processTimer(timer: Long): Unit = {}
+      override def processTimer(timer: Timer): Unit = {}
     }
 
     "allow to add sources" in {

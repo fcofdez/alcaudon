@@ -13,17 +13,21 @@ object GWatermark {
 
 @SerialVersionUID(1L)
 final class GWatermark private[alcaudon] (
-                                     private[alcaudon] val state: Map[UniqueAddress, Long] = Map.empty,
-                                     override val delta:      Option[GWatermark]           = None)
-  extends DeltaReplicatedData with ReplicatedDelta
-    with ReplicatedDataSerialization with RemovedNodePruning {
+    private[alcaudon] val state: Map[UniqueAddress, Long] = Map.empty,
+    override val delta: Option[GWatermark] = None)
+    extends DeltaReplicatedData
+    with ReplicatedDelta
+    with ReplicatedDataSerialization
+    with RemovedNodePruning {
 
   import GWatermark.Zero
 
   type T = GWatermark
   type D = GWatermark
 
-  def value: Long = state.values.foldLeft(Zero) { (acc, v) ⇒ acc + v }
+  def value: Long = state.values.foldLeft(Zero) { (acc, v) ⇒
+    acc + v
+  }
 
   def +(n: Long)(implicit node: Cluster): GWatermark = increment(node, n)
 
@@ -36,10 +40,10 @@ final class GWatermark private[alcaudon] (
     else {
       val nextValue = state.get(key) match {
         case Some(v) ⇒ v.min(n)
-        case None    ⇒ n
+        case None ⇒ n
       }
       val newDelta = delta match {
-        case None    ⇒ new GWatermark(Map(key → nextValue))
+        case None ⇒ new GWatermark(Map(key → nextValue))
         case Some(d) ⇒ new GWatermark(d.state + (key → nextValue))
       }
       new GWatermark(state + (key → nextValue), Some(newDelta))
@@ -71,10 +75,12 @@ final class GWatermark private[alcaudon] (
   override def needPruningFrom(removedNode: UniqueAddress): Boolean =
     state.contains(removedNode)
 
-  override def prune(removedNode: UniqueAddress, collapseInto: UniqueAddress): GWatermark =
+  override def prune(removedNode: UniqueAddress,
+                     collapseInto: UniqueAddress): GWatermark =
     state.get(removedNode) match {
-      case Some(value) ⇒ new GWatermark(state - removedNode).increment(collapseInto, value)
-      case None        ⇒ this
+      case Some(value) ⇒
+        new GWatermark(state - removedNode).increment(collapseInto, value)
+      case None ⇒ this
     }
 
   override def pruningCleanup(removedNode: UniqueAddress): GWatermark =
@@ -84,7 +90,7 @@ final class GWatermark private[alcaudon] (
 
   override def equals(o: Any): Boolean = o match {
     case other: GWatermark ⇒ state == other.state
-    case _               ⇒ false
+    case _ ⇒ false
   }
 
   override def hashCode: Int = state.hashCode
@@ -96,4 +102,6 @@ object GWatermarkKey {
 }
 
 @SerialVersionUID(1L)
-final case class GWatermarkKey(_id: String) extends Key[GWatermark](_id) with ReplicatedDataSerialization
+final case class GWatermarkKey(_id: String)
+    extends Key[GWatermark](_id)
+    with ReplicatedDataSerialization
