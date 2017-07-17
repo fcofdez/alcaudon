@@ -27,6 +27,7 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core" % "2.9.0.pr4",
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.0.pr4",
   "com.typesafe.akka" %% "akka-actor" % akkaVersion,
+  "com.typesafe.akka" %% "akka-cluster" % akkaVersion,
   "com.typesafe.akka" %% "akka-persistence" % akkaVersion,
   "com.typesafe.akka" %% "akka-distributed-data" % "2.5.3",
   "com.typesafe.akka" %% "akka-persistence-cassandra" % "0.29",
@@ -34,7 +35,8 @@ libraryDependencies ++= Seq(
   "com.amazonaws" % "aws-java-sdk-s3" % "1.11.160",
   "ch.qos.logback" % "logback-classic" % "1.1.3" % Runtime,
   "com.google.guava" % "guava" % "22.0",
-  "com.github.mgunlogson" % "cuckoofilter4j" % "1.0.2"
+  "com.github.mgunlogson" % "cuckoofilter4j" % "1.0.2",
+  "com.google.protobuf" % "protobuf-java" % "3.3.1"
 )
 
 resolvers += Resolver.sonatypeRepo("releases")

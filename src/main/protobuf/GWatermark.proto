@@ -1,0 +1,27 @@
+syntax = "proto2";
+package org.alcaudon;
+
+option java_package = "org.alcaudon.protobuf.msg";
+option optimize_for = SPEED;
+option java_outer_classname = "WatermarkMessages";
+
+message Address {
+  required string hostname = 2;
+  required uint32 port = 3;
+  optional string protocol = 4;
+}
+
+message UniqueAddress {
+  required Address address = 1;
+  required sfixed32 uid = 2;
+  optional sfixed32 uid2 = 3;
+}
+
+message GWatermark {
+  message Entry {
+    required UniqueAddress node = 1;
+    required bytes value = 2;
+  }
+
+  repeated Entry entries = 1;
+}
