@@ -1,0 +1,81 @@
+\chapter{Objectives}
+\label{chap:objectives}
+
+\drop{I}{n} this chapter, the global objectives that have motivated the project
+are described. As well as the more specific goals that want to be achieved.
+
+\section{General Objectives}
+
+The purpose of this project is to develop a distributed, fault-tolerant and
+elastic streaming processing framework aimed for unbounded datasets. Given a
+user defined topology of computations, the system will place them into a cluster
+of nodes optimizing the resource utilization. Alcaudon abstracts away all the
+difficulties involved in programming in a distributed environment. The user just
+needs to define the computations, using the Alcaudon computation Interface, data
+dependencies, and the system will take care of the execution. The system should be
+easily deployed into cloud platforms such as Amazon Web Services, so it can cope
+with bursts of load dynamically.
+
+\section{Specific objectives}
+
+Given the previous general description, objectives can be categorized into the
+following sub-objectives.
+
+\subsection{Provide an abstraction to create distributed computations}
+One of the primary goals of this project is to provide abstractions to create
+distributed streaming programs without distributed systems expertise. To achieve
+this, Alcaudon should provide a computation API that allows clients to write
+their business logic without knowing any details of the underlying
+infrastructure.
+Alcaudon should provide means to work with persistent state in user code. A
+State API is provided to work with key-value pairs.
+
+\subsection{Develop mechanisms to ensure exactly-once processing of records}
+
+One of the biggest problems in distributed systems is to guarantee that a record
+has been delivered and processed. The system will ensure that messages are
+delivered exactly-once, without any change in user code.
+
+To achieve exactly-once delivery in a performant manner, i.e., without two-phase
+commits (citation needed), Alcaudon will enforce idempotency using probabilistic
+data structures and state journaling.
+
+\subsection{Provide tools to work with out-of-order data}
+
+Unordered data is a reality in distributed environments. Some systems enforce
+monotonicity of event time using the injection time instead of the event
+generation time. Alcaudon will provide tools to work with non monotonic event
+times.
+
+\subsection{Implement a cluster scheduler}
+
+Users of Alcaudon provide a directed acyclic graph of computations, and those
+tasks should be placed into the cluster available resources. Cluster scheduling
+usually leads to an NP-hard problem. The system will implement a scheduler based
+on heuristics to set the tasks into the computing nodes.
+
+
+\subsection{Allow extensibility of sources and sinks}
+Some implementations for unbounded data sources, like socket, scala collections
+and twitter will be available. But users will be able to extend Alcaudon to add
+custom Sources and Sinks.
+
+\subsection{Design and implement an elastic, fault-tolerant and scalable distributed architecture}
+The system should have the properties described in the reactive manifesto(citation needed):
+
+\begin{itemize}
+  \item The system should be \textit{resilient}, meaning that in the face of a failure it should keep running.
+  \item The system should be \textit{elastic}, in the face of an increase of load it
+    should be responsive allowing adding new resources to cope with the new
+    requirements.
+\end{itemize}
+
+It should make easy to add new nodes to the cluster, so the resources available
+can change depending on the needs. This design towards a more cloud could make
+easy to offer Alcaudon as a service.
+
+\subsection{Provide tools for observability}
+
+Since Alcaudon is a distributed system, debugging that kind of applications is
+hard. Providing metrics on the state of the cluster as well as centralized logging
+is mandatory.
