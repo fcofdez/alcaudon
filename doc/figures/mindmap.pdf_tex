@@ -1,0 +1,73 @@
+%% Creator: Inkscape inkscape 0.92.1, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'mindmap.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{2622.85242617bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.34682444)%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{mindmap.pdf}}%
+    \put(0.47283196,0.16727477){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{Alcaudon}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{mindmap.pdf}}%
+    \put(0.73654481,0.3091746){\color[rgb]{0,0,0}\makebox(0,0)[b]{\smash{Distributed \\ Systems}}}%
+    \put(0.73723735,0.04873457){\color[rgb]{0,0,0}\makebox(0,0)[b]{\smash{Data \\ Processing}}}%
+    \put(0.27424695,0.3091746){\color[rgb]{0,0,0}\makebox(0,0)[b]{\smash{Job \\ Scheduling}}}%
+    \put(0.86032363,0.33776942){\color[rgb]{0,0,0}\makebox(0,0)[b]{\smash{CRDTs}}}%
+    \put(0.86091341,0.31285534){\color[rgb]{0,0,0}\makebox(0,0)[b]{\smash{Actor Model}}}%
+    \put(0.8602045,0.28923104){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{Service discovery}}}%
+    \put(0.86036647,0.26463456){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{Concurrency models}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{mindmap.pdf}}%
+    \put(0.27330868,0.04850001){\color[rgb]{0,0,0}\makebox(0,0)[b]{\smash{Library \\ Design}}}%
+    \put(0.85705565,0.07551404){\color[rgb]{0,0,0}\makebox(0,0)[b]{\smash{Map-Reduce}}}%
+    \put(0.85764543,0.05059996){\color[rgb]{0,0,0}\makebox(0,0)[b]{\smash{DBMS}}}%
+    \put(0.85693652,0.02697567){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{Unbounded datasets}}}%
+    \put(0.8570985,0.00237918){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{Machine learning models}}}%
+    \put(-0.00119741,0.31080859){\color[rgb]{0,0,0}\makebox(0,0)[b]{\smash{Improve resource utlization}}}%
+    \put(0.05511653,0.28589451){\color[rgb]{0,0,0}\makebox(0,0)[b]{\smash{NP-Hard problems}}}%
+    \put(0.10140375,0.05615125){\color[rgb]{0,0,0}\makebox(0,0)[b]{\smash{API design}}}%
+    \put(0.08842288,0.02513543){\color[rgb]{0,0,0}\makebox(0,0)[b]{\smash{Abstractions}}}%
+  \end{picture}%
+\endgroup%
