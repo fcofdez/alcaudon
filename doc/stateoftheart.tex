@@ -62,6 +62,10 @@ providers. The idea behind AWS is to provide computing resources as a service, b
 outsourcing all the datacenter needs. The interesting part about AWS is that it provides
 the needed elasticity 
 
+TODO
+
+List map-reduce, spark, storm
+
 \subsection{Distributed systems}
 \label{subsection:distsys}
 
@@ -141,7 +145,6 @@ the following properties:
 \end{center}
 \end{figure}
 
-
 \subsubsection{Taxonomy of a distributed system}
 
 Once described what distributed systems are and why are useful, it is possible
@@ -153,14 +156,72 @@ As it can be seen the topic is wide, so for this documents only
   in distributed systems} will be covered.
 
 \begin{itemize}
-\item Distributed snapshots: 
+\item \textit{Time in distributed systems}:
+  Programmers are used to think in sequential programs, where computation steps
+  are executed one after the other. The reality in distributed and concurrent
+  systems is quite different. Knowledge about global state among all the nodes
+  in the system is likely to be outdated. A naive solution to this problem is
+  use synchronization based on wall clocks but the notion of synchronized clocks
+  among nodes is impractical. Protocols like NTP\cite{ntp} can have skews up to
+  1000 seconds, that is unacceptable in some cases. Google makes heavy use of
+  hardware-assisted time synchronization using GPS clocks and atomic clocks to
+  ensure global consistency for their database Spanner\cite{180268} that can
+  drift up to 100ms. Given the exposed facts, the only assumption that can be
+  taken about global state, is that is partially ordered. A formal definition for
+  partial order is \cite{book:lattices}:
+\begin{definition}{Partial order}
+  Let $P$ be a set. An order (or partial order) on $P$ is a binary relation
+  $\leq$ on $P$ such that, for all $x$, $y$, $z \in P$,
+  \begin{enumerate}
+  \item $x \leq x$
+  \item $x \leq y$ and $y \leq x$ imply $y$
+  \item $x \leq y$ and $y \leq z$ imply $x \leq z$
+  \end{enumerate}
+\end{definition}
+  Given the exposed facts, message order in distributed systems is partial. In
+  environments where the message flow is unbounded the notion of completeness is
+  weak, that means that there is no guarantees about when all the messages up to
+  a moment $T_n$ have been received or processed. To deal with this, Alcaudon
+  uses watermarks heuristics. A watermark heuristic defines that up to the
+  instant $T_i$ there are high chances that all messages up to that point have
+  been received. To implement these heuristics, there is a need for some global
+  knowledge about latest processed events. To have that global view,
+  CRDTs\cite{crdt} will be used and exposed in the following subsection.
+\item \textit{Distributed snapshots}: 
   Since Alcaudon aims to be a fault-tolerant system, guarantees about persistent
-  state must be enforced. To design a resilient system, persistent state snapshots
-  should be taken.
-\item Time in distributed systems:
+  state must be enforced. To design a resilient system, persistent state
+  snapshots should be taken. There are distributed algorithms to deal with this
+  problem such as Lamport, bla, bla . In general, those algorithms are focused
+  on taking a global state snapshot that given the constraints presented in the
+  previous section is a hard problem to solve. In Alcaudon this problem is
+  easier because snapshots are taken by computation. There is no need of a
+  global snapshot since persistent state is local to each computation.
 
-\item Membership protocols
+\item \textit{Membership protocols}: Another crucial aspect on an elastic
+  distributed system is how to handle cluster membership. It is possible to
+  classify them into two categories, static membership and dynamic membership.
+  Static membership has a fixed list of cluster members that do not change along
+  the life of the cluster. With this static membership there is a chance that at
+  some point in time, some members of the cluster will not be available and
+  since the cluster membership image is static, thew will be seem as accessible.
+  The other approach is to use dynamic membership. It consists on having initial
+  knowledge about a subset of the available nodes and later on, via gossiping
+  protocols\cite{gossip} new nodes can \textit{join} the cluster. This mechanism
+  handles when nodes become \textit{unavailable} as well. For Alcaudon it seems
+  more suitable to adopt the latter, since one of the goals is to provide
+  elasticity so the system can be scaled in the need of more computing power.
 \end{itemize}
+
+\subsubsection{CRDT}
+
+As described before, Alcaudon needs a mechanism to keep track of the progress of
+ingested events into the system. Each computation should be able to have partial
+knowledge of the last watermark, and that depends on the state of a its
+dependencies. One of the goals of the system is to avoid centralized
+coordination as much as possible, so consensus based stores are discarded.
+One available option is Convergent Replicated Data Types (CRDT)\cite{crdt}.
+
+TODO
 
 \subsubsection{Distributed system reliability}
 
@@ -211,11 +272,59 @@ It can be characterized as follows:
   \item Create new child actors
   \item Send messages to another actors
   \item Stop actors (even themselves)
-  \item Change their behaviour for the next messages
+  \item Change their behavior for the next messages
   \end{itemize}
 \end{itemize}
 
-TODO add more info about akka.
+Since distributed systems communicate asynchronously, this model fits perfectly,
+because, even in single node environments, all the computations are executed in
+response to asynchronous messages. The fact that the shared state among actors
+is minimal helps to tackle all the inherent complexities around concurrency.
+Another interesting outcome from designing the systems using message passing is
+that creating protocols come naturally in this model. The ability to change
+their behavior depending on the incoming messages makes easy to model finite
+state machines that fit perfectly with protocol design.
+
+There are many implementations available\cite{wikiactor}, but the more popular
+and stable versions are the Erlang programming language and Akka. Both versions
+have similar features, in fact, Akka is highly inspired by Erlang. But Akka is
+built on top of the JVM, and it makes it the most interesting implementation
+available due to the vast ecosystem available around the JVM.
+
+Akka have some extensions to the actor model that make it quite interesting to
+build distributed systems.
+\begin{itemize}
+\item Actor supervision: One interesting approach of actor based design is how
+  to handle failures, each actor has a supervisor that handles its life-cycle,
+  exceptions included. With this supervision schema is easier to isolate failure
+  scenarios into concrete actors instead of affecting the whole system. Each
+  supervisor can define an strategy to apply when an child actor fails, i.e.
+  restarting the actor or stopping it. This is highly beneficial because error
+  handling logic is separated from business logic. These patterns resemble to
+  how ships are built, where the hull is compartmentalized into different watertight
+  bulkheads so if the hull is broken, the failure is limited to that bulkhead without
+  compromising the ship stability. Alcaudon will benefit from this pattern to achieve
+  fault-tolerant computations.
+\item Logical addresses: Each actor has a virtual address based on the actor
+  system and its hierarchy. This helps to provide location transparency, actors can
+  change their physical location and the framework will take care of routing
+  messages to the new actor location.
+\item Clustering: Support for distributed actors is supported, combined with
+  logical addresses make it easier to write distributed applications.
+\item Persistence: Akka supports actor state persistence. It is implemented as
+  an append-only log. That technique is commonly used as transaction log in
+  traditional databases, each change is appended to the transaction log. In case
+  of a failure, those events are applied again to the in memory database
+  buffers. To avoid long recovery times, snapshots from memory are taken
+  regularly so the recovery process just needs to re-apply changes from that
+  point. Akka persistence is implemented as described. This feature fits very
+  well to mantain Alcaudon persistent state of computations, since computations
+  can be defined as actors.
+\end{itemize}
+
+In conclusion, the actor model is a good computational model to base Alcaudon
+on. It have properties that allows to tackle all the presented difficulties
+around writing distributed systems properly.
 
 \subsection{Job scheduling}
 
