@@ -17,9 +17,9 @@ next subsections, those concepts will be analyzed in more depth.
 \subsection{Data Processing}
 
 According to a recent study by Cisco \cite{ciscosurvey}~\ref{fig:ciscodata} the
-data storage is growing by 40\% yearly. That means that by 2020 datacenters will
-store over 1000 ExaBytes of information. Keeping that data in silos without
-performing any use of it is a poor investment.
+data storage is growing by 40\% yearly. This implies that that by 2020
+datacenters will store over 1000 ExaBytes of information. Keeping that data in
+silos without performing any use of it is a poor investment.
 
 \begin{figure}[!h]
 \begin{center}
@@ -38,15 +38,15 @@ of processing large amounts of data, like the supercomputers or HPC. One of the
 main drawbacks of HPC is accessibility to those high end computers. Acquiring a
 new Supercomputer in the event of a peak on data production is not feasible. For
 companies, making an investment in a super computer is a big risk that in some
-cases will not be reverted as profit.Another interesting point to make is that
+cases will not be reverted as profit. Another interesting point to make is that
 Supercomputers perform well many floating-point operations per second. However,
-in general the computations executed in systems like MapReduce are simple
+in general, the computations executed in systems like MapReduce are simple
 strings manipulation, counting and so on. Given these usage patterns, it seems
 that supercomputers are more suited to perform scientific analysis.
 
-Once the limitations of HPC for \textit{big data} scenarios has been described
+Once the limitations of HPC for \textit{big data} scenarios have been described
 it is possible to explore how modern internet companies are using computing
-resources to process data. For new organizations, it makes more sense to take
+resources to process data. For new organizations, it is more sensible to take
 advantage of commodity hardware to process large amounts of data. One of the
 reasons is that there are many tools to distribute data processing among large
 clusters of commodity machines. Once that job is done, those machines can be
@@ -55,14 +55,14 @@ flexibility, both in resource usage and innovation capacity.
 
 \subsubsection{Cloud Computing}
 
-The data processing systems described above fits very well with cloud computing
+The data processing systems described above fit very well with cloud computing
 offerings such as IaaS providers.
 During 2002 Amazon.com launched Amazon Web Services(AWS), one of the first cloud
 providers. The idea behind AWS is to provide computing resources as a service, basically
 outsourcing all the datacenter needs. The interesting part about AWS is that it provides
 the needed elasticity 
 
-TODO
+TODO think about how to finish this part.
 
 List map-reduce, spark, storm
 
@@ -147,8 +147,8 @@ the following properties:
 
 \subsubsection{Taxonomy of a distributed system}
 
-Once described what distributed systems are and why are useful, it is possible
-to define a taxonomy of distributed systems topics such as coordination
+Once described what distributed systems are and why they are useful, it is
+possible to define a taxonomy of distributed systems topics such as coordination
 algorithms, global state collection, distributed consensus, etc.
 
 As it can be seen the topic is wide, so for this documents only
@@ -161,14 +161,14 @@ As it can be seen the topic is wide, so for this documents only
   are executed one after the other. The reality in distributed and concurrent
   systems is quite different. Knowledge about global state among all the nodes
   in the system is likely to be outdated. A naive solution to this problem is
-  use synchronization based on wall clocks but the notion of synchronized clocks
-  among nodes is impractical. Protocols like NTP\cite{ntp} can have skews up to
-  1000 seconds, that is unacceptable in some cases. Google makes heavy use of
-  hardware-assisted time synchronization using GPS clocks and atomic clocks to
-  ensure global consistency for their database Spanner\cite{180268} that can
-  drift up to 100ms. Given the exposed facts, the only assumption that can be
-  taken about global state, is that is partially ordered. A formal definition for
-  partial order is \cite{book:lattices}:
+  using synchronization based on wall clocks. However, the notion of
+  synchronized clocks among nodes is impractical. Protocols like NTP\cite{ntp}
+  can have skews up to 1000 seconds, an unacceptable time in some cases. Google
+  makes heavy use of hardware-assisted time synchronization using GPS clocks and
+  atomic clocks to ensure global consistency for their database
+  Spanner\cite{180268} that can drift up to 100ms. Given the exposed facts, the
+  only assumption that can be taken about global state that is partially
+  ordered. A formal definition for partial order is \cite{book:lattices}:
 \begin{definition}{Partial order}
   Let $P$ be a set. An order (or partial order) on $P$ is a binary relation
   $\leq$ on $P$ such that, for all $x$, $y$, $z \in P$,
@@ -180,48 +180,49 @@ As it can be seen the topic is wide, so for this documents only
 \end{definition}
   Given the exposed facts, message order in distributed systems is partial. In
   environments where the message flow is unbounded the notion of completeness is
-  weak, that means that there is no guarantees about when all the messages up to
-  a moment $T_n$ have been received or processed. To deal with this, Alcaudon
-  uses watermarks heuristics. A watermark heuristic defines that up to the
-  instant $T_i$ there are high chances that all messages up to that point have
-  been received. To implement these heuristics, there is a need for some global
-  knowledge about latest processed events. To have that global view,
-  CRDTs\cite{crdt} will be used and exposed in the following subsection.
-\item \textit{Distributed snapshots}: 
+  weak. There is no guarantee about when all the messages up to a moment $T_n$
+  have been received or processed. To deal with this, Alcaudon uses watermark
+  heuristics. A watermark heuristic defines that up to the instant $T_i$ there
+  are high chances that all messages up to that point have been received.
+\item \textit{Distributed snapshots}:
   Since Alcaudon aims to be a fault-tolerant system, guarantees about persistent
   state must be enforced. To design a resilient system, persistent state
   snapshots should be taken. There are distributed algorithms to deal with this
   problem such as Lamport, bla, bla . In general, those algorithms are focused
   on taking a global state snapshot that given the constraints presented in the
-  previous section is a hard problem to solve. In Alcaudon this problem is
-  easier because snapshots are taken by computation. There is no need of a
-  global snapshot since persistent state is local to each computation.
+  previous section is a hard problem to solve. In Alcaudon this obstacle is
+  solved by taking snapshots by computation. There is no need of a global
+  snapshot since persistent state is local to each computation.
 
 \item \textit{Membership protocols}: Another crucial aspect on an elastic
   distributed system is how to handle cluster membership. It is possible to
-  classify them into two categories, static membership and dynamic membership.
+  classify them into two categories: static membership and dynamic membership.
   Static membership has a fixed list of cluster members that do not change along
   the life of the cluster. With this static membership there is a chance that at
-  some point in time, some members of the cluster will not be available and
-  since the cluster membership image is static, thew will be seem as accessible.
-  The other approach is to use dynamic membership. It consists on having initial
-  knowledge about a subset of the available nodes and later on, via gossiping
+  some point in time, some members of the cluster will not be available. Since
+  cluster membership image is static, thew will be seen as accessible. The other
+  approach is to use dynamic membership. It consists on having initial knowledge
+  about a subset of the available nodes and later on, via gossiping
   protocols\cite{gossip} new nodes can \textit{join} the cluster. This mechanism
-  handles when nodes become \textit{unavailable} as well. For Alcaudon it seems
-  more suitable to adopt the latter, since one of the goals is to provide
-  elasticity so the system can be scaled in the need of more computing power.
+  is also able to handle when nodes become \textit{unavailable}. For Alcaudon
+  the latter membership category is more suitable. Since one of the goals is to
+  provide elasticity, in this case the system will be able to be scaled in the
+  need of more computing power.
 \end{itemize}
 
 \subsubsection{CRDT}
 
-As described before, Alcaudon needs a mechanism to keep track of the progress of
-ingested events into the system. Each computation should be able to have partial
-knowledge of the last watermark, and that depends on the state of a its
-dependencies. One of the goals of the system is to avoid centralized
-coordination as much as possible, so consensus based stores are discarded.
-One available option is Convergent Replicated Data Types (CRDT)\cite{crdt}.
+As previously presented, Alcaudon will be founded watermark heuristics. In order
+to implement these heuristics, there is a need for some global knowledge about
+latest processed events to keep track of the progress of ingested events into
+the system. Each computation should be able to have partial knowledge of the
+last watermark, and that depends on the state of a its dependencies. One of the
+goals of the system is to avoid centralized coordination as much as possible, so
+consensus based stores are discarded. One available option is Convergent
+Replicated Data Types (CRDT)\cite{crdt}.
 
-TODO
+TODO, I don't know if this subsection makes more sense in the architecture
+section.
 
 \subsubsection{Distributed system reliability}
 
@@ -232,30 +233,55 @@ As proposed by \cite{GuideReliable}, it is possible to classify system error
 causes as follows:
 \begin{itemize}
 \item \textit{Hardware failures}: These kind of failures are inevitable, since
-  hardware have a life cycle and some components might fail.
-\item \textit{Software failures}: Bugs are quite common
-\item Complexity
-\item Lack of failure detection
-\item Hostile environments
+  hardware has a life cycle and some components might fail or maintenance for
+  components should be taken care of.
+\item \textit{Software failures}: Software is becoming more and more complex.
+  Software complexity errors such as coding errors, misguided software design,
+  memory leaks or inadequate specifications are inevitable. There are countless
+  examples of millionare losses, like when in 1999 NASA lost a Mars orbiter
+  spacecraft because one team was working with Imperial units while another used
+  metric units.
+\item \textit{Complexity}: Developing software in distributed systems is
+  complex. The notion of global state or order is fuzzy. Asynchronous
+  communication is the norm. Regular developers are used to sequential
+  computations, and getting familiarized to work within this environment is hard
+  and can lead to bogus implementations. Luckily the use of formal verification
+  is growing in the field, using tools such as TLA+\cite{tla} by Lamport. The
+  usage of these techniques helps to tackle the inherent complexity with strong
+  foundations.
+\item \textit{Lack of failure detectors}: Most distributed systems try to detect
+  failure just by using timeouts. This measure is quite straightforward to
+  implement and reason about. The main drawback is that these techniques are
+  raw. Vogels \cite{vogels} proposes a refinement over plain timeouts for
+  failure detection, using more meta-information about the environment where
+  the distributed system is running; reasoning about operating system metrics,
+  networking metrics and disseminated probes, failure detection can improve.
+\item \textit{Hostile environments}: There has been enumerated some reliability
+  threats, which distributed systems need to deal with. Those threats are in
+  \textit{control}, meaning that the developers of the system should anticipate
+  them. Designing the systems so they are ready to deal with the exposed
+  problems. However those systems run in shared networks where security threats
+  are a reality. It is a wide field and it is becoming more and more important
+  to take all the possible measures to avoid security vulnerabilities.
 \end{itemize}
 
-There are costs associated with distributed programming; network latency,
-fault-tolerance mechanisms and consensus can have impact in the throughput
-achieved by a system. In \cite{189908} a metric named Configuration that
-Outperforms a Single Thread (COST), is proposed. It measures the number of cores
-needed to outperform a single threaded implementation. In this experiments,
-there are many distributed processing frameworks that don't perform properly
-when they are compared to a single node implementations. As a conclusion, there
-are scenarios where the costs associated with distributed computing are higher
-than the gains.
+As a final note about other problems, there are costs associated with
+distributed programming; network latency, fault-tolerance mechanisms and
+consensus can have impact in the throughput achieved by a system. In
+\cite{189908} a metric named Configuration that Outperforms a Single Thread
+(COST), is proposed. It measures the number of cores needed to outperform a
+single threaded implementation. In these experiments, there are many distributed
+processing frameworks that don't perform properly when compared to single node
+implementations. As a conclusion, there are scenarios where the costs associated
+with distributed computing are higher than the gains.
 
-Alcaudon goal is to provide users a simple but powerful interface that enables
+Alcaudon's goal is to provide users a simple but powerful interface that enables
 them to parallelize and distribute computations for unbounded datasets without all
 the described problems.
 
 \subsubsection{Actor Model}
 
-To tackle all the complexity described in previous section there is a
+To tackle all the complexity described in previous sections there is a
 computation model that is well suited: the actor model.
 
 The actor model provides a high level abstraction to deal with concurrent and
@@ -281,36 +307,36 @@ because, even in single node environments, all the computations are executed in
 response to asynchronous messages. The fact that the shared state among actors
 is minimal helps to tackle all the inherent complexities around concurrency.
 Another interesting outcome from designing the systems using message passing is
-that creating protocols come naturally in this model. The ability to change
+that creating protocols comes naturally in this model. The ability to change
 their behavior depending on the incoming messages makes easy to model finite
 state machines that fit perfectly with protocol design.
 
 There are many implementations available\cite{wikiactor}, but the more popular
 and stable versions are the Erlang programming language and Akka. Both versions
-have similar features, in fact, Akka is highly inspired by Erlang. But Akka is
-built on top of the JVM, and it makes it the most interesting implementation
-available due to the vast ecosystem available around the JVM.
+have similar features, in fact, Akka is highly inspired by Erlang. Nevertheless
+Akka is built on top of the JVM, making it the most interesting implementation
+available due to the vast ecosystem accessible around the JVM.
 
-Akka have some extensions to the actor model that make it quite interesting to
+Akka has some extensions to the actor model that make it quite interesting to
 build distributed systems.
 \begin{itemize}
 \item Actor supervision: One interesting approach of actor based design is how
-  to handle failures, each actor has a supervisor that handles its life-cycle,
-  exceptions included. With this supervision schema is easier to isolate failure
+  to handle failures. Each actor has a supervisor that handles its life-cycle,
+  exceptions included. With this supervision schema it is easier to isolate failure
   scenarios into concrete actors instead of affecting the whole system. Each
-  supervisor can define an strategy to apply when an child actor fails, i.e.
+  supervisor can define a strategy to apply when a child actor fails, i.e.
   restarting the actor or stopping it. This is highly beneficial because error
-  handling logic is separated from business logic. These patterns resemble to
-  how ships are built, where the hull is compartmentalized into different watertight
-  bulkheads so if the hull is broken, the failure is limited to that bulkhead without
-  compromising the ship stability. Alcaudon will benefit from this pattern to achieve
-  fault-tolerant computations.
+  handling logic is separated from business logic. These patterns resemble how
+  ships are built, where the hull is compartmentalized into different watertight
+  bulkheads. Therefore, if the hull is broken, the failure is limited to that
+  bulkhead without compromising the ship stability. Alcaudon will benefit from
+  this pattern to achieve fault-tolerant computations.
 \item Logical addresses: Each actor has a virtual address based on the actor
-  system and its hierarchy. This helps to provide location transparency, actors can
-  change their physical location and the framework will take care of routing
-  messages to the new actor location.
-\item Clustering: Support for distributed actors is supported, combined with
-  logical addresses make it easier to write distributed applications.
+  system and its hierarchy. This helps providing location transparency, as
+  actors can change their physical location and the framework will take care of
+  routing messages to the new actor location.
+\item Clustering: Support for distributed actors is provided, combined with
+  logical addresses makes facilitates writing distributed applications.
 \item Persistence: Akka supports actor state persistence. It is implemented as
   an append-only log. That technique is commonly used as transaction log in
   traditional databases, each change is appended to the transaction log. In case
@@ -323,11 +349,78 @@ build distributed systems.
 \end{itemize}
 
 In conclusion, the actor model is a good computational model to base Alcaudon
-on. It have properties that allows to tackle all the presented difficulties
-around writing distributed systems properly.
+on. It has properties that allows tackling all the presented difficulties around
+writing distributed systems properly.
 
 \subsection{Job scheduling}
 
-Talk about NP-Problem and some state of the art schedulers.
+Computations in distributed data processing clusters are expressed as a
+dataflows. They can be considered as a direct acyclic graph (DAG) as the one in
+Figure~\ref{fig:dataflow}.
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{dataflow.png}
+\caption{Dataflow}
+\label{fig:dataflow}
+\end{center}
+\end{figure}
+
+One open problem in the construction of distributed data processing systems is
+how to place those computation represented as a DAG, given a set of computing
+nodes. This problem is known as the flexible Job-shop scheduling problem and it
+has been widely studied during the last 60 years. One graphical example for a
+$3$ jobs to be scheduled along $3$ machines can be seen in
+Figure~\ref{figure:jssp}.
+As defined in\cite{jobshop2}:
+
+\begin{definition}
+In the flow shop scheduling problem we have a set of $n$ jobs that must be
+processed on a given set of $m$ machines that are located in a fixed order. Each
+job $j$ consists of a sequence of $m$ operations, where the $i$-th operation
+must be processed during $p_{ij} \in \Z^{+}$ Time units without interruption on
+the $i$-th machine. A feasible schedule is one in which each operation is
+scheduled only after all operations preceding it in its job have been completed,
+and each machine processes at most one operation at a time. A natural
+generalization of the flow shop problem is to not require jobs to be processed
+on all machines, i.e., a job still requests the machines in compliance with
+their fixed order but may skip some of them. We will refer to this more general
+version as generalized flow shops or flow shops with jumps. Generalized flow
+shop (and thus flow shop) scheduling is a special case of the acyclic job shop
+scheduling, which only requires that within each job all operations are
+performed on different machines, which in turn is a special case of the general
+job shop scheduling, where each job may have many operations on a single
+machine. For any given schedule, let $C_j$ be the completion time of the last
+operation of job $j$. We consider the natural and typically considered
+objectives of minimizing the makespan, $C_{max} = max_j C_j$ , and the
+\textit{sum of weighted completion times}, $\sum w_jC_j$ , where $w_j$ are
+positive integers. The goal is to find a feasible schedule which minimizes the
+considered objective function.
+\end{definition}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{jssp.png}
+\caption{ A Gantt-Chart representation of a solution for a $3m \times 3j$ job scheduling problem\cite{geneticbook}}
+\label{fig:jssp}
+\end{center}
+\end{figure}
+
+Computing an optimal solution for this problem is a well known NP-hard
+problem\cite{nphard}. Given this fact, all the proposed algorithms to solve
+this problem are approximation algorithms.
+
+Some of the techniques used to solve the job scheduling problem are listed
+below:
+
+\begin{itemize}
+\item Algorithms based on priority rules and active schedule generation
+\item \textit{Shifting bottleneck}
+\item Simulated annealing
+\item Tabu search
+\item Genetic algorithms
+\end{itemize}
+
+How alcaudon solves this issue.
 
 \subsection{Library design}

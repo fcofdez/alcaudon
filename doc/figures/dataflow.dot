@@ -1,0 +1,7 @@
+digraph graphname{
+                source -> computation1;
+                source -> computation2;
+                computation2 -> stream1;
+		computation1 -> stream1;
+		stream1 -> sink
+        }
