@@ -53,18 +53,51 @@ clusters of commodity machines. Once that job is done, those machines can be
 turned off or used for other purposes. Working with those systems provides
 flexibility, both in resource usage and innovation capacity. 
 
+Even though systems such as Map-Reduce have been quite useful to process large
+amounts of data, they start to have limitations in certain aspects. Currently,
+the need of low latency in data processing is getting mandatory. Organizations
+need to get insights about their data as soon as possible, in order to react
+quickly to new trends. The systems described previously are classified as batch
+systems, as they are oriented to process historical datasets and not
+\textit{real time data}. There have been some adaptations to these systems, using
+approaches like micro-batching where data is processed in smaller batches,
+however the latency is still big. These new needs for data processing have lead
+to the design and development of systems specialized in unbounded data
+processing. These systems try to reduce the time between the event generation
+and its processing. Alcaudon fits in this category of data processing systems,
+as one of its aims is being able to process unbounded data sets with low
+latency.
+
 \subsubsection{Cloud Computing}
 
-The data processing systems described above fit very well with cloud computing
-offerings such as IaaS providers.
-During 2002 Amazon.com launched Amazon Web Services(AWS), one of the first cloud
-providers. The idea behind AWS is to provide computing resources as a service, basically
-outsourcing all the datacenter needs. The interesting part about AWS is that it provides
-the needed elasticity 
-
-TODO think about how to finish this part.
-
-List map-reduce, spark, storm
+Cloud computing might be seen as a recent development. However, during the 1990s
+researchers at Xerox PARC started to develop ideas around what they named
+\textit{ubiquitous computing}. The idea was to have computing devices
+interconnected and exchanging data about almost everything. This idea was ahead
+of his time because there were just a few networks around. And devices such as
+cameras and microphones were still quite big, etc. Even though if this definition is
+translated to 2017 seems to fit quite perfectly on how devices behave nowadays.
+Cars, fridges, watches, smartphones and anything that can have a network
+interface is connected to the internet. Huge amounts of data are being published
+and stored into the what is now known as \textit{the cloud}. There is not a
+clear definition for what \textit{cloud computing} is. For the purposes of this
+text, cloud computing could be defined as a pool of shared computing and storage
+resources that can be provisioned and released on demand. Given the huge amounts
+of data that users store into the \textit{cloud}, companies need to outsource
+computing and storing capacity, since building datacenters is a huge investment.
+In the last decade, computing infrastructure offering has changed radically.
+Companies such as Amazon Web Services are able to offer servers, storage and
+services on demand at scale, from 1 server to 1 million servers. Having the
+ability to start and stop servers on demand has democratized the ability to
+process large amounts of data for many organizations. For example, a startup can
+kickoff with just one server to process data. Once the business starts growing,
+it can take advantage of the elasticity provided by cloud computing services,
+and start using more servers to cope with the load. This is one of the reasons why
+data processing systems should be designed to scale out as there are more
+computing needs.
+Alcaudon, as an elastic data processing system, will be able to adapt to
+different loads as the computing needs increase.. It will be able to use more
+computing resources dynamically as more servers are added to the pool.
 
 \subsection{Distributed systems}
 \label{subsection:distsys}
@@ -76,10 +109,10 @@ one or more computers, and coordinating actions by exchanging \textit{messages}
 message passing and implement routing protocols. But if this definition is taken
 to the extreme, a modern multi-core processor can be characterized as a
 distributed system, with many components exchanging information in a network and
-coordinating actions to get work done. To some extent, it's possible to see
+coordinating actions to get work done. To some extent, it is possible to see
 distributed systems as a super set of concurrent systems.
 
-A more common example of a distributed system it is a user requesting a web page to
+A more common example of a distributed system is a user requesting a web page to
 a server with his smartphone. This example is a typical \textit{client-server}
 model. This \textit{simple} action involves the interaction of various services
 such as DNS servers, load balancers, HTTP proxies and HTTP servers. All these
@@ -367,11 +400,10 @@ Figure~\ref{fig:dataflow}.
 \end{figure}
 
 One open problem in the construction of distributed data processing systems is
-how to place those computation represented as a DAG, given a set of computing
+how to place those computations represented as a DAG, given a set of computing
 nodes. This problem is known as the flexible Job-shop scheduling problem and it
-has been widely studied during the last 60 years. One graphical example for a
-$3$ jobs to be scheduled along $3$ machines can be seen in
-Figure~\ref{figure:jssp}.
+has been widely studied during the last 60 years. One graphical example for $3$
+jobs to be scheduled along $3$ machines can be seen in Figure~\ref{fig:jssp}.
 As defined in\cite{jobshop2}:
 
 \begin{definition}
@@ -407,10 +439,8 @@ considered objective function.
 \end{figure}
 
 Computing an optimal solution for this problem is a well known NP-hard
-problem\cite{nphard}. Given this fact, all the proposed algorithms to solve
-this problem are approximation algorithms.
-
-Some of the techniques used to solve the job scheduling problem are listed
+problem\cite{nphard}. Given this fact, all the proposed algorithms to solve this
+problem are approximation algorithms. Some of the techniques used are listed
 below:
 
 \begin{itemize}
@@ -424,3 +454,57 @@ below:
 How alcaudon solves this issue.
 
 \subsection{Library design}
+
+Humans have been using abstraction since the very beginnings of their existence.
+The reality around is too complex to understand every detail of it. Thus,
+abstraction is a really excellent tool to extract just the relevant facts about
+the studied phenomenons. Computer Science, Software Engineering and Electrical
+Engineering combine different abstractions in order to to build complex systems
+in a manageable way.
+Computer Science provides the tools whose roots are based on mathematical
+foundations such as automaton theory, lambda calculus, language design, data
+structures, etc.
+Using those ideas, software engineering can be seen as the bridge between
+hardware and computer science. It builds abstractions based on both worlds such
+as operating systems, that hides the details of specific hardware and exposes an
+uniform interface. And the list goes on. The main goal of abstractions is to
+provide ways to reason about different problems with a limited scope.
+As it has been exposed, providing tools that hide all the complexities is key to
+build more complex systems. One of the main goals of the field since the late
+60s has been to build reusable software\cite{reuse}. There have been many
+advances in code reuse, from libraries and frameworks that are used to build
+software on top them, to software as a service (SaaS). SaaS exposes public HTTP
+API as the entry point to their functionality. This category of software reuse
+can be the end of the spectrum, since the client just has knowledge about
+the exposed interface and does not know anything about the underlying parts of the
+system.
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[width=0.8\textwidth]{serverless.png}
+\caption{Serverless architecture example\cite{awsserverless}}
+\label{fig:serverless}
+\end{center}
+\end{figure}
+
+One recent trend in industry is serverless architecture like the one shown in
+Figure~\ref{fig:serverless}. This programming model has foundations in reactive
+programming, and it is based on providing code to produce computation results as
+response to changes or events. In this paradigm it is just needed to provide
+code implementing certain interface~\ref{code:lambdalisting} to handle events,
+such as database changes, and the system will take care of deploy and run those
+pieces together. As it can be observed, abstraction is going upwards and
+programmers just need to take care of writing business logic and building
+robust programs.
+
+\begin{lstlisting}[language=java, frame=trBL, label=code:lambdalisting, float=ht, caption = {AWS Lambda Interface}]
+  public interface RequestStreamHandler {
+    public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context)
+    throws IOException
+  }
+\end{lstlisting}
+
+Alcaudon philosophy is similar to the serverless architecture. The goal is to
+provide abstractions around unbounded datasets so programmers just take care of
+defining their computations and dependencies. Alcaudon will provide a simple
+interface so the details to know about the system are minimized.
