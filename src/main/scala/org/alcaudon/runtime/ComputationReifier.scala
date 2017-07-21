@@ -113,7 +113,7 @@ class ComputationReifier(computation: Computation)
   def receiveCommand: Receive = {
 
     case record: Record if record.timestamp > state.latestWatermark =>
-      // Ignore, maybe send a message back
+    // Ignore, maybe send a message back
 
     case record: Record if hasBeenProcessed(record) =>
       sender() ! ACK(self, record.id, 0l)
