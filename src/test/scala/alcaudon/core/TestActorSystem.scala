@@ -31,7 +31,7 @@ with BeforeAndAfterEach
 
 object TestActorSystem {
   def apply(name: String,
-            initialConfig: Map[String, String] = Map.empty): ActorSystem = {
+            initialConfig: Map[String, Any] = Map.empty): ActorSystem = {
     ActorSystem(name,
                 ConfigFactory
                   .parseMap(initialConfig.asJava)

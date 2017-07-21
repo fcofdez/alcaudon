@@ -11,6 +11,7 @@ import org.alcaudon.core.AlcaudonStream.ACK
 import org.alcaudon.core.State.{ProduceRecord, Transaction}
 import org.alcaudon.core.Timer.Timer
 import org.alcaudon.core.{ActorConfig, Record}
+import org.alcaudon.runtime.TimerExecutor.ExecuteTimer
 
 import scala.collection.mutable.Map
 
@@ -42,6 +43,7 @@ object ComputationReifier {
   case class ComputationState(kv: Map[String, Array[Byte]],
                               timers: Map[String, Timer],
                               bloomFilter: CuckooFilter[String],
+                              var latestWatermark: Long = 0,
                               var processedRecords: Long = 0,
                               var failedRecords: Long = 0) {
     def setValue(key: String, data: Array[Byte]) = {
@@ -110,6 +112,9 @@ class ComputationReifier(computation: Computation)
 
   def receiveCommand: Receive = {
 
+    case record: Record if record.timestamp > state.latestWatermark =>
+      // Ignore, maybe send a message back
+
     case record: Record if hasBeenProcessed(record) =>
       sender() ! ACK(self, record.id, 0l)
 
@@ -123,7 +128,9 @@ class ComputationReifier(computation: Computation)
     case GetState =>
       sender() ! state
 
-//    case ExecuteTimer ¡:
+    case executeTimer: ExecuteTimer =>
+      clearPendingChanges()
+      computation.processTimer(executeTimer.timer)
 
     case cf: ComputationFinished =>
       persist(Transaction(pendingChanges.toList)) { transaction =>

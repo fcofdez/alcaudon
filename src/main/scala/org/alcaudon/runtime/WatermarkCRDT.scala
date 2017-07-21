@@ -31,6 +31,16 @@ final class GWatermark private[alcaudon] (
 
   def +(n: Long)(implicit node: Cluster): GWatermark = increment(node, n)
 
+  def update(n: Long)(implicit node: Cluster): GWatermark = {
+    val key = node.selfUniqueAddress
+    val nextValue = n
+    val newDelta = delta match {
+      case None ⇒ new GWatermark(Map(key → nextValue))
+      case Some(d) ⇒ new GWatermark(d.state + (key → nextValue))
+    }
+    new GWatermark(state + (node.selfUniqueAddress -> n), Some(newDelta))
+  }
+
   def increment(node: Cluster, n: Long = 1): GWatermark =
     increment(node.selfUniqueAddress, n)
 
@@ -57,7 +67,7 @@ final class GWatermark private[alcaudon] (
       if (thatValue == Zero)
         merged = merged.updated(key, thisValue)
       else
-        merged = merged.updated(key, thisValue.min(thatValue))
+        merged = merged.updated(key, thisValue.max(thatValue))
     }
     new GWatermark(merged)
   }
