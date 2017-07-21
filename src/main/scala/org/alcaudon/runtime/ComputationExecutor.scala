@@ -3,6 +3,7 @@ package org.alcaudon.runtime
 import akka.actor.{Actor, ActorLogging, ReceiveTimeout, Status}
 import akka.pattern.pipe
 import org.alcaudon.api.Computation
+import org.alcaudon.core.Timer.Timer
 import org.alcaudon.core.{ActorConfig, Record}
 
 import scala.concurrent._
@@ -36,6 +37,21 @@ class ComputationExecutor(computation: Computation)
   def receive = idle
 
   def idle: Receive = {
+    case timer: Timer =>
+      val par = context.parent
+      val (fut, cancelFn) = InterruptableFuture({
+        fut: Future[ComputationFinished] =>
+          if (fut.isCompleted) println(s"failed $fut")
+          computation.processTimer(timer)
+          par ! ComputationFinished(timer.tag)
+          ComputationFinished(timer.tag)
+      })
+
+      cancelFunction = cancelFn
+      fut pipeTo self
+      context.setReceiveTimeout(config.computation.timeout)
+      context.become(working(cancelFn, timer.tag))
+
     case record: Record =>
       val par = context.parent
       val (fut, cancelFn) = InterruptableFuture({

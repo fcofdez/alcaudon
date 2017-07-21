@@ -30,6 +30,10 @@ object ComputationReifier {
   case class ComputationFailed(reason: Throwable, recordId: String)
       extends ComputationResult
 
+  case class TimerTimedOut(tag: String)
+  case class TimerFinished(tag: String)
+  case class TimerFailed(reason: Throwable, tag: String)
+
   case object ComputationAlreadyRunning
   case class RecordAlreadyProcessed(recordId: String)
   case object ComputationWorkerStopped
@@ -45,7 +49,7 @@ object ComputationReifier {
                               bloomFilter: CuckooFilter[String],
                               var latestWatermark: Long = 0,
                               var processedRecords: Long = 0,
-                              var failedRecords: Long = 0) {
+                              var failedExecutions: Long = 0) {
     def setValue(key: String, data: Array[Byte]) = {
       kv += (key -> data)
     }
@@ -53,7 +57,7 @@ object ComputationReifier {
 
     def newProcessedRecord(): Unit = processedRecords += 1
 
-    def newFailedRecord(): Unit = failedRecords += 1
+    def incrementFailedExecutions(): Unit = failedExecutions += 1
   }
 
 }
@@ -93,7 +97,7 @@ class ComputationReifier(computation: Computation)
       case msg: ProduceRecord =>
         origin ! msg
       case unknown =>
-        log.error("Uknonw operation unapplied {}", unknown)
+        log.error("Uknonw operation not applied {}", unknown)
     }
   }
 
@@ -112,7 +116,7 @@ class ComputationReifier(computation: Computation)
 
   def receiveCommand: Receive = {
 
-    case record: Record if record.timestamp > state.latestWatermark =>
+    case record: Record if record.timestamp < state.latestWatermark =>
     // Ignore, maybe send a message back
 
     case record: Record if hasBeenProcessed(record) =>
@@ -121,16 +125,20 @@ class ComputationReifier(computation: Computation)
     case record: Record =>
       clearPendingChanges()
       executor ! record
-      context.become(working(sender(), record))
+      context.become(working(sender(), record.id))
       if (state.processedRecords % snapShotInterval == 0 && state.processedRecords != 0)
         saveSnapshot(state)
 
     case GetState =>
       sender() ! state
 
+    //Think about receiving an Executable or something wit id + timer || record
     case executeTimer: ExecuteTimer =>
       clearPendingChanges()
-      computation.processTimer(executeTimer.timer)
+      executor ! executeTimer.timer
+      context.become(working(sender(), executeTimer.timer.tag))
+      if (state.processedRecords % snapShotInterval == 0 && state.processedRecords != 0)
+        saveSnapshot(state)
 
     case cf: ComputationFinished =>
       persist(Transaction(pendingChanges.toList)) { transaction =>
@@ -153,41 +161,44 @@ class ComputationReifier(computation: Computation)
       log.error("Received {} on waitingState", unknown)
   }
 
-  def working(origin: ActorRef, currentRecord: Record): Receive = {
+  def working(origin: ActorRef, runningRecordId: String): Receive = {
     case _: Record =>
       sender() ! ComputationAlreadyRunning
 
+    case executeTimer: ExecuteTimer =>
+    //accumulate pending
+
     case ComputationFailed(_, _)
-        if state.failedRecords >= config.computation.maxFailures =>
+        if state.failedExecutions >= config.computation.maxFailures =>
       log.error("Computation {} failed for {}-nth",
                 computation.id,
-                state.failedRecords)
+                state.failedExecutions)
       context.stop(self)
 
     case ComputationFailed(reason, record) =>
-      state.newFailedRecord()
+      state.incrementFailedExecutions()
       log.warning(
         "Computation {} failed {} times for record {} with reason {}",
         computation.id,
-        state.failedRecords,
+        state.failedExecutions,
         record,
         reason)
       context.become(receiveCommand)
 
     case ComputationTimedOut =>
       context.become(receiveCommand)
-      log.debug("Computation timeout message processing {} after {}",
-                currentRecord.id,
+      log.debug("Computation timeout processing {} after {}",
+                runningRecordId,
                 config.computation.timeout)
 
-    case cf: ComputationFinished =>
+    case _: ComputationFinished =>
       persist(Transaction(pendingChanges.toList)) { transaction =>
         applyTx(transaction, origin)
         context.become(receiveCommand)
-        cuckooFilter.put(currentRecord.id)
+        cuckooFilter.put(runningRecordId)
         state.newProcessedRecord()
         clearPendingChanges()
-        origin ! ACK(self, currentRecord.id, 0l)
+        origin ! ACK(self, runningRecordId, 0l)
       }
 
     case InjectFailure =>

@@ -124,6 +124,8 @@ class TimerExecutor(computationId: String,
                 updatedSourcesWatermarks)
       log.debug("Changed key {} with value {}", key, data.value)
       updateWatermarks(watermarkTimers, updatedSourcesWatermarks, data.value)
+    case _ =>
+    // Ignore ACKs from processTimer
   }
 
 }

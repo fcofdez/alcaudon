@@ -1,17 +1,23 @@
 package org.alcaudon.runtime
 
+import java.io.{ByteArrayInputStream, DataInputStream}
+
 import akka.actor.Props
 import akka.testkit.{ImplicitSender, TestKit}
 import org.alcaudon.api.Computation
+import org.alcaudon.api.serialization.TypeInfo
 import org.alcaudon.core.AlcaudonStream._
 import org.alcaudon.core.RestartableActor.RestartableActor
 import org.alcaudon.core.State.ProduceRecord
 import org.alcaudon.core.Timer.{FixedTimer, Timer}
 import org.alcaudon.core.{RawRecord, Record, TestActorSystem}
 import org.alcaudon.runtime.ComputationReifier.{ComputationState, GetState, InjectFailure}
+import org.alcaudon.runtime.TimerExecutor.ExecuteTimer
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
+
+case class TestADT(a: String, b: Int)
 
 class ComputationImpl extends Computation {
   def processRecord(record: Record): Unit = {
@@ -42,13 +48,40 @@ class ComputationImpl extends Computation {
         val result = i + 15
         produceRecord(RawRecord(result.toString, 4L), "my-stream")
       case "can-user-serialization-for-adts" =>
+        val data = serialize(TestADT("asd", 1))
+        set(record.key, data)
+
       case "create-timer" =>
         setTimer(FixedTimer("my-timer", 2.hours))
       case _ =>
     }
   }
 
-  def processTimer(timer: Timer): Unit = {}
+  def processTimer(timer: Timer): Unit = {
+    timer.tag match {
+      case "regular-without-state-timer" =>
+      case "long-computation-timer" =>
+        Thread.sleep(4000)
+        set(timer.tag, "long-timer".getBytes())
+      case "regular-with-timeout-timer" =>
+        set(timer.tag, "timer-with-timeout-timer".getBytes())
+        Thread.sleep(7000)
+      case "regular-storing-state-timer" =>
+        set(timer.tag, "timer-state".getBytes())
+      case "break-timer" =>
+        set(timer.tag, "break-timer".getBytes())
+        throw new Exception("this failed")
+      case "produce-record-timer" =>
+        produceRecord(RawRecord("new-record", 2L), "outputStream")
+      case "reuse-data-timer" =>
+        val previous = get("produce-int")
+        val i = deserialize[Int](previous)
+        val result = i + 16
+        produceRecord(RawRecord(result.toString, 4L), "my-stream")
+//      case "can-user-serialization-for-adts" =>
+      case _ =>
+    }
+  }
 }
 
 class ComputationSpec
@@ -78,7 +111,7 @@ class ComputationSpec
 
     "restore state after failing" in {
       val computation = new ComputationImpl
-      val computationReifier = system.actorOf(Props(new ComputationReifier(computation) with RestartableActor))
+      val computationReifier = system.actorOf(Props(new ComputationReifier(computation)))
       computationReifier ! Record("regular-storing-state", RawRecord("asd", 0L))
       expectMsgType[ACK]
       computationReifier ! GetState
@@ -178,6 +211,107 @@ class ComputationSpec
       computationReifier ! record
       expectMsgType[ACK](200.millis)
     }
+
+    "allow serialization of custom Algebraic Data Types" in {
+      val computation = new ComputationImpl
+      val computationReifier = system.actorOf(Props(new ComputationReifier(computation) with RestartableActor))
+      val record = Record("can-user-serialization-for-adts", RawRecord("timer", 0L))
+      computationReifier ! record
+      expectMsgType[ACK]
+
+      computationReifier ! GetState
+      val st = expectMsgType[ComputationState]
+      val binary = st.kv.get(record.key).get
+      implicit val typeInfo = TypeInfo[TestADT]
+      val in = new ByteArrayInputStream(binary)
+      val input = new DataInputStream(in)
+      val adt = typeInfo.deserialize(input)
+      adt should be(TestADT("asd", 1))
+    }
+
+    "execute timers code" in {
+      val computationReifier = system.actorOf(Props(new ComputationReifier(new ComputationImpl)))
+      computationReifier ! ExecuteTimer(FixedTimer("regular-without-state-timer", 12.seconds))
+      expectMsgType[ACK]
+    }
+
+    "store state for timers" in {
+      val computationReifier = system.actorOf(Props(new ComputationReifier(new ComputationImpl)))
+      computationReifier ! ExecuteTimer(FixedTimer("regular-storing-state-timer", 12.seconds))
+      expectMsgType[ACK]
+      computationReifier ! GetState
+      val st = expectMsgType[ComputationState]
+      st.kv.get("regular-storing-state-timer").get should be("timer-state".getBytes())
+    }
+
+    "handle timeouts without keeping stale data for timers" in {
+      val computationReifier = system.actorOf(Props(new ComputationReifier(new ComputationImpl)))
+      computationReifier ! ExecuteTimer(FixedTimer("regular-with-timeout-timer", 12.seconds))
+      Thread.sleep(7000)
+      computationReifier ! GetState
+      val state = expectMsgType[ComputationState]
+      state.kv.get("regular-with-timeout-timer") should be(None)
+    }
+
+    "restore state after failing for timers" in {
+      val computation = new ComputationImpl
+      val computationReifier = system.actorOf(Props(new ComputationReifier(computation)))
+      computationReifier ! ExecuteTimer(FixedTimer("regular-storing-state-timer", 12.seconds))
+      expectMsgType[ACK]
+      computationReifier ! GetState
+      val st = expectMsgType[ComputationState]
+      st.kv.get("regular-storing-state-timer").get should be("timer-state".getBytes())
+
+      computationReifier ! InjectFailure
+
+      computationReifier ! GetState
+      val state = expectMsgType[ComputationState]
+      state.kv.get("regular-storing-state-timer").get should be("timer-state".getBytes())
+    }
+
+    "recover gracefully after it is restarted and keep the executor working for timers" in {
+      val computation = new ComputationImpl
+      val computationReifier = system.actorOf(Props(new ComputationReifier(computation)))
+      computationReifier ! ExecuteTimer(FixedTimer("long-computation-timer", 12.seconds))
+      Thread.sleep(1000)
+      computationReifier ! InjectFailure
+      Thread.sleep(4000)
+
+      computationReifier ! GetState
+      val state = expectMsgType[ComputationState]
+      state.kv.get("long-computation-timer").get should be("long-timer".getBytes())
+    }
+
+    "handle user code exceptions gracefully for timers" in {
+      val computation = new ComputationImpl
+      val computationReifier = system.actorOf(Props(new ComputationReifier(computation)))
+      computationReifier ! ExecuteTimer(FixedTimer("break-timer", 12.seconds))
+      Thread.sleep(1000)
+      computationReifier ! GetState
+      val state = expectMsgType[ComputationState]
+      state.kv.get("break") should be(None)
+    }
+
+    "produce records in timers" in {
+      val computation = new ComputationImpl
+      val computationReifier = system.actorOf(Props(new ComputationReifier(computation)))
+      computationReifier ! ExecuteTimer(FixedTimer("produce-record-timer", 12.seconds))
+      expectMsgType[ProduceRecord]
+      expectMsgType[ACK]
+    }
+
+    "be able to reuse state from previous computations in timers" in {
+      val computation = new ComputationImpl
+      val computationReifier = system.actorOf(Props(new ComputationReifier(computation)))
+      computationReifier ! Record("produce-int", RawRecord("timeout", 0L))
+      expectMsgType[ACK]
+      computationReifier ! ExecuteTimer(FixedTimer("reuse-data-timer", 12.seconds))
+      val produceRecord = expectMsgType[ProduceRecord]
+      produceRecord.record.value should be("28")
+      produceRecord.stream should be("my-stream")
+      expectMsgType[ACK]
+    }
+
   }
 }
 
