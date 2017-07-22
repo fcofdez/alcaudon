@@ -2,7 +2,7 @@ package org.alcaudon.core
 
 import java.util.UUID
 
-case class RawRecord(value: String, timestamp: Long) {
+case class RawRecord(value: Array[Byte], timestamp: Long) {
   val id = UUID.randomUUID().toString
 }
 case class Record(key: String, rawRecord: RawRecord) {

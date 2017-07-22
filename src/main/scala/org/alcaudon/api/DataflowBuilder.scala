@@ -15,8 +15,8 @@ object DataflowBuilder {
   object AlcaudonInputStream {
     def apply(name: String)(keyFn: Array[Byte] => String) =
       new AlcaudonInputStream(name, new KeyExtractor {
-        override def extractKey(msg: String): String =
-          keyFn(msg.toArray.map(_.toByte))
+        override def extractKey(msg: Array[Byte]): String =
+          keyFn(msg)
       })
   }
 

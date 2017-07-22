@@ -4,7 +4,7 @@ import java.io.{ByteArrayInputStream, DataInputStream}
 
 import akka.actor.Props
 import akka.testkit.{ImplicitSender, TestKit}
-import org.alcaudon.api.Computation
+import org.alcaudon.api.{Computation, SerializationAPI}
 import org.alcaudon.api.serialization.TypeInfo
 import org.alcaudon.core.AlcaudonStream._
 import org.alcaudon.core.RestartableActor.RestartableActor
@@ -27,26 +27,26 @@ class ComputationImpl extends Computation {
         Thread.sleep(1000)
       case "long-computation" =>
         Thread.sleep(4000)
-        set(record.key, record.value.getBytes())
+        set(record.key, record.value)
       case "regular-with-timeout" =>
-        set(record.key, record.value.getBytes())
+        set(record.key, record.value)
         Thread.sleep(7000)
       case "regular-storing-state" =>
-        set(record.key, record.value.getBytes)
+        set(record.key, record.value)
       case "break" =>
-        set(record.key, record.value.getBytes)
+        set(record.key, record.value)
         throw new Exception("this failed")
       case "regular-get-state" =>
         get(record.key)
       case "produce-record" =>
-        produceRecord(RawRecord("new-record", 2L), "outputStream")
+        produceRecord(RawRecord(serialize("new-record"), 2L), "outputStream")
       case "produce-int" =>
         set(record.key, serialize(12))
       case "reuse-data" =>
         val previous = get("produce-int")
         val i = deserialize[Int](previous)
         val result = i + 15
-        produceRecord(RawRecord(result.toString, 4L), "my-stream")
+        produceRecord(RawRecord(serialize(result), 4L), "my-stream")
       case "can-user-serialization-for-adts" =>
         val data = serialize(TestADT("asd", 1))
         set(record.key, data)
@@ -72,12 +72,12 @@ class ComputationImpl extends Computation {
         set(timer.tag, "break-timer".getBytes())
         throw new Exception("this failed")
       case "produce-record-timer" =>
-        produceRecord(RawRecord("new-record", 2L), "outputStream")
+        produceRecord(RawRecord(serialize("new-record"), 2L), "outputStream")
       case "reuse-data-timer" =>
         val previous = get("produce-int")
         val i = deserialize[Int](previous)
         val result = i + 16
-        produceRecord(RawRecord(result.toString, 4L), "my-stream")
+        produceRecord(RawRecord(serialize(result), 4L), "my-stream")
 //      case "can-user-serialization-for-adts" =>
       case _ =>
     }
@@ -97,51 +97,52 @@ class ComputationSpec
     with Matchers
     with BeforeAndAfterAll
     with BeforeAndAfterEach
+    with SerializationAPI
     with ImplicitSender {
 
   "ComputationReifier" should {
     "store state" in {
       val computationReifier = system.actorOf(Props(new ComputationReifier(new ComputationImpl)))
-      computationReifier ! Record("regular-storing-state", RawRecord("asd", 0L))
+      computationReifier ! Record("regular-storing-state", RawRecord("asd".getBytes(), 0L))
       expectMsgType[ACK]
       computationReifier ! GetState
       val st = expectMsgType[ComputationState]
-      st.kv.get("regular-storing-state").get should be("asd".getBytes())
+      st.kv("regular-storing-state") should be("asd".getBytes())
     }
 
     "restore state after failing" in {
       val computation = new ComputationImpl
       val computationReifier = system.actorOf(Props(new ComputationReifier(computation)))
-      computationReifier ! Record("regular-storing-state", RawRecord("asd", 0L))
+      computationReifier ! Record("regular-storing-state", RawRecord("asd".getBytes(), 0L))
       expectMsgType[ACK]
       computationReifier ! GetState
       val st = expectMsgType[ComputationState]
-      st.kv.get("regular-storing-state").get should be("asd".getBytes())
+      st.kv("regular-storing-state") should be("asd".getBytes())
 
       computationReifier ! InjectFailure
 
       computationReifier ! GetState
       val state = expectMsgType[ComputationState]
-      state.kv.get("regular-storing-state").get should be("asd".getBytes())
+      state.kv("regular-storing-state") should be("asd".getBytes())
     }
 
     "recover gracefully after it is restarted and keep the executor working" in {
       val computation = new ComputationImpl
       val computationReifier = system.actorOf(Props(new ComputationReifier(computation) with RestartableActor), name="reifier")
-      computationReifier ! Record("long-computation", RawRecord("long", 0L))
+      computationReifier ! Record("long-computation", RawRecord("long".getBytes(), 0L))
       Thread.sleep(1000)
       computationReifier ! InjectFailure
       Thread.sleep(4000)
 
       computationReifier ! GetState
       val state = expectMsgType[ComputationState]
-      state.kv.get("long-computation").get should be("long".getBytes())
+      state.kv("long-computation") should be("long".getBytes())
     }
 
     "handle timeouts without keeping stale data" in {
       val computation = new ComputationImpl
       val computationReifier = system.actorOf(Props(new ComputationReifier(computation) with RestartableActor))
-      computationReifier ! Record("regular-with-timeout", RawRecord("timeout", 0L))
+      computationReifier ! Record("regular-with-timeout", RawRecord("timeout".getBytes(), 0L))
       Thread.sleep(7000)
       computationReifier ! GetState
       val state = expectMsgType[ComputationState]
@@ -151,7 +152,7 @@ class ComputationSpec
     "handle user code exceptions gracefully" in {
       val computation = new ComputationImpl
       val computationReifier = system.actorOf(Props(new ComputationReifier(computation) with RestartableActor))
-      computationReifier ! Record("break", RawRecord("timeout", 0L))
+      computationReifier ! Record("break", RawRecord("timeout".getBytes(), 0L))
       Thread.sleep(1000)
       computationReifier ! GetState
       val state = expectMsgType[ComputationState]
@@ -161,7 +162,7 @@ class ComputationSpec
     "produce records" in {
       val computation = new ComputationImpl
       val computationReifier = system.actorOf(Props(new ComputationReifier(computation) with RestartableActor))
-      computationReifier ! Record("produce-record", RawRecord("timeout", 0L))
+      computationReifier ! Record("produce-record", RawRecord("timeout".getBytes(), 0L))
       expectMsgType[ProduceRecord]
       expectMsgType[ACK]
     }
@@ -169,11 +170,11 @@ class ComputationSpec
     "be able to reuse state from previous computaions" in {
       val computation = new ComputationImpl
       val computationReifier = system.actorOf(Props(new ComputationReifier(computation) with RestartableActor))
-      computationReifier ! Record("produce-int", RawRecord("timeout", 0L))
+      computationReifier ! Record("produce-int", RawRecord("timeout".getBytes(), 0L))
       expectMsgType[ACK]
-      computationReifier ! Record("reuse-data", RawRecord("timeout", 0L))
+      computationReifier ! Record("reuse-data", RawRecord("timeout".getBytes(), 0L))
       val produceRecord = expectMsgType[ProduceRecord]
-      produceRecord.record.value should be("27")
+      produceRecord.record.value should be(serialize(27))
       produceRecord.stream should be("my-stream")
       expectMsgType[ACK]
     }
@@ -181,7 +182,7 @@ class ComputationSpec
     "produce timers when requested" in {
       val computation = new ComputationImpl
       val computationReifier = system.actorOf(Props(new ComputationReifier(computation) with RestartableActor))
-      computationReifier ! Record("create-timer", RawRecord("timer", 0L))
+      computationReifier ! Record("create-timer", RawRecord("timer".getBytes(), 0L))
       expectMsgType[ACK]
       computationReifier ! GetState
       val state = expectMsgType[ComputationState]
@@ -191,20 +192,20 @@ class ComputationSpec
     "perform garbage collection" in {
       val computation = new ComputationImpl
       val computationReifier = system.actorOf(Props(new ComputationReifier(computation) with RestartableActor))
-      computationReifier ! Record("regular-without-state", RawRecord("timer", 0L))
+      computationReifier ! Record("regular-without-state", RawRecord("timer".getBytes(), 0L))
       expectMsgType[ACK]
-      computationReifier ! Record("regular-without-state", RawRecord("timer", 0L))
+      computationReifier ! Record("regular-without-state", RawRecord("timer".getBytes(), 0L))
       expectMsgType[ACK]
-      computationReifier ! Record("regular-without-state", RawRecord("timer", 0L))
+      computationReifier ! Record("regular-without-state", RawRecord("timer".getBytes(), 0L))
       expectMsgType[ACK]
-      computationReifier ! Record("regular-without-state", RawRecord("timer", 0L))
+      computationReifier ! Record("regular-without-state", RawRecord("timer".getBytes(), 0L))
       expectMsgType[ACK]
     }
 
     "avoid processing the same message twice" in {
       val computation = new ComputationImpl
       val computationReifier = system.actorOf(Props(new ComputationReifier(computation) with RestartableActor))
-      val record = Record("regular-without-state", RawRecord("timer", 0L))
+      val record = Record("regular-without-state", RawRecord("timer".getBytes(), 0L))
       computationReifier ! record
       expectMsgType[ACK]
 
@@ -215,13 +216,13 @@ class ComputationSpec
     "allow serialization of custom Algebraic Data Types" in {
       val computation = new ComputationImpl
       val computationReifier = system.actorOf(Props(new ComputationReifier(computation) with RestartableActor))
-      val record = Record("can-user-serialization-for-adts", RawRecord("timer", 0L))
+      val record = Record("can-user-serialization-for-adts", RawRecord("timer".getBytes(), 0L))
       computationReifier ! record
       expectMsgType[ACK]
 
       computationReifier ! GetState
       val st = expectMsgType[ComputationState]
-      val binary = st.kv.get(record.key).get
+      val binary = st.kv(record.key)
       implicit val typeInfo = TypeInfo[TestADT]
       val in = new ByteArrayInputStream(binary)
       val input = new DataInputStream(in)
@@ -241,7 +242,7 @@ class ComputationSpec
       expectMsgType[ACK]
       computationReifier ! GetState
       val st = expectMsgType[ComputationState]
-      st.kv.get("regular-storing-state-timer").get should be("timer-state".getBytes())
+      st.kv("regular-storing-state-timer") should be("timer-state".getBytes())
     }
 
     "handle timeouts without keeping stale data for timers" in {
@@ -260,13 +261,13 @@ class ComputationSpec
       expectMsgType[ACK]
       computationReifier ! GetState
       val st = expectMsgType[ComputationState]
-      st.kv.get("regular-storing-state-timer").get should be("timer-state".getBytes())
+      st.kv("regular-storing-state-timer") should be("timer-state".getBytes())
 
       computationReifier ! InjectFailure
 
       computationReifier ! GetState
       val state = expectMsgType[ComputationState]
-      state.kv.get("regular-storing-state-timer").get should be("timer-state".getBytes())
+      state.kv("regular-storing-state-timer") should be("timer-state".getBytes())
     }
 
     "recover gracefully after it is restarted and keep the executor working for timers" in {
@@ -279,7 +280,7 @@ class ComputationSpec
 
       computationReifier ! GetState
       val state = expectMsgType[ComputationState]
-      state.kv.get("long-computation-timer").get should be("long-timer".getBytes())
+      state.kv("long-computation-timer") should be("long-timer".getBytes())
     }
 
     "handle user code exceptions gracefully for timers" in {
@@ -303,11 +304,11 @@ class ComputationSpec
     "be able to reuse state from previous computations in timers" in {
       val computation = new ComputationImpl
       val computationReifier = system.actorOf(Props(new ComputationReifier(computation)))
-      computationReifier ! Record("produce-int", RawRecord("timeout", 0L))
+      computationReifier ! Record("produce-int", RawRecord("timeout".getBytes(), 0L))
       expectMsgType[ACK]
       computationReifier ! ExecuteTimer(FixedTimer("reuse-data-timer", 12.seconds))
       val produceRecord = expectMsgType[ProduceRecord]
-      produceRecord.record.value should be("28")
+      produceRecord.record.value should be(serialize(28))
       produceRecord.stream should be("my-stream")
       expectMsgType[ACK]
     }

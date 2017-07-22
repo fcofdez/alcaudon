@@ -18,11 +18,12 @@ case class StreamRecord(id: Long, rawRecord: RawRecord) {
 case class StreamRecordOld(id: Long, record: Record)
 
 object KeyExtractor {
-  def apply(fn: String => String): KeyExtractor = (msg: String) => fn(msg)
+  def apply(fn: Array[Byte] => String): KeyExtractor =
+    (msg: Array[Byte]) => fn(msg)
 }
 
 trait KeyExtractor extends Serializable {
-  def extractKey(msg: String): String
+  def extractKey(msg: Array[Byte]): String
 }
 
 object AlcaudonStream {

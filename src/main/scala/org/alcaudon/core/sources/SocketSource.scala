@@ -33,7 +33,7 @@ case class SocketSource(host: String,
             .appendAll(charBuf, 0, bytesRead)
             .split("\n".toCharArray)
             .foreach { line =>
-              ctx.collect(RawRecord(line, extractTimestamp(line)))
+              ctx.collect(RawRecord(line.getBytes, extractTimestamp(line)))
             }
           buffer.clear
           bytesRead = in.read(charBuf)

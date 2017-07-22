@@ -53,7 +53,7 @@ case class TwitterSource(credentials: TwitterSourceConfig.OAuth1)
         override def process(): Boolean = {
           try {
             val line = reader.readLine()
-            ctx.collect(RawRecord(line, extractTimestamp(line)))
+            ctx.collect(RawRecord(line.getBytes(), extractTimestamp(line)))
             true
           } catch {
             case e: Exception =>

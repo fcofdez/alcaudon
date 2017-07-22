@@ -24,7 +24,7 @@ class AlcaudonStreamSpec
   }
 
   val keyExtractor = new KeyExtractor {
-    override def extractKey(msg: String): String = "key"
+    override def extractKey(msg: Array[Byte]): String = "key"
   }
 
   def sendRecord(streamName: String,
@@ -61,7 +61,7 @@ class AlcaudonStreamSpec
       stream ! Subscribe(testActor, keyExtractor)
       expectMsg(SubscriptionSuccess(streamName, 0L))
 
-      val record = RawRecord("value", 1L)
+      val record = RawRecord("value".getBytes, 1L)
       stream ! record
       expectMsg(ReceiveACK(record.id))
       expectMsg(PushReady(streamName))
@@ -76,7 +76,7 @@ class AlcaudonStreamSpec
       stream ! Subscribe(testActor, keyExtractor)
       expectMsg(SubscriptionSuccess(streamName, 0L))
 
-      val record = RawRecord("value", 1L)
+      val record = RawRecord("value".getBytes, 1L)
       stream ! record
       expectMsg(ReceiveACK(record.id))
       expectMsg(PushReady(streamName))
@@ -98,7 +98,7 @@ class AlcaudonStreamSpec
     "return records aftter PushReady signal" in {
       val streamName = Random.nextString(4)
       val stream = system.actorOf(AlcaudonStream.props(streamName))
-      val record = RawRecord("value", 1L)
+      val record = RawRecord("value".getBytes(), 1L)
 
       stream ! Subscribe(testActor, keyExtractor)
       expectMsg(SubscriptionSuccess(streamName, 0L))
@@ -109,7 +109,7 @@ class AlcaudonStreamSpec
     "perform garbage collection after configured amount of acks" in {
       val streamName = s"writes-${Random.nextInt()}"
       val stream = system.actorOf(AlcaudonStream.props(streamName))
-      val record = RawRecord("value", 1L)
+      val record = RawRecord("value".getBytes(), 1L)
 
       stream ! Subscribe(testActor, keyExtractor)
       expectMsg(SubscriptionSuccess(streamName, 0L))
@@ -139,7 +139,7 @@ class AlcaudonStreamSpec
       secondConsumer.expectMsg(SubscriptionSuccess(streamName, 0L))
 
       (0 to 9).foreach { i =>
-        val record = RawRecord(s"value-${i}", 1L)
+        val record = RawRecord(s"value-${i}".getBytes(), 1L)
         sendRecord(streamName, stream, record, i)
       }
 

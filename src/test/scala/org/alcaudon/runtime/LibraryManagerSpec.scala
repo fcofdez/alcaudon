@@ -103,7 +103,7 @@ class LibraryManagerSpec
       }
 
       val computation = getComputation("client.ExampleComputation", dataflowCL.userClassLoader)
-      computation.processRecord(Record("key", RawRecord("asd", 1L)))
+      computation.processRecord(Record("key", RawRecord("asd".getBytes(), 1L)))
     }
   }
 }

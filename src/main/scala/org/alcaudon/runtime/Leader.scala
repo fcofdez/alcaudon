@@ -50,9 +50,7 @@ class Leader extends Actor with ActorLogging {
           streamId <- streamIds
           stream <- registeredStreams.get(streamId)
         } yield {
-          stream ! Subscribe(c, KeyExtractor { x: String =>
-            x
-          })
+          stream ! Subscribe(c, KeyExtractor(_.toString))
           streamId
         }
         sender() ! ComputationRegistered(computation.id, subs.toList)
