@@ -11,6 +11,7 @@ class AlcaudonStreamSpec
     extends TestKit(TestActorSystem(
       "AlcaudonStreamSpec",
       Map(
+        "alcaudon.streams.snapshot-interval" -> 4,
         "akka.persistence.journal.plugin" -> "inmemory-journal",
         "akka.persistence.snapshot-store.plugin" -> "inmemory-snapshot-store")))
     with WordSpecLike

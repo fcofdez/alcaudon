@@ -1,6 +1,7 @@
 package org.alcaudon.core
 
 import akka.actor.{ActorLogging, ActorRef, Props}
+import akka.pattern.Backoff
 import akka.persistence._
 import org.alcaudon.core.AlcaudonStream._
 
@@ -30,25 +31,31 @@ object AlcaudonStream {
   case object GetSize
   case class Size(elements: Int)
 
-  case class InvalidOffset(offset: Long)
-
-  case class Pull(latestId: Long)
+  case object CheckOverwhelmedSubscribers
 
   def props(name: String): Props = Props(new AlcaudonStream(name))
 }
 
-//val childProps = Props(classOf[EchoActor])
-//
-//val supervisor = BackoffSupervisor.props(
-//Backoff.onStop(
-//childProps,
-//childName = "myEcho",
-//minBackoff = 3.seconds,
-//maxBackoff = 30.seconds,
-//randomFactor = 0.2 // adds 20% "noise" to vary the intervals slightly
-//))
+class AlcaudonStream(name: String)
+    extends PersistentActor
+    with ActorLogging
+    with ActorConfig {
 
-class AlcaudonStream(name: String) extends PersistentActor with ActorLogging {
+  import context.dispatcher
+
+  context.system.scheduler.schedule(config.streams.backoffTime,
+                                    config.streams.backoffTime,
+                                    self,
+                                    CheckOverwhelmedSubscribers)
+
+  var state = StreamState()
+  val overwhelmDelayedMessages = config.streams.overwhelmedDelay
+  val snapShotInterval = config.streams.snapshotInterval
+
+  def shouldTakeSnapshot: Boolean =
+    lastSequenceNr % snapShotInterval == 0 && lastSequenceNr != 0
+
+  override def persistenceId: String = name
 
   val receiveRecover: Receive = {
     case msg: RawStreamRecord => state.update(msg)
@@ -59,28 +66,24 @@ class AlcaudonStream(name: String) extends PersistentActor with ActorLogging {
       state = snapshot
   }
 
-  val snapShotInterval = 4
-  var state = StreamState()
-
-  def shouldTakeSnapshot: Boolean =
-    lastSequenceNr % snapShotInterval == 0 && lastSequenceNr != 0
-
-  override def persistenceId: String = name
-
-  def signalSubscribers(): Unit = {
+  def signalSubscribers(overwhelmedSubscribers: Set[SubscriberInfo]): Unit = {
     for {
       subscriber <- state.subscribers
       record <- state.getRecord(subscriber.actor)
+      if !overwhelmedSubscribers.contains(subscriber)
     } yield subscriber.actor ! record
   }
 
-  def receiveCommand: Receive = {
+  def receiveCommand = receiveCommandWithControlFlow(Set.empty)
+
+  def receiveCommandWithControlFlow(
+      overwhelmedSubscribers: Set[SubscriberInfo]): Receive = {
     case record: RawRecord =>
       val origin = sender()
       persist(RawStreamRecord(state.nextRecordSeq, record)) { event =>
         state.update(event)
         origin ! ReceiveACK(event.rawRecord.id)
-        signalSubscribers()
+        signalSubscribers(overwhelmedSubscribers)
         if (shouldTakeSnapshot)
           saveSnapshot(state)
       }
@@ -89,6 +92,11 @@ class AlcaudonStream(name: String) extends PersistentActor with ActorLogging {
       persist(ack) { savedACK =>
         state.ack(savedACK.actor, savedACK.offset)
       }
+
+    case CheckOverwhelmedSubscribers =>
+      val overwhelmedConsumers = state.subscribers.filter(
+        _.isOverwhelmed(lastSequenceNr, overwhelmDelayedMessages))
+      context.become(receiveCommandWithControlFlow(overwhelmedConsumers.toSet))
 
     case GetSize =>
       sender() ! Size(state.pendingRecords.length)

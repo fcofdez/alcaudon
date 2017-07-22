@@ -6,13 +6,15 @@ import scala.collection.mutable.ArrayBuffer
 
 case class SubscriberInfo(actor: ActorRef,
                           @transient keyExtractor: KeyExtractor,
-                          var _latestConsumedOffset: Long,
-                          var overwhelmed: Boolean = false)
+                          var _latestConsumedOffset: Long)
     extends Ordered[SubscriberInfo] {
 
   def latestConsumedOffset = _latestConsumedOffset
 
   def nextOffset = _latestConsumedOffset + 1
+
+  def isOverwhelmed(latestOffset: Long, maxDelay: Long): Boolean =
+    latestOffset - _latestConsumedOffset > maxDelay
 
   override def compare(that: SubscriberInfo): Int = {
     that.latestConsumedOffset.compareTo(_latestConsumedOffset)

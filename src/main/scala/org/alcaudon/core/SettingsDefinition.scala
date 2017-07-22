@@ -41,4 +41,13 @@ class SettingsDefinition(config: com.typesafe.config.Config) {
 
   final lazy val consistencyConstraint =
     config.getString("alcaudon.consistency-constraint")
+
+  object streams {
+    final lazy val backoffTime = getDuration("alcaudon.streams.backoff-time")
+    final lazy val overwhelmedDelay =
+      config.getInt("alcaudon.streams.overwhelmed-delay")
+    final lazy val snapshotInterval =
+      config.getInt("alcaudon.streams.snapshot-interval")
+  }
+
 }
