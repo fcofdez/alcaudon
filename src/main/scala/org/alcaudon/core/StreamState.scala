@@ -6,10 +6,13 @@ import scala.collection.mutable.ArrayBuffer
 
 case class SubscriberInfo(actor: ActorRef,
                           @transient keyExtractor: KeyExtractor,
-                          var _latestConsumedOffset: Long)
+                          var _latestConsumedOffset: Long,
+                          var overwhelmed: Boolean = false)
     extends Ordered[SubscriberInfo] {
 
   def latestConsumedOffset = _latestConsumedOffset
+
+  def nextOffset = _latestConsumedOffset + 1
 
   override def compare(that: SubscriberInfo): Int = {
     that.latestConsumedOffset.compareTo(_latestConsumedOffset)
@@ -24,11 +27,11 @@ case class StreamState(
     private var _latestRecordSeq: Long = -1L,
     private var latestAckRecordSeq: Long = 0L,
     private var minAckValue: Long = 0L,
-    var pendingRecords: ArrayBuffer[StreamRecord] = ArrayBuffer.empty,
+    var pendingRecords: ArrayBuffer[RawStreamRecord] = ArrayBuffer.empty,
     private var subscribersInfo: Map[ActorRef, SubscriberInfo] = Map.empty,
     var subscribers: ArrayBuffer[SubscriberInfo] = ArrayBuffer.empty) {
 
-  def update(streamRecord: StreamRecord): Unit = {
+  def update(streamRecord: RawStreamRecord): Unit = {
     pendingRecords.append(streamRecord) //Think about use a heap here to avoid sequential persists
   }
 
@@ -63,17 +66,15 @@ case class StreamState(
   }
 
   // TODO try to avoid allocating one optional per StreamRecord
-  def getRecord(actor: ActorRef, requestedOffset: Long): Option[StreamRecord] = {
+  def getRecord(actor: ActorRef): Option[StreamRecord] = {
     subscribersInfo.get(actor) match {
-      case Some(subscriberInfo)
-          if subscriberInfo.latestConsumedOffset <= requestedOffset =>
+      case Some(subscriberInfo) =>
         // TODO try to allocate less objects //Think about observables
         val streamRecord = pendingRecords(
-          (requestedOffset - latestAckRecordSeq).toInt)
+          (subscriberInfo.nextOffset - latestAckRecordSeq).toInt)
         val key =
           subscriberInfo.keyExtractor.extractKey(streamRecord.value)
-        streamRecord.addKey(key)
-        Some(streamRecord)
+        Some(StreamRecord(streamRecord, Record(key, streamRecord.rawRecord)))
       case None =>
         None
       case _ =>

@@ -34,10 +34,8 @@ class AlcaudonStreamSpec
 
     stream ! record
     expectMsg(ReceiveACK(record.id))
-    expectMsg(PushReady(streamName))
-    stream ! Pull(offset)
-    val streamRecord = StreamRecord(offset, record)
-    streamRecord.addKey("key")
+    val rawStreamRecord = RawStreamRecord(offset, record)
+    val streamRecord = StreamRecord(rawStreamRecord, Record("key", record))
     expectMsg(streamRecord)
     stream ! ACK(testActor, streamName, offset)
   }
@@ -49,7 +47,7 @@ class AlcaudonStreamSpec
       val stream = system.actorOf(AlcaudonStream.props(streamName))
 
       stream ! Subscribe(testActor, keyExtractor)
-      expectMsg(SubscriptionSuccess(streamName, 0L))
+      expectMsg(SuccessfulSubscription(streamName, 0L))
 
       system.stop(stream)
     }
@@ -59,49 +57,23 @@ class AlcaudonStreamSpec
       val stream = system.actorOf(AlcaudonStream.props(streamName))
 
       stream ! Subscribe(testActor, keyExtractor)
-      expectMsg(SubscriptionSuccess(streamName, 0L))
+      expectMsg(SuccessfulSubscription(streamName, 0L))
 
       val record = RawRecord("value".getBytes, 1L)
       stream ! record
       expectMsg(ReceiveACK(record.id))
-      expectMsg(PushReady(streamName))
+      expectMsgType[StreamRecord]
 
       system.stop(stream)
     }
 
-    "return PushReady when there are available messages to push" in {
-      val streamName = Random.nextString(4)
-      val stream = system.actorOf(AlcaudonStream.props(streamName))
-
-      stream ! Subscribe(testActor, keyExtractor)
-      expectMsg(SubscriptionSuccess(streamName, 0L))
-
-      val record = RawRecord("value".getBytes, 1L)
-      stream ! record
-      expectMsg(ReceiveACK(record.id))
-      expectMsg(PushReady(streamName))
-      system.stop(stream)
-    }
-
-    "return invalid offset if the request contains an invalid offset" in {
-      val streamName = Random.nextString(4)
-      val stream = system.actorOf(AlcaudonStream.props(streamName))
-
-      stream ! Subscribe(testActor, keyExtractor)
-      expectMsg(SubscriptionSuccess(streamName, 0L))
-
-      stream ! Pull(12L)
-      expectMsg(InvalidOffset(12L))
-      system.stop(stream)
-    }
-
-    "return records aftter PushReady signal" in {
+    "return records after subscription" in {
       val streamName = Random.nextString(4)
       val stream = system.actorOf(AlcaudonStream.props(streamName))
       val record = RawRecord("value".getBytes(), 1L)
 
       stream ! Subscribe(testActor, keyExtractor)
-      expectMsg(SubscriptionSuccess(streamName, 0L))
+      expectMsg(SuccessfulSubscription(streamName, 0L))
       sendRecord(streamName, stream, record, 0)
       system.stop(stream)
     }
@@ -112,8 +84,8 @@ class AlcaudonStreamSpec
       val record = RawRecord("value".getBytes(), 1L)
 
       stream ! Subscribe(testActor, keyExtractor)
-      expectMsg(SubscriptionSuccess(streamName, 0L))
-      (0 to 9).foreach { i =>
+      expectMsg(SuccessfulSubscription(streamName, 0L))
+      (0L to 9L).foreach { i =>
         sendRecord(streamName, stream, record, i)
       }
 
@@ -132,13 +104,13 @@ class AlcaudonStreamSpec
       val secondConsumer = TestProbe()
 
       stream ! Subscribe(testActor, keyExtractor)
-      expectMsg(SubscriptionSuccess(streamName, 0L))
+      expectMsg(SuccessfulSubscription(streamName, 0L))
 
       stream.tell(Subscribe(secondConsumer.testActor, keyExtractor),
                   secondConsumer.testActor)
-      secondConsumer.expectMsg(SubscriptionSuccess(streamName, 0L))
+      secondConsumer.expectMsg(SuccessfulSubscription(streamName, 0L))
 
-      (0 to 9).foreach { i =>
+      (0L to 9L).foreach { i =>
         val record = RawRecord(s"value-${i}".getBytes(), 1L)
         sendRecord(streamName, stream, record, i)
       }
