@@ -1,7 +1,6 @@
 package org.alcaudon.core
 
 import akka.actor.{ActorLogging, ActorRef, Props}
-import akka.pattern.Backoff
 import akka.persistence._
 import org.alcaudon.core.AlcaudonStream._
 
@@ -32,6 +31,8 @@ object AlcaudonStream {
   case class Size(elements: Int)
 
   case object CheckOverwhelmedSubscribers
+  case object SignalOverwhelmedSubscribers
+  case object InjectFailure
 
   def props(name: String): Props = Props(new AlcaudonStream(name))
 }
@@ -43,13 +44,20 @@ class AlcaudonStream(name: String)
 
   import context.dispatcher
 
-  context.system.scheduler.schedule(config.streams.backoffTime,
-                                    config.streams.backoffTime,
+  context.system.scheduler.schedule(config.streams.flowControl.backoffTime,
+                                    config.streams.flowControl.backoffTime,
                                     self,
                                     CheckOverwhelmedSubscribers)
 
+  context.system.scheduler.schedule(
+    config.streams.flowControl.overwhelmedRetryTime,
+    config.streams.flowControl.overwhelmedRetryTime,
+    self,
+    SignalOverwhelmedSubscribers)
+
   var state = StreamState()
-  val overwhelmDelayedMessages = config.streams.overwhelmedDelay
+  val overwhelmDelayedMessages =
+    config.streams.flowControl.overwhelmedDelay.toLong
   val snapShotInterval = config.streams.snapshotInterval
 
   def shouldTakeSnapshot: Boolean =
@@ -98,6 +106,12 @@ class AlcaudonStream(name: String)
         _.isOverwhelmed(lastSequenceNr, overwhelmDelayedMessages))
       context.become(receiveCommandWithControlFlow(overwhelmedConsumers.toSet))
 
+    case SignalOverwhelmedSubscribers =>
+      for {
+        subscriber <- overwhelmedSubscribers
+        record <- state.getRecord(subscriber.actor)
+      } yield subscriber.actor ! record
+
     case GetSize =>
       sender() ! Size(state.pendingRecords.length)
 
@@ -122,6 +136,9 @@ class AlcaudonStream(name: String)
                state.pendingRecords)
     case failure: DeleteMessagesFailure =>
       log.error("Garbage collection on stream {} failed", name)
+
+    case InjectFailure =>
+      throw new Exception("injected failure")
   }
 
 }

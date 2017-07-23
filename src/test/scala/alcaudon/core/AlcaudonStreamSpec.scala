@@ -6,12 +6,15 @@ import org.alcaudon.core.AlcaudonStream._
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecLike}
 
 import scala.util.Random
+import scala.concurrent.duration._
 
 class AlcaudonStreamSpec
     extends TestKit(TestActorSystem(
       "AlcaudonStreamSpec",
       Map(
         "alcaudon.streams.snapshot-interval" -> 4,
+        "alcaudon.streams.backoff-time" -> "2s",
+        "alcaudon.streams.overwhelmed-delay" -> 5,
         "akka.persistence.journal.plugin" -> "inmemory-journal",
         "akka.persistence.snapshot-store.plugin" -> "inmemory-snapshot-store")))
     with WordSpecLike
@@ -121,6 +124,85 @@ class AlcaudonStreamSpec
 
       system.stop(stream)
     }
+
+    "keep trying to send records until it considers that the subscriber is overwhelmed" in {
+      val streamName = s"writes-${Random.nextInt()}"
+      val stream = system.actorOf(AlcaudonStream.props(streamName))
+
+      val secondConsumer = TestProbe()
+
+      stream ! Subscribe(testActor, keyExtractor)
+      expectMsg(SuccessfulSubscription(streamName, 0L))
+
+      stream.tell(Subscribe(secondConsumer.testActor, keyExtractor),
+        secondConsumer.testActor)
+      secondConsumer.expectMsg(SuccessfulSubscription(streamName, 0L))
+      (0L to 9L).foreach { i =>
+        val record = RawRecord(s"value-${i}".getBytes(), 1L)
+        sendRecord(streamName, stream, record, i)
+      }
+
+      // Keeps trying to send the same message
+      (0L to 9L).foreach { _ =>
+        val record = secondConsumer.expectMsgType[StreamRecord]
+        record.id should be(0L)
+      }
+      Thread.sleep(3000)
+
+      secondConsumer.expectNoMsg(5.seconds)
+    }
+
+    "retry to send messages to overwhelmed subscribers" in {
+      val streamName = s"writes-${Random.nextInt()}"
+      val stream = system.actorOf(AlcaudonStream.props(streamName))
+
+      val secondConsumer = TestProbe()
+
+      stream ! Subscribe(testActor, keyExtractor)
+      expectMsg(SuccessfulSubscription(streamName, 0L))
+
+      stream.tell(Subscribe(secondConsumer.testActor, keyExtractor),
+        secondConsumer.testActor)
+      secondConsumer.expectMsg(SuccessfulSubscription(streamName, 0L))
+      (0L to 9L).foreach { i =>
+        val record = RawRecord(s"value-${i}".getBytes(), 1L)
+        sendRecord(streamName, stream, record, i)
+      }
+
+      // Keeps trying to send the same message
+      (0L to 9L).foreach { _ =>
+        val record = secondConsumer.expectMsgType[StreamRecord]
+        record.id should be(0L)
+      }
+      Thread.sleep(3000)
+
+      secondConsumer.expectNoMsg(6.seconds)
+
+      val record = secondConsumer.expectMsgType[StreamRecord]
+      record.id should be(0L)
+    }
+
+    "recover after a failure" in {
+      val streamName = s"writes-${Random.nextInt()}"
+      val stream = system.actorOf(AlcaudonStream.props(streamName))
+      stream ! Subscribe(testActor, keyExtractor)
+      expectMsg(SuccessfulSubscription(streamName, 0L))
+      (0L to 9L).foreach { i =>
+        val record = RawRecord(s"value-${i}".getBytes(), 1L)
+        sendRecord(streamName, stream, record, i)
+      }
+
+      Thread.sleep(2000)
+      stream ! InjectFailure
+
+      Thread.sleep(2000)
+
+      stream ! GetSize
+      val size = expectMsgType[Size].elements
+      size should be < 10
+      size should be > 0
+    }
   }
+
 
 }
