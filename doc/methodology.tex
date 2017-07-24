@@ -222,16 +222,16 @@ features.
 
 \subsubsection{Release 9: Stream entity implementation}
 \begin{itemize}
-\item \textit{Agreed goal}: Implement an Stream representation so data can be
+\item \textit{Agreed goal}: Implement a Stream representation so data can be
   published and consumed from it. Published data should be durable.
-\item \textit{Deliverable}: Computations subscribe to streams, in this release a
-  durable stream representation was implemented so consumers and publishers can
-  consume and publish stream records. During this release given the changes
-  appeared during the design of the stream entity, some refactors in the
+\item \textit{Deliverable}: Since computations subscribe to streams, in this release a
+  durable stream representation was implemented. This allows consumers and publishers to
+  consume and publish stream records. During this release, given the changes
+  that appeared during the design of the stream entity, some refactors in the
   computation execution engine were done.
 \end{itemize}
 
-\subsubsection{Release 9: Library manager implementation}
+\subsubsection{Release 10: Library manager implementation}
 \begin{itemize}
 \item \textit{Agreed goal}: Implement a subsystem that enables dynamic load of
   arbitrary user code into remote Alcaudon workers.
@@ -240,7 +240,7 @@ features.
   and allows dynamic load of user code.
 \end{itemize}
 
-\subsubsection{Release 10: Distributed architecture design}
+\subsubsection{Release 11: Distributed architecture design}
 \begin{itemize}
 \item \textit{Agreed goal}: Design a resilient distributed architecture that
   allows remote work distribution for the system.
@@ -249,7 +249,7 @@ features.
   of those changes, just a partial design was done.
 \end{itemize}
 
-\subsubsection{Release 11: Distributed architecture implementation}
+\subsubsection{Release 12: Distributed architecture implementation}
 \begin{itemize}
 \item \textit{Agreed goal}: Finish the first design for the distributed
   architecture and implement a prototype.
@@ -258,31 +258,31 @@ features.
   release cycles.
 \end{itemize}
 
-\subsubsection{Release 12: Implement job scheduling policy}
+\subsubsection{Release 13: Implement job scheduling policy}
 \begin{itemize}
 \item \textit{Agreed goal}: Implement computation scheduling to distribute the
   dataflow topology in the most optimal possible configuration.
 \item \textit{Deliverable}: Due to the time constraints, during this release it
   was decided to use available tools to solve the flexible job-shop scheduling
-  problem. In this case, a set of optimization tools provided by Google were
+  problem. In this case, a set of optimization tools provided by Google was
   used.
 \end{itemize}
 
-\subsubsection{Release 13: Implement tools that allows monitoring the system}
+\subsubsection{Release 14: Implement tools that allow monitoring the system}
 \begin{itemize}
 \item \textit{Agreed goal}: Implement tools or adopt external tools that allow
-  observe the behavior of the system.
+  observing the behavior of the system.
 \item \textit{Deliverable}: After some investigation it was agreed to used both
-  an external system to facilitate observability, Prometheus and implement some
+  an external system to facilitate observability, Prometheus, and implement some
   tools to track how the system is performing.
 \end{itemize}
 
-\subsubsection{Release 14: implement some sources and sinks}
+\subsubsection{Release 15: implement some sources and sinks}
 \begin{itemize}
 \item \textit{Agreed goal}: Provide some default implementations of sources and
   sinks, such as TCP sockets or Twitter streaming api.
 \item \textit{Deliverable}: During this release the agreed goals were implemented. Given
-  that the system needed some improvements this latest release was used also to refactor
+  that the system needed some improvements, this latest release was used also to refactor
   some modules of the system to give them more reliability.
 \end{itemize}
 
@@ -290,37 +290,38 @@ features.
 
 There are many technologies available to develop information systems. Different
 paradigms, different environments, etc. For Alcaudon, working with the JVM
-seemed to be a good choice. It is one of the most advanced language virtual
+was the perfect match. It is one of the most advanced language virtual
 machines in the market, with outstanding implementations such as
 OpenJDK\footnote{http://openjdk.java.net/} or
 Zing\footnote{https://www.azul.com/products/zing/virtual-machine/}. The
 available ecosystem of tools and libraries covers many domains. There are
-multiple implementations for state of the art data structures used in this
-project such as cuckoo filters\cite{cuckoo}. Another reason to choose the JVM
+multiple implementations for the state of the art data structures used in this
+project, such as cuckoo filters\cite{cuckoo}. Another reason to choose the JVM
 was the inter-operability between different languages such as Scala and Java.
-Scala has been chosen as the principal programming language. It is an hybrid
-language that allows programmer to use functional and object oriented
-programming paradigms. This design is interesting, it allows to combine the best
-of both worlds, providing tools to work with functional constructs such as
-monadic composition or use more object oriented tools such as traits.
+Scala has been chosen as the principal programming language.
+It is an hybrid language that allows programmers to use functional and object
+oriented programming paradigms. The compelling aspect of this design is that it
+allows the combination of the best of both worlds. It provides tools to work
+with functional constructs such as monadic composition or use more object
+oriented tools such as traits.
 
-In the database space, Cassandra has been chosen as the principal data store due
+In the database space, \textit{Cassandra} has been chosen as the principal data store due
 to it is designed with high availability and scalability in mind. This choice
 provide good grounds to guarantee data durability within the system. For storing
-time series data, Prometheus has been chosen due to its high scalability and
+time series data, \textit{Prometheus} has been chosen due to its high scalability and
 performance querying historic data.
 
-Other tool used to develop Alcaudon has been TravisCI, a cloud continuous
-integration service. Using a service that is fully integrated with git made the
-set-up of the CD pipeline easier.
+Another tool used in the development Alcaudon has been \textit{TravisCI}, a
+cloud continuous integration service. Using a service that is fully integrated
+with git facilitated the set-up of the CD pipeline easier.
 
 \section{Tools}
 
-In this section tools used to develop Alcuadon will be presented. 
+In this section the tools used to develop Alcuadon will be presented. 
 
 \subsection{Hardware}
 
-The only physical hardware used to develop this project have been a laptop. For
+The only physical hardware used to develop this project has been a laptop. For
 deploying the system, Amazon Web Services has been used. All the incurring costs
 for testing have been assumed by the author of this project.
 
@@ -346,8 +347,8 @@ for testing have been assumed by the author of this project.
     \begin{itemize}
       \item Scala\footnote{https://www.scala-lang.org/}. Hybrid Functional and
         Object Oriented programming language used to develop the system.
-      \item \LaTeX{}\footnote{https://www.latex-project.org/}. Used language to
-        write the documentation.
+      \item \LaTeX{}\footnote{https://www.latex-project.org/}. Language used to
+        write this document.
     \end{itemize}
 
   \item Frameworks, libraries and databases

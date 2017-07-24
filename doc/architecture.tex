@@ -2,14 +2,22 @@
 \label{chapter:architecture}
 
 Alcaudon's architecture will be described in this chapter following a top-down
-approach. First, a general description of the different components of the system
-will be done and later a more detailed description of each on them.
+approach. Firstly, a general description of the different components of the system
+will be explained. Finally, each of the components will be described more thoroughly.
 
 \subsection{General description}
 
 Alcaudon's platform is composed by 3 main units.
 
 \begin{itemize}
+\item \textbf{Alcaudon library}: This is the main interface between users
+  and the system. In order to use Alcaudon it is necessary to have access to a
+  cluster with a coordinator and computing nodes. This interface is provided as
+  a library containing the tools to build dataflows, the interfaces to implement
+  user defined stream computations and the tools to connect with a particular
+  cluster. Since the computations are potentially infinite, the operations
+  performed against the cluster are asynchronous, returning an id associated
+  with the created operation.
 \item \textbf{Coordinator node}: This is the main component of the system. It
   coordinates the life cycle of the different components of the cluster such as
   the computing nodes. It is also responsible of performing the scheduling of
@@ -20,27 +28,18 @@ Alcaudon's platform is composed by 3 main units.
 \item \textbf{Computing nodes}: These nodes are in charge of executing the
   actual computations provided by Alcaudon's users. These nodes take care of
   storing intermediate results published to streams. They register dynamically
-  to the cluster contacting the coordinator node. A deployment can be formed by
-  1 computing node up to thousands, this really depends on the needs. Each of
-  these nodes provide certain resources to the system, known as
-  \textit{computation slots}. The number of slots is configurable, but they
-  correlate with the number of available CPU's in the underlying hardware.
-
-\item \textbf{Alcaudon library}: This is the main interface between users
-  and the system. In order to use Alcaudon it is necessary to have access to a
-  cluster with a coordinator and computing nodes. This interface is provided as
-  a library containing the tools to build dataflows, the interfaces to implement
-  user defined stream computations and the tools to connect with a particular
-  cluster. Since the computations are potentially infinite, the operations
-  performed against the cluster are asynchronous, returning an id associated
-  with the created operation.
+  to the cluster contacting the coordinator node. A deployment can be composed
+  from one computing node up to thousands, as needed. Each of these nodes
+  provides certain resources to the system, known as \textit{computation slots}.
+  The number of slots is configurable, but they correlate with the number of
+  available CPU's in the underlying hardware.
 \end{itemize}
 
 A high level overview of the system can be seen in
-figure~\ref{fig:architecture}. Most of the parts of the system have been modeled
-as Actors, as it was stated previously it is a very good fit for this kind of
-applications. Where possible, object oriented design patterns\cite{gof} such as
-\textbf{builder} or \textbf{factory} have been used. However, functional
+figure~\ref{fig:architecture}. The majority of the parts of the system have been
+modeled as Actors. As it was stated previously it is a very good fit for this
+kind of applications. Where possible, object oriented design patterns\cite{gof}
+such as \textbf{builder} or \textbf{factory} have been used. However, functional
 programming constructs such as monads\cite{monads}, type
 classes\cite{typeclasses} or Algebraic Data Types have been used more widely.
 
@@ -56,10 +55,10 @@ inspected in detail.
 
 \subsection{Alcaudon library}
 
-In first place, the user facing interface will be presented in detail. In order
-to create a streaming data processing pipeline, or dataflow topology at it has
+In the first place, the user facing interface will be presented in detail. In order
+to create a streaming data processing pipeline, or dataflow topology as it has
 been defined during all this document, users should provide their business
-logic. To achieve this goal, Alcaudon provide certain interfaces so the users
+logic. To achieve this goal, Alcaudon provides certain interfaces so the users
 just need to care about their code. These interfaces are available as a library
 that can be found at at Sonatype OSSRH \footnote{http://central.sonatype.org/pages/ossrh-guide.html}.
 
@@ -70,7 +69,7 @@ that can be found at at Sonatype OSSRH \footnote{http://central.sonatype.org/pag
   \label{fig:library}
 \end{figure}
 
-This library is composed of 3 modules as it is shown in figure~\ref{fig:library}:
+This library is composed of three modules as it is shown in figure~\ref{fig:library}:
 
 \begin{itemize}
 \item Computation API's: Interface that users should implement in order to
@@ -84,12 +83,11 @@ This library is composed of 3 modules as it is shown in figure~\ref{fig:library}
 
 \subsubsection{Computation API's}
 
-As it was explained before, in order to create custom computations to process
+As explained before, in order to create custom computations to process
 unbounded data-sets in Alcaudon, it is necessary to implement an interface. The
-interface is listed in~\ref{code:computation}. As it can be observed there are
-to methods to implement; \lstinline[columns=fixed]{processRecord(record:
-  Record)} and \lstinline[columns=fixed]{processTimer(timer: Timer)}. These methods
-are the main entry point into user code.
+interface is listed in~\ref{code:computation}. As it can be observed, there are
+two methods to be implemented; \lstinline[columns=fixed]{processRecord(record: Record)} and \lstinline[columns=fixed]{processTimer(timer: Timer)}. These methods
+are the main entry point into user code hooked in reaction to record receipt and timers expiration.
 
 \begin{lstlisting}[language=scala, frame=trBL, label=code:computation, float=ht, caption = {Computation API's}]
 case class RawRecord(value: Array[Byte], timestamp: Long) {
