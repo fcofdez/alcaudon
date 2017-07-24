@@ -1,0 +1,1410 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5289"
+   inkscape:version="0.92.1 r15371"
+   sodipodi:docname="architecture2.svg"
+   inkscape:export-filename="/home/fran/Downloads/arch.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <defs
+     id="defs5283">
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker6348"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path6346"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#bababa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(0.8,0,0,0.8,10,0)" />
+    </marker>
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="marker5813"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lend">
+      <path
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill:#ffc45e;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path5811"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker5761"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         id="path5759"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(0.8,0,0,0.8,10,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         id="path4722"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <symbol
+       id="ToiletsMen">
+      <title
+         id="title10150">Toilets - Men</title>
+      <g
+         style="stroke:none"
+         id="g10156">
+        <circle
+           style="stroke-width:0.26458332"
+           cx="9.5249996"
+           cy="2.3812499"
+           r="1.3229166"
+           id="circle10152" />
+        <path
+           style="stroke-width:0.26458332"
+           inkscape:connector-curvature="0"
+           d="M 6.35,5.8208333 V 9.921875 a 0.5953125,0.5953125 0 0 0 1.190625,0 V 6.0854167 H 7.8052083 V 16.536458 a 0.79375,0.79375 0 0 0 1.5875,0 v -5.953125 h 0.2645834 v 5.953125 a 0.79375015,0.79375015 0 0 0 1.5875003,0 V 6.0854167 h 0.264583 V 9.921875 a 0.5953125,0.5953125 0 0 0 1.190625,0 V 5.8208333 A 1.8520833,1.8520833 0 0 0 10.847917,3.96875 H 8.2020833 A 1.8520833,1.8520833 0 0 0 6.35,5.8208333 Z"
+           id="path10154" />
+      </g>
+    </symbol>
+    <symbol
+       id="ToiletsWomen">
+      <title
+         id="title10170">Toilets - Women</title>
+      <g
+         style="stroke:none"
+         id="g10176">
+        <circle
+           style="stroke-width:0.26458332"
+           cx="9.5249996"
+           cy="2.6458333"
+           r="1.3229166"
+           id="circle10172" />
+        <path
+           style="stroke-width:0.26458332"
+           inkscape:connector-curvature="0"
+           d="m 9.3927083,16.933333 a 0.66145833,0.66145833 0 0 1 -1.3229166,0 V 12.435417 H 6.35 L 8.2020833,6.2177083 H 7.9375 L 6.8527083,9.763125 A 0.555625,0.555625 0 0 1 5.794375,9.445625 L 7.0114583,5.4239583 A 1.7197917,1.7197917 0 0 1 8.73125,4.2333333 h 1.5875 a 1.7197917,1.7197917 0 0 1 1.719792,1.190625 l 1.217083,4.0216667 a 0.555625,0.555625 0 0 1 -1.058333,0.3175 L 11.1125,6.2177083 H 10.847917 L 12.7,12.435417 h -1.719792 v 4.497916 a 0.66145833,0.66145833 0 0 1 -1.3229163,0 V 12.435417 H 9.3927083 Z"
+           id="path10174" />
+      </g>
+    </symbol>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="272.34284"
+     inkscape:cy="715.52756"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     showborder="true"
+     inkscape:lockguides="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="1019"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
+     inkscape:connector-spacing="17">
+    <inkscape:grid
+       type="xygrid"
+       id="grid5834" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5286">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.12299903;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5844"
+       width="74.423843"
+       height="90.804718"
+       x="22.149088"
+       y="41.238274"
+       ry="5.9074106"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <rect
+       style="opacity:1;fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846"
+       width="27.280277"
+       height="11.935122"
+       x="27.863955"
+       y="53.612183"
+       ry="3.4100347"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="42.333332"
+       y="-84"
+       id="text6035"><tspan
+         sodipodi:role="line"
+         id="tspan6033"
+         x="42.333332"
+         y="-74.63623"
+         style="stroke-width:0.26458332" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="57.338326"
+       y="47.195244"
+       id="text6115-3"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         id="tspan6113-6"
+         x="57.338326"
+         y="47.195244"
+         style="font-size:3.63737059px;stroke-width:0.04262543">Cluster Coordinator</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="31.942787"
+       y="60.117355"
+       id="text6115-3-7"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         id="tspan6113-6-5"
+         x="31.942787"
+         y="60.117355"
+         style="font-size:2.27335668px;stroke-width:0.04262543">Library manager</tspan></text>
+    <rect
+       style="opacity:1;fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846-3"
+       width="27.280277"
+       height="11.935122"
+       x="62.390541"
+       y="53.612183"
+       ry="3.4100347"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="75.178192"
+       y="58.786072"
+       id="text6115-3-7-5"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         id="tspan6113-6-5-6"
+         x="75.178192"
+         y="58.786072"
+         style="font-size:2.27335668px;text-align:center;text-anchor:middle;stroke-width:0.04262543">Cluster membership</tspan><tspan
+         sodipodi:role="line"
+         x="75.178192"
+         y="61.627769"
+         style="font-size:2.27335668px;text-align:center;text-anchor:middle;stroke-width:0.04262543"
+         id="tspan5327"> manager</tspan></text>
+    <rect
+       style="opacity:1;fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.15094988;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846-3-2"
+       width="61.165829"
+       height="28.985291"
+       x="29.140423"
+       y="74.547256"
+       ry="8.2815113"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <rect
+       style="opacity:1;fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846-3-3"
+       width="27.280277"
+       height="11.935122"
+       x="61.332199"
+       y="111.58278"
+       ry="3.4100347"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:connector-avoid="true" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="67.598053"
+       y="116.75665"
+       id="text6115-3-7-5-6"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         id="tspan6113-6-5-6-0"
+         x="67.598053"
+         y="116.75665"
+         style="font-size:2.27335668px;stroke-width:0.04262543">Cluster health</tspan><tspan
+         sodipodi:role="line"
+         x="67.598053"
+         y="119.59835"
+         style="font-size:2.27335668px;stroke-width:0.04262543"
+         id="tspan5327-6"> manager</tspan></text>
+    <rect
+       style="opacity:1;fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.13175398;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846-3-26"
+       width="27.280277"
+       height="11.935122"
+       x="29.313204"
+       y="111.58278"
+       ry="3.4100347"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:connector-avoid="true" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="32.20916"
+       y="118.17751"
+       id="text6115-3-7-5-1"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         x="32.20916"
+         y="118.17751"
+         style="font-size:2.27335668px;stroke-width:0.04262543"
+         id="tspan5327-7">Dataflow manager</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="33.18388"
+       y="78.531036"
+       id="text6115-3-7-5-9"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         x="33.18388"
+         y="78.531036"
+         style="font-size:2.27335668px;stroke-width:0.04262543"
+         id="tspan5327-0">Scheduler</tspan></text>
+    <circle
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5426-2"
+       cx="115.75836"
+       cy="16.230366"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="9.3775959" />
+    <circle
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5426-2-3"
+       cx="118.11745"
+       cy="16.230366"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="9.3775959" />
+    <circle
+       style="fill:#77b96d;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5426-2-3-7"
+       cx="113.46281"
+       cy="16.230366"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="9.3775959" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="113.3862"
+       y="15.542364"
+       id="text5430-5"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
+         sodipodi:role="line"
+         x="113.82045"
+         y="15.542364"
+         style="font-size:2.72802782px;text-align:center;text-anchor:middle;stroke-width:0.04262543"
+         id="tspan5432-2">Cassandra </tspan><tspan
+         sodipodi:role="line"
+         x="113.3862"
+         y="18.952398"
+         style="text-align:center;text-anchor:middle;stroke-width:0.04262543"
+         id="tspan5527"><tspan
+           style="font-size:2.72802782px;stroke-width:0.04262543"
+           id="tspan5529">Cluster</tspan></tspan></text>
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.20610192;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5844-2"
+       width="73.665802"
+       height="108.82903"
+       x="125.12972"
+       y="46.147415"
+       ry="7.0800047"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="128.88553"
+       y="51.402229"
+       id="text6115-3-8"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         id="tspan6113-6-9"
+         x="128.88553"
+         y="51.402229"
+         style="font-size:3.63737059px;stroke-width:0.04262543">Computation nodes</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.16110402;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 46.463494,111.58278 4.73519,-8.05023"
+       id="path5749"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#rect5846-3-26"
+       inkscape:connection-end="#rect5846-3-2"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.16110402;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 72.727403,65.547304 67.74558,74.547256"
+       id="path5751"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#rect5846-3"
+       inkscape:connection-end="#rect5846-3-2"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <circle
+       style="fill:#70a39f;fill-opacity:1;stroke:#000000;stroke-width:0.08558656;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863"
+       cx="39.763836"
+       cy="89.538574"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="1.8115822" />
+    <circle
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.08558656;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3"
+       cx="45.707565"
+       cy="87.09874"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="1.8115822" />
+    <circle
+       style="fill:#e0b061;fill-opacity:1;stroke:#000000;stroke-width:0.08558656;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3-6"
+       cx="45.707565"
+       cy="92.205124"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="1.8115822" />
+    <circle
+       style="fill:#965f5f;fill-opacity:1;stroke:#000000;stroke-width:0.08558656;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3-6-1"
+       cx="51.494255"
+       cy="89.538574"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="1.8115822" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.16110402;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 45.194652,65.547304 5.565901,8.999952"
+       id="path5928"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#rect5846"
+       inkscape:connection-end="#rect5846-3-2"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.16110402;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 71.780547,111.58278 -4.30572,-8.05023"
+       id="path5930"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#rect5846-3-3"
+       inkscape:connection-end="#rect5846-3-2"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.04262543px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 41.439694,88.850653 2.592013,-1.063992"
+       id="path5934"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5863"
+       inkscape:connection-end="#path5863-3"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.04262543px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 41.416673,90.28009 2.638056,1.183518"
+       id="path5936"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5863"
+       inkscape:connection-end="#path5863-3-6"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.04262543px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 47.352847,91.446966 2.496126,-1.150234"
+       id="path5938"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5863-3-6"
+       inkscape:connection-end="#path5863-3-6-1"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.04262543px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 47.376808,87.80254 2.448204,1.032234"
+       id="path5940"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5863-3"
+       inkscape:connection-end="#path5863-3-6-1"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5942"
+       width="26.231592"
+       height="13.782635"
+       x="33.080341"
+       y="82.6875"
+       ry="4.9956145"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="35.83247"
+       y="84.987534"
+       id="text5946"><tspan
+         sodipodi:role="line"
+         id="tspan5944"
+         x="35.83247"
+         y="84.987534"
+         style="stroke-width:0.04262543">Job Graph 0</tspan></text>
+    <circle
+       style="fill:#70a39f;fill-opacity:1;stroke:#000000;stroke-width:0.08558656;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-2"
+       cx="67.008492"
+       cy="89.081482"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="1.8115822" />
+    <circle
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.08558656;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3-9"
+       cx="72.952232"
+       cy="86.641663"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="1.8115822" />
+    <circle
+       style="fill:#e0b061;fill-opacity:1;stroke:#000000;stroke-width:0.08558656;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3-6-3"
+       cx="72.952232"
+       cy="91.748062"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="1.8115822" />
+    <circle
+       style="fill:#965f5f;fill-opacity:1;stroke:#000000;stroke-width:0.08558656;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3-6-1-1"
+       cx="78.738899"
+       cy="89.081482"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="1.8115822" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.04262543px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 68.684351,88.393566 2.592021,-1.063987"
+       id="path5934-9"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5863-2"
+       inkscape:connection-end="#path5863-3-9"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.04262543px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 68.661326,89.823004 2.638072,1.183536"
+       id="path5936-4"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5863-2"
+       inkscape:connection-end="#path5863-3-6-3"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.04262543px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 74.597509,90.989895 77.093622,89.83965"
+       id="path5938-7"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5863-3-6-3"
+       inkscape:connection-end="#path5863-3-6-1-1"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.04262543px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 74.621476,87.345462 2.44818,1.032221"
+       id="path5940-8"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5863-3-9"
+       inkscape:connection-end="#path5863-3-6-1-1"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5942-4"
+       width="26.231592"
+       height="13.782635"
+       x="60.325001"
+       y="82.6875"
+       ry="4.9956145"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="63.332893"
+       y="84.359955"
+       id="text5946-5"><tspan
+         sodipodi:role="line"
+         id="tspan5944-0"
+         x="63.332893"
+         y="84.359955"
+         style="stroke-width:0.04262543">Job Graph N</tspan></text>
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.25313306;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5844-2-3"
+       width="115.73338"
+       height="82.020844"
+       x="11.266623"
+       y="167.38301"
+       ry="5.3359647"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="15.563861"
+       y="175.21498"
+       id="text6115-3-5"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         id="tspan6113-6-4"
+         x="15.563861"
+         y="175.21498"
+         style="font-size:3.63737059px;stroke-width:0.04262543">Client node</tspan></text>
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.24565405;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846-3-26-7"
+       width="44.979164"
+       height="25.164286"
+       x="26.699991"
+       y="219.77051"
+       ry="7.1897955"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="55.5625"
+       y="249.375"
+       id="text6151"><tspan
+         sodipodi:role="line"
+         id="tspan6149"
+         x="55.5625"
+         y="253.12051"
+         style="font-size:4.23333311px;stroke-width:0.26458332" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="58.208332"
+       y="257.3125"
+       id="text6174"><tspan
+         sodipodi:role="line"
+         id="tspan6172"
+         x="58.208332"
+         y="261.05801"
+         style="stroke-width:0.26458332" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:3.52777767px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="33.012192"
+       y="224.68419"
+       id="text6178"><tspan
+         sodipodi:role="line"
+         id="tspan6176"
+         x="33.012192"
+         y="224.68419"
+         style="font-size:2.82222223px;stroke-width:0.26458332">User code: Computation</tspan></text>
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.123;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect6180"
+       width="23.8125"
+       height="5.2916665"
+       x="15.587493"
+       y="228.23717"
+       ry="2.6458333" />
+    <rect
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.123;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect6180-6"
+       width="23.8125"
+       height="5.2916665"
+       x="15.587493"
+       y="233.52882"
+       ry="2.6458333" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:3.52777767px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="17.250593"
+       y="231.70561"
+       id="text6199"><tspan
+         sodipodi:role="line"
+         id="tspan6197"
+         x="17.250593"
+         y="231.70561"
+         style="font-size:2.82222223px;stroke-width:0.26458332">ProcessRecord</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:3.52777767px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="16.683622"
+       y="237.18626"
+       id="text6199-5"><tspan
+         sodipodi:role="line"
+         id="tspan6197-6"
+         x="16.683622"
+         y="237.18626"
+         style="font-size:2.82222223px;stroke-width:0.26458332">ProcessTimer</tspan></text>
+    <rect
+       style="opacity:1;fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.13175398;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846-3-26-9"
+       width="27.280277"
+       height="11.935122"
+       x="54.982182"
+       y="179.49602"
+       ry="3.4100347"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:connector-avoid="true" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="58.600666"
+       y="186.3111"
+       id="text6115-3-7-5-1-3"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         x="58.600666"
+         y="186.3111"
+         style="font-size:2.27335668px;stroke-width:0.04262543"
+         id="tspan5327-7-7">Dataflow builder</tspan></text>
+    <rect
+       style="opacity:1;fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.13175398;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846-3-26-9-4"
+       width="27.280277"
+       height="11.935122"
+       x="89.378052"
+       y="179.26039"
+       ry="3.4100347"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="95.45829"
+       y="186.07547"
+       id="text6115-3-7-5-1-3-5"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         x="95.45829"
+         y="186.07547"
+         style="font-size:2.27335668px;stroke-width:0.04262543"
+         id="tspan5327-7-7-2">Cluster client</tspan></text>
+    <rect
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.43700001;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:0.437, 0.437;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect6273"
+       width="68.791664"
+       height="36.276814"
+       x="52.629166"
+       y="176.08536"
+       ry="4.2504225" />
+    <rect
+       style="opacity:1;fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.13175398;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846-3-26-9-4-5"
+       width="27.280277"
+       height="11.935122"
+       x="54.982227"
+       y="197.78122"
+       ry="3.4100347"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="58.499935"
+       y="204.37595"
+       id="text6115-3-7-5-1-3-5-4"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         x="58.499935"
+         y="204.37595"
+         style="font-size:2.27335668px;stroke-width:0.04262543"
+         id="tspan5327-7-7-2-7">Computation APIs</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:3.52777767px;line-height:1.25;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="102.94489"
+       y="201.77884"
+       id="text6298"><tspan
+         sodipodi:role="line"
+         id="tspan6296"
+         x="102.94489"
+         y="201.77884"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332">Alcaudon</tspan><tspan
+         sodipodi:role="line"
+         x="102.94489"
+         y="206.18857"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332"
+         id="tspan6300">Library</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 64.568146,209.71634 -6.830563,10.05417"
+       id="path6302"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#rect5846-3-26-9-4-5"
+       inkscape:connection-end="#rect5846-3-26-7" />
+    <rect
+       style="opacity:1;fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846-3-4"
+       width="27.280277"
+       height="11.935122"
+       x="132.88611"
+       y="61.020508"
+       ry="3.4100347"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="146.52458"
+       y="66.194389"
+       id="text6115-3-7-5-4"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         id="tspan6113-6-5-6-3"
+         x="146.52458"
+         y="66.194389"
+         style="font-size:2.27335668px;text-align:center;text-anchor:middle;stroke-width:0.04262543">Cluster membership</tspan><tspan
+         sodipodi:role="line"
+         x="146.52458"
+         y="69.036087"
+         style="font-size:2.27335668px;text-align:center;text-anchor:middle;stroke-width:0.04262543"
+         id="tspan5327-07"> client</tspan></text>
+    <rect
+       style="opacity:1;fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846-8"
+       width="27.280277"
+       height="11.935122"
+       x="132.88611"
+       y="82.187172"
+       ry="3.4100347"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="145.70314"
+       y="87.331642"
+       id="text6115-3-7-6"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         id="tspan6113-6-5-8"
+         x="145.70314"
+         y="87.331642"
+         style="font-size:2.27335668px;text-align:center;text-anchor:middle;stroke-width:0.04262543">Computation</tspan><tspan
+         sodipodi:role="line"
+         x="145.70314"
+         y="90.17334"
+         style="font-size:2.27335668px;text-align:center;text-anchor:middle;stroke-width:0.04262543"
+         id="tspan6556"> manager</tspan></text>
+    <rect
+       style="opacity:1;fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846-8-8"
+       width="27.280277"
+       height="11.935122"
+       x="166.39999"
+       y="98.062164"
+       ry="3.4100347"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="168.71495"
+       y="104.56734"
+       id="text6115-3-7-6-4"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         id="tspan6113-6-5-8-3"
+         x="168.71495"
+         y="104.56734"
+         style="font-size:2.27335668px;stroke-width:0.04262543">Computation Slot</tspan></text>
+    <rect
+       style="opacity:1;fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846-8-1"
+       width="27.280277"
+       height="11.935122"
+       x="166.39999"
+       y="113.93716"
+       ry="3.4100347"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="168.71495"
+       y="120.44234"
+       id="text6115-3-7-6-49"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         id="tspan6113-6-5-8-2"
+         x="168.71495"
+         y="120.44234"
+         style="font-size:2.27335668px;stroke-width:0.04262543">Computation Slot</tspan></text>
+    <rect
+       style="opacity:1;fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846-8-1-0"
+       width="27.280277"
+       height="11.935122"
+       x="166.39999"
+       y="129.81226"
+       ry="3.4100347"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="168.71495"
+       y="136.31738"
+       id="text6115-3-7-6-49-6"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         id="tspan6113-6-5-8-2-8"
+         x="168.71495"
+         y="136.31738"
+         style="font-size:2.27335668px;stroke-width:0.04262543">Computation Slot</tspan></text>
+    <rect
+       style="opacity:1;fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846-3-4-9"
+       width="27.280277"
+       height="11.935122"
+       x="166.39999"
+       y="61.020508"
+       ry="3.4100347"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="171.36078"
+       y="67.525681"
+       id="text6115-3-7-6-4-2"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         id="tspan6113-6-5-8-3-6"
+         x="171.36078"
+         y="67.525681"
+         style="font-size:2.27335668px;stroke-width:0.04262543">Library manager</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 118.13784,24.359328 12.61598,21.936681"
+       id="path6638"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5426-2-3-7"
+       inkscape:connection-end="#rect5844-2" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 90.306252,88.728034 132.88611,88.293827"
+       id="path6658"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#rect5846-3-2"
+       inkscape:connection-end="#rect5846-8" />
+    <use
+       id="use13430"
+       style="fill:#000000;stroke:#000000"
+       xlink:href="#ToiletsWomen"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%"
+       transform="matrix(1.8953653,0,0,1.8953653,161.3491,246.77416)" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 179.40245,264.70195 v 0 c 0,6.1351 -7.14375,12.2702 -14.2875,12.2702 H 63.477073 c -7.14375,0 -14.2875,-7.14375 -14.2875,-14.2875 v -17.74986"
+       id="path13496"
+       inkscape:connector-type="orthogonal"
+       inkscape:connector-curvature="54"
+       inkscape:connection-end="#rect5846-3-26-7"
+       inkscape:connection-start="#use13430" />
+    <circle
+       style="fill:#70a39f;fill-opacity:1;stroke:#000000;stroke-width:0.15376626;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-6"
+       cx="90.19693"
+       cy="233.92831"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="3.2547193" />
+    <circle
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.15376626;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3-4"
+       cx="100.87553"
+       cy="229.54486"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="3.2547193" />
+    <circle
+       style="fill:#e0b061;fill-opacity:1;stroke:#000000;stroke-width:0.15376626;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3-6-9"
+       cx="100.87553"
+       cy="238.71909"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="3.2547193" />
+    <circle
+       style="fill:#965f5f;fill-opacity:1;stroke:#000000;stroke-width:0.15376626;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3-6-1-5"
+       cx="111.27201"
+       cy="233.92831"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="3.2547193" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.07658157px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 93.207804,232.69238 4.656849,-1.91159"
+       id="path5934-0"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5863-6"
+       inkscape:connection-end="#path5863-3-4"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.07658157px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 93.166444,235.26054 4.739569,2.12632"
+       id="path5936-48"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5863-6"
+       inkscape:connection-end="#path5863-3-6-9"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.07658157px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 103.83147,237.35697 4.4846,-2.06654"
+       id="path5938-71"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5863-3-6-9"
+       inkscape:connection-end="#path5863-3-6-1-5"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.07658157px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 103.87452,230.80932 4.3985,1.85453"
+       id="path5940-7"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5863-3-4"
+       inkscape:connection-end="#path5863-3-6-1-5"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.26811936;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5942-2"
+       width="43.656254"
+       height="22.937923"
+       x="78.052086"
+       y="220.88368"
+       ry="8.3140135"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:connector-avoid="true" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 160.16639,88.154733 h 4.52791 c 5.82435,0 11.6487,4.421143 14.11705,9.907431"
+       id="path13799"
+       inkscape:connector-type="orthogonal"
+       inkscape:connector-curvature="58"
+       inkscape:connection-start="#rect5846-8"
+       inkscape:connection-end="#rect5846-8-8" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 180.04013,109.99729 v 3.93987"
+       id="path13803"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="58"
+       inkscape:connection-start="#rect5846-8-8"
+       inkscape:connection-end="#rect5846-8-1" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 180.04013,125.87228 v 3.93998"
+       id="path13805"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="58"
+       inkscape:connection-start="#rect5846-8-1"
+       inkscape:connection-end="#rect5846-8-1-0" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 42.953342,123.5179 v 1.53073 c 0,13.22916 13.229167,26.45833 26.458334,26.45833 h 7.148181 c 13.229167,0 26.458333,13.22917 26.458333,26.45833 v 1.2951"
+       id="path4644"
+       inkscape:connector-type="orthogonal"
+       inkscape:connector-curvature="100"
+       inkscape:connection-start="#rect5846-3-26"
+       inkscape:connection-end="#rect5846-3-26-9-4" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:3.52777767px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="129.11667"
+       y="35.213688"
+       id="text4648"><tspan
+         sodipodi:role="line"
+         id="tspan4646"
+         x="129.11667"
+         y="35.213688"
+         style="stroke-width:0.26458332">Persistence</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:3.52777767px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="82.056152"
+       y="224.95773"
+       id="text6178-7"><tspan
+         sodipodi:role="line"
+         id="tspan6176-0"
+         x="82.056152"
+         y="224.95773"
+         style="font-size:2.82222223px;stroke-width:0.26458332">User defined Dataflow</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 71.679155,232.35264 h 6.372931"
+       id="path10300"
+       inkscape:connector-type="orthogonal"
+       inkscape:connector-curvature="77"
+       inkscape:connection-start="#rect5846-3-26-7"
+       inkscape:connection-end="#rect5942-2" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 179.40245,264.70195 v -11.97639 c 0,-10.18646 -10.18645,-20.37292 -20.37291,-20.37292 h -37.3212"
+       id="path10302"
+       inkscape:connector-type="orthogonal"
+       inkscape:connector-curvature="77"
+       inkscape:connection-start="#use13430"
+       inkscape:connection-end="#rect5942-2" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 99.779272,212.36217 c 0.06645,0.74217 0.100941,1.48834 0.100941,2.23451 v 6.287"
+       id="path10306"
+       inkscape:connector-type="orthogonal"
+       inkscape:connector-curvature="77"
+       inkscape:connection-start="#rect6273"
+       inkscape:connection-end="#rect5942-2" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:3.52777767px;line-height:1.25;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="50.042721"
+       y="153.55804"
+       id="text10310"><tspan
+         sodipodi:role="line"
+         id="tspan10308"
+         x="50.042721"
+         y="153.55804"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332">Communication</tspan><tspan
+         sodipodi:role="line"
+         x="50.042721"
+         y="157.96777"
+         style="text-align:center;text-anchor:middle;stroke-width:0.26458332"
+         id="tspan10312">via Akka Remote</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 89.670818,59.579743 H 125.095 c 4.13326,0 8.26653,0.551114 11.78483,1.440765"
+       id="path10314"
+       inkscape:connector-type="orthogonal"
+       inkscape:connector-curvature="81"
+       inkscape:connection-start="#rect5846-3"
+       inkscape:connection-end="#rect5846-3-4" />
+    <circle
+       style="fill:#e66d01;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5426-2-3-7-9-3"
+       cx="186.03424"
+       cy="16.230366"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="9.3775959" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#ff8a13;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="185.99094"
+       y="13.837347"
+       id="text5430-5-6-6"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
+         sodipodi:role="line"
+         x="185.99094"
+         y="13.837347"
+         style="font-size:2.72802782px;text-align:center;text-anchor:middle;fill:#ff8a13;fill-opacity:1;stroke-width:0.04262543"
+         id="tspan5527-0-0">Object</tspan><tspan
+         sodipodi:role="line"
+         x="185.99094"
+         y="17.247383"
+         style="font-size:2.72802782px;text-align:center;text-anchor:middle;fill:#ff8a13;fill-opacity:1;stroke-width:0.04262543"
+         id="tspan6612-6">Store</tspan><tspan
+         sodipodi:role="line"
+         x="185.99094"
+         y="20.657417"
+         style="font-size:2.72802782px;text-align:center;text-anchor:middle;fill:#ff8a13;fill-opacity:1;stroke-width:0.04262543"
+         id="tspan6614-2">S3</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="185.61296"
+       y="13.837347"
+       id="text5430-5-6-61"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
+         sodipodi:role="line"
+         x="185.61296"
+         y="13.837347"
+         style="font-size:2.72802782px;text-align:center;text-anchor:middle;stroke-width:0.04262543"
+         id="tspan5527-0-8">Object</tspan><tspan
+         sodipodi:role="line"
+         x="185.61296"
+         y="17.247383"
+         style="font-size:2.72802782px;text-align:center;text-anchor:middle;stroke-width:0.04262543"
+         id="tspan6612-7">Store</tspan><tspan
+         sodipodi:role="line"
+         x="185.61296"
+         y="20.657417"
+         style="font-size:2.72802782px;text-align:center;text-anchor:middle;stroke-width:0.04262543"
+         id="tspan6614-9">S3</tspan></text>
+    <circle
+       style="fill:#e66d01;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5426-2-3-7-9-3-2"
+       cx="36.280056"
+       cy="16.230366"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="9.3775959" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="35.858776"
+       y="13.837347"
+       id="text5430-5-6-61-0"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
+         sodipodi:role="line"
+         x="35.858776"
+         y="13.837347"
+         style="font-size:2.72802782px;text-align:center;text-anchor:middle;stroke-width:0.04262543"
+         id="tspan5527-0-8-2">Object</tspan><tspan
+         sodipodi:role="line"
+         x="35.858776"
+         y="17.247381"
+         style="font-size:2.72802782px;text-align:center;text-anchor:middle;stroke-width:0.04262543"
+         id="tspan6612-7-3">Store</tspan><tspan
+         sodipodi:role="line"
+         x="35.858776"
+         y="20.657417"
+         style="font-size:2.72802782px;text-align:center;text-anchor:middle;stroke-width:0.04262543"
+         id="tspan6614-9-7">S3</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 41.504093,53.612183 V 36.603282 c 0,-4.215311 -0.44729,-8.430622 -1.156774,-11.924091"
+       id="path10468"
+       inkscape:connector-type="orthogonal"
+       inkscape:connector-curvature="77"
+       inkscape:connection-start="#rect5846"
+       inkscape:connection-end="#path5426-2-3-7-9-3-2" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 184.04091,61.020508 c 1.19034,-3.859988 1.99333,-9.132672 1.99333,-14.405356 v -21.00719"
+       id="path10470"
+       inkscape:connector-type="orthogonal"
+       inkscape:connector-curvature="77"
+       inkscape:connection-start="#rect5846-3-4-9"
+       inkscape:connection-end="#path5426-2-3-7-9-3" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 88.612476,117.55034 H 125.12972"
+       id="path10472"
+       inkscape:connector-type="orthogonal"
+       inkscape:connector-curvature="77"
+       inkscape:connection-start="#rect5846-3-3"
+       inkscape:connection-end="#rect5844-2" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 113.46281,25.607962 v 40.659754 c 0,9.020351 -7.98774,18.040701 -16.889879,19.987723"
+       id="path10474"
+       inkscape:connector-type="orthogonal"
+       inkscape:connector-curvature="77"
+       inkscape:connection-start="#path5426-2-3-7"
+       inkscape:connection-end="#rect5844" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 180.04013,72.955629 0,25.106535"
+       id="path10476"
+       inkscape:connector-type="orthogonal"
+       inkscape:connector-curvature="77"
+       inkscape:connection-start="#rect5846-3-4-9"
+       inkscape:connection-end="#rect5846-8-8" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:3.52777767px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="84.666664"
+       y="270.54166"
+       id="text10504"><tspan
+         sodipodi:role="line"
+         id="tspan10502"
+         x="84.666664"
+         y="270.54166"
+         style="stroke-width:0.26458332">User defines different computations</tspan><tspan
+         sodipodi:role="line"
+         x="84.666664"
+         y="274.95139"
+         style="stroke-width:0.26458332"
+         id="tspan10506">implementing ComputationAPI</tspan></text>
+  </g>
+</svg>

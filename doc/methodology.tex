@@ -14,13 +14,21 @@ has this set of principles:
 \item Responding to change over following a plan
 \end{itemize}
 
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{agile.jpg}
+  \caption{Waterfall vs Agile Methodologies\cite{waterfall}}
+  \label{fig:waterfall}
+\end{figure}
+
 The main goal of these methodologies is to improve communications between all
 the stakeholders in a project. This focus on continuous communications reduces
 risks and provides value since the very beginning of the project. One of the
 outcomes of this iterative open process is a reduction in the costs of the
 changes. This differs totally from rigid methodologies such as waterfall where
 the customer is taken apart from the project until the very end, skyrocketing
-the costs of change.
+the costs of change as shown in Figure~\ref{fig:waterfall}.
 
 Agile methodologies have become popular during the last 10 years, therefore there
 are many agile frameworks that follow the previously enumerated principles. The
@@ -140,7 +148,7 @@ features.
 
 \subsubsection{Release 2: Technology selection}
 \begin{itemize}
-\item \textit{Agreed goal}: Given the findings from the previous week,
+\item \textit{Agreed goal}: Given the findings from the previous release,
   investigate suitable technologies to implement a distributed data processing
   system.
 \item \textit{Deliverable}: After some investigation and tests two languages
@@ -169,7 +177,7 @@ features.
 \begin{itemize}
 \item \textit{Agreed goal}: Develop a first dataflow builder version where the
   user can define a dataflow topology.
-\item \textit{Deliverable}: During this week an usable dataflow builder was
+\item \textit{Deliverable}: During this release an usable dataflow builder was
   delivered. Alcaudon users were able to build their own computation topologies.
   This allowed to start testing how usable the interface was and with the given
   feedback improve the initial designs.
@@ -207,89 +215,104 @@ features.
   Data Types.
 \item \textit{Deliverable}: Data travels around Alcaudon as an array of bytes.
   There are many serialization formats to transform high level entities to
-  binary data. But for simplicity, a generic serialization library has been
+  binary data. However, for simplicity, a generic serialization library has been
   developed. This library is able to, given an Algebraic Data Type, create a
-  serializer/deserializer using scala implicit induction during compile time.
+  serializer/de-serializer using scala implicit induction during compile time.
 \end{itemize}
 
 \subsubsection{Release 9: Stream entity implementation}
 \begin{itemize}
 \item \textit{Agreed goal}: Implement an Stream representation so data can be
-  published to it and consumed from it.
-\item \textit{Deliverable}: Computations subscribe to streams, in this release a durable
-  stream representation was implemented.
+  published and consumed from it. Published data should be durable.
+\item \textit{Deliverable}: Computations subscribe to streams, in this release a
+  durable stream representation was implemented so consumers and publishers can
+  consume and publish stream records. During this release given the changes
+  appeared during the design of the stream entity, some refactors in the
+  computation execution engine were done.
 \end{itemize}
 
 \subsubsection{Release 9: Library manager implementation}
 \begin{itemize}
 \item \textit{Agreed goal}: Implement a subsystem that enables dynamic load of
   arbitrary user code into remote Alcaudon workers.
-\item \textit{Deliverable}: 
+\item \textit{Deliverable}: A module to load arbitrary user code was developed.
+  It is backed by a cloud object storage\footnote{https://aws.amazon.com/s3/},
+  and allows dynamic load of user code.
 \end{itemize}
 
 \subsubsection{Release 10: Distributed architecture design}
 \begin{itemize}
 \item \textit{Agreed goal}: Design a resilient distributed architecture that
-  allows remote work distribution.
-\item \textit{Deliverable}: During this release cycle the feedback from the advisor
+  allows remote work distribution for the system.
+\item \textit{Deliverable}: During this release some requirement changes were brought
+  by the business side due to a bug in the stream implementation. Given the urgency
+  of those changes, just a partial design was done.
 \end{itemize}
 
 \subsubsection{Release 11: Distributed architecture implementation}
 \begin{itemize}
-\item \textit{Agreed goal}: Define the public interface that customers will
-  use to implement their computations.
-\item \textit{Deliverable}: During this release cycle the feedback from the advisor
-  was
+\item \textit{Agreed goal}: Finish the first design for the distributed
+  architecture and implement a prototype.
+\item \textit{Deliverable}: In this release, a first version for the distributed
+  architecture was developed. The idea was to keep developing during the next
+  release cycles.
 \end{itemize}
 
 \subsubsection{Release 12: Implement job scheduling policy}
 \begin{itemize}
-\item \textit{Agreed goal}: Define the public interface that customers will
-  use to implement their computations.
-\item \textit{Deliverable}: using google or-tools.
+\item \textit{Agreed goal}: Implement computation scheduling to distribute the
+  dataflow topology in the most optimal possible configuration.
+\item \textit{Deliverable}: Due to the time constraints, during this release it
+  was decided to use available tools to solve the flexible job-shop scheduling
+  problem. In this case, a set of optimization tools provided by Google were
+  used.
 \end{itemize}
 
-\subsubsection{Release 13: Implement tools that allows monitoring}
+\subsubsection{Release 13: Implement tools that allows monitoring the system}
 \begin{itemize}
-\item \textit{Agreed goal}: Define the public interface that customers will
-  use to implement their computations.
-\item \textit{Deliverable}: During this release cycle the feedback from the advisor
-  was
+\item \textit{Agreed goal}: Implement tools or adopt external tools that allow
+  observe the behavior of the system.
+\item \textit{Deliverable}: After some investigation it was agreed to used both
+  an external system to facilitate observability, Prometheus and implement some
+  tools to track how the system is performing.
 \end{itemize}
 
 \subsubsection{Release 14: implement some sources and sinks}
 \begin{itemize}
-\item \textit{Agreed goal}: Define the public interface that customers will
-  use to implement their computations.
-\item \textit{Deliverable}: During this release cycle the feedback from the advisor
-  was
+\item \textit{Agreed goal}: Provide some default implementations of sources and
+  sinks, such as TCP sockets or Twitter streaming api.
+\item \textit{Deliverable}: During this release the agreed goals were implemented. Given
+  that the system needed some improvements this latest release was used also to refactor
+  some modules of the system to give them more reliability.
 \end{itemize}
 
 \section{Development technologies}
 
 There are many technologies available to develop information systems. Different
-paradigms, different environments, etc. For Alcaudon, working with the JVM seemed
-to be a good choice. It is one of the most advanced language virtual machines in
-the market, with outstanding implementations such as AZUL vm. The available
-ecosystem of tools and libraries covers many domains. There are multiple
-implementations for state of the art data structures used in this project such
-as cuckoo filters\cite{cuckoo}. Another reason to choose the JVM is the
-inter-operability between different languages such as Scala and Java.
+paradigms, different environments, etc. For Alcaudon, working with the JVM
+seemed to be a good choice. It is one of the most advanced language virtual
+machines in the market, with outstanding implementations such as
+OpenJDK\footnote{http://openjdk.java.net/} or
+Zing\footnote{https://www.azul.com/products/zing/virtual-machine/}. The
+available ecosystem of tools and libraries covers many domains. There are
+multiple implementations for state of the art data structures used in this
+project such as cuckoo filters\cite{cuckoo}. Another reason to choose the JVM
+was the inter-operability between different languages such as Scala and Java.
 Scala has been chosen as the principal programming language. It is an hybrid
-language that allows programmer to use functional and object oriented programming
-paradigms. This design is interesting, it allows to combine the best of both worlds,
-providing tools to work with functional constructs such as monadic composition or use
-more object oriented constructs such as traits.
+language that allows programmer to use functional and object oriented
+programming paradigms. This design is interesting, it allows to combine the best
+of both worlds, providing tools to work with functional constructs such as
+monadic composition or use more object oriented tools such as traits.
 
 In the database space, Cassandra has been chosen as the principal data store due
 to it is designed with high availability and scalability in mind. This choice
 provide good grounds to guarantee data durability within the system. For storing
-time series data, Prometheus has been chosen. 
+time series data, Prometheus has been chosen due to its high scalability and
+performance querying historic data.
 
-Other tools used to develop Alcaudon are TravisCI, a cloud continuous
-integration service. Using a service that is fully integrated with git
-made the set-up of the CD pipeline easier. 
-Tools (travis ci grafana)
+Other tool used to develop Alcaudon has been TravisCI, a cloud continuous
+integration service. Using a service that is fully integrated with git made the
+set-up of the CD pipeline easier.
 
 \section{Tools}
 
@@ -308,8 +331,6 @@ for testing have been assumed by the author of this project.
 \end{itemize}
 
 \subsection{Software}
-
-To develop Alcaudon 
 
 \begin{itemize}
   \item Operating Systems
@@ -373,17 +394,3 @@ To develop Alcaudon
     \end{itemize}
 
 \end{itemize}
-
-%% \newpage
-
-%% \begin{landscape}
-%% \begin{figure}
-%%   \centering
-%%   \includegraphics[width=1\textwidth]{mindmap.png}
-%%   \caption{caption}
-%%   \label{fig:label}
-%%  \end{figure}
-%%     %% \includegraphics[width=0.6\textwidth]{mindmap.png}
-%%     %% \caption{Property profile of the diverse library compared to the compound pool.}
-%%     %% \label{fig:PropProf}
-%% \end{landscape}
