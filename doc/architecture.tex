@@ -46,14 +46,13 @@ classes\cite{typeclasses} or Algebraic Data Types have been used more widely.
 Once the different parts of the system have been presented, they will be
 inspected in detail.
 
-\begin{figure}[!h]
+\begin{figure}
   \centering
-  \includegraphics[width=0.9\textwidth]{architecture.pdf}
+  \includegraphics[width=1\textwidth]{architecture.pdf}
   \caption{Alcaudon architecture schema}
   \label{fig:architecture}
 \end{figure}
 
-\newpage
 \subsection{Alcaudon library}
 
 In the first place, the user facing interface will be presented in detail. In order
@@ -63,12 +62,11 @@ logic. To achieve this goal, Alcaudon provides certain interfaces so users
 just need to care about their code. These interfaces are available as a library
 that can be found at at Sonatype OSSRH \footnote{http://central.sonatype.org/pages/ossrh-guide.html}.
 
-\begin{figure}[!h]
-  \begin{center}
+\begin{figure}
+  \centering
   \includegraphics[width=0.6\textwidth]{client.pdf}
   \caption{Alcaudon library}
   \label{fig:library}
-  \end{center}
 \end{figure}
 
 This library is composed of three modules as it is shown in figure~\ref{fig:library}:
@@ -123,7 +121,7 @@ in~\ref{code:auxiliaryComputations}. In Alcaudon, each computation can subscribe
 multiple sources represented as streams. Data travels in its simplest form,
 as an array of bytes.
 
-\begin{figure}[!h]
+\begin{figure}
   \begin{center}
     \includegraphics[width=0.5\textwidth]{keypartitioning.pdf}
     \caption{Alcaudon record key assignment}
@@ -176,35 +174,217 @@ this is the mechanism provided by Alcaudon to emit results.
 \subsubsection{Dataflow builder}
 
 Once the computations are implemented, users need a way to build the dataflow topologies.
-To achieve this goal, the system provides a dataflow builder. It is based on a very well
-known design pattern, the builder pattern. Using this class, users are able to define
-the dependencies among the main entities in the system. These main entities are:
+To achieve this goal, the system provides a dataflow builder. Using this instrument,
+users are able to define dependencies among the computations in the system.
+These main entities that can be used in Alcaudon are:
 
 \begin{itemize}
-  \item \textit{Sources}: 
-  \item \textit{Computations}:
-  \item \textit{Streams}:
-  \item \textit{Sinks}:
+  \item \textit{Sources}: Sources bring external data into the system. Some
+    examples could be a TCP/IP socket, Twitter streaming API, Apache Kafka,
+    Zeromq, etc.
+  \item \textit{Computations}: Computations are user defined business logic.
+  \item \textit{Streams}: Streams represent the delivery instrument between
+    different computations in Alcaudon. Computations subscribe to one or more
+    streams and publish to zero or more streams. Alcaudon guarantees the
+    delivery of records along these streams.
+  \item \textit{Sinks}: Sinks are an special kind of streams, providing a way to
+    publish data to external systems such as http endpoints or databases. They
+    are useful to project final results.
 \end{itemize}
 
+Alcaudon dataflow builder is defined in listing~\ref{code:builder}. Dependencies
+are checked, thus if one computation depends or publish into an unknown stream,
+the dataflow definition will be considered invalid. Internally, defined
+dataflows are represented as a directed acyclic graph. In this graph, vertices
+represent computations and streams while edges represent the dependencies
+between them or how data flow along the system. Considering that the execution
+of the dataflow is performed remotely and computations are arbitrary user code,
+computations are represented as its fully qualified name inside the JVM
+classpath. Using this fully qualified name in combination with dynamic class
+loaders it is possible to load code dynamically. In conclusion, with this builder
+it is possible to create a declarative representations of Alcaudon data pipelines.
+This representation abstracts away all the details about in which compute nodes
+code will run or how parallelism will be implemented. This approach is quite
+similar to how Free Monad\cite{freemonad}, SQL or Prolog works.
 
-MOVE 
-\begin{lstlisting}[language=scala, frame=trBL, label=code:auxiliaryComputations, float=ht, caption = {Computation API's}]
-trait ProduceAPI { environment: RuntimeContext =>
-  protected def produceRecord(record: RawRecord, stream: String): Unit =
-}
+\begin{lstlisting}[language=scala, frame=trBL, label=code:builder, float=ht, caption = {Alcaudon's DataflowBuilder}]
+DataflowBuilder(dataflowName: String)
+  .withSource(sourceName: String, sourceDescription: SourceDescription)
+  .withComputation(computationName: String,
+    computation: Computation,
+    outputStreams: Set[StreamID],
+    AlcaudonInputStream(StreamID)(keyExtractor: Array[Byte] => String)*
+  .withSink(sinkName: String, sinkDescription: SinkDescription)
+  .build()
+\end{lstlisting}
 
-trait TimerAPI { environment: RuntimeContext =>
-  protected def setTimer(timer: Timer): Unit
-}
+\subsubsection{Cluster client}
 
-trait StateAPI { environment: RuntimeContext =>
-  protected def set(key: String, value: Array[Byte]): Unit
-  protected def get(key: String): Array[Byte]
-}
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{dataflowbuilder.pdf}
+  \caption{Dataflow example}
+  \label{fig:dataflowbuilder}
+\end{figure}
 
-trait SerializationAPI {
-  def serialize[T](data: T)(implicit ti: TypeInfo[T]): Array[Byte]
-  def deserialize[T](binary: Array[Byte])(implicit ti: TypeInfo[T]): T
+Once the computations and topology have been defined as in
+figure~\ref{fig:dataflowbuilder}, it is needed to have some machinery in order
+to execute them in an Alcaudon cluster. In Alcaudon library there are the tools
+needed to connect to an existing cluster and perform certain operations. The
+available operations are listed in table~\ref{tab:operations}. Creating a
+dataflow pipeline is an asynchronous operation, returning a DataflowPipeline
+\acf{UUID} that identifies the created pipeline. With this \acs{UUID} it is
+possible to perform some operations over the pipeline.
+
+\begin{table}[hp]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Action} & \textbf{Parameters} & \textbf{Returned info} \\ \hline
+\begin{tabular}[c]{@{}l@{}}Send Dataflow topology\end{tabular}  & DataflowGraph and user JAR's & DataflowPipeline UUID \\ \hline
+\begin{tabular}[c]{@{}l@{}}Get DataflowJob execution info\end{tabular} & DataflowPipeline UUID & DatflowPipelineStatus \\ \hline
+\begin{tabular}[c]{@{}l@{}}Stop DataflowJob execution\end{tabular} & DataflowPipeline UUID & DatflowPipelineStatus \\ \hline
+\end{tabular}
+\caption{Available cluster management operations}
+\label{tab:operations}
+\end{table}
+
+In order to understand better how Alacaudon dataflow pipeline creation works, it
+will be explained more thoroughly. This operation is divided into two phases,
+first user code libraries are uploaded. Once the libraries are uploaded the
+actual dataflow pipeline is created. Uploading user libraries is needed so
+computing nodes can have access to user business logic. The number of computing nodes that
+can access concurrently to these user libraries depends on the deployment,
+reaching up to thousands in some cases. To avoid any scaling problems, libraries
+are stored into an object storage service. In this case, they are stored in
+Amazon S3\footnote{https://aws.amazon.com/s3/}. These services usually provide a
+way to avoid the need to first upload the data to a backend server in order to
+get access to credentials to later on upload data to an object storage services.
+This is achieved using pre-signed URL's, based on a temporary token generated
+using service credentials and a timestamp. In Alcaudon, cluster clients
+request the creation of a dataflow pipeline. As a response, a pre-signed URL
+alongside an UUID that identifies the operation is returned by the cluster
+coordinator. Once cluster clients have the URL, they can use it to upload user
+code directly to the object storage service. With the user code uploaded, the
+next step is to create the actual Dataflow pipeline. Given the returned UUID a
+request is done to cluster coordinator in order to finish the dataflow pipeline
+creation. The communication is performed using akka-remote that allows
+communicate with remote actor systems.The whole process is represented as a
+sequence diagram in figure~\ref{fig:pipelinecreation}. This process is performed
+transparently by the library from users perspective.
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[width=0.8\textwidth]{dataflowcreation.png}
+\caption{Sequence diagram for Dataflow pipeline creation}
+\label{fig:pipelinecreation}
+\end{center}
+\end{figure}
+
+\subsubsection{Serialization API}
+
+Programmers are used to work with high level abstractions in order to model the
+domain they are working on. As it has been described previously, records in
+Alcaudon are a tuple of a key and an array of bytes. Given this fact, a way to
+work with high level entities is needed. There are many options to serialize and
+deserialize data available, such as JSON, Protocol Buffers, etc. Alcaudon users
+are free to use the serialization format that they prefer but to ease to work
+with the platform, a generic serialization library typeclass is provided. This
+library is capable of, given an \acs{ADT} generate automatically serializers and
+deserializers during compile time. This is possible thanks to an advance Scala
+feature, implicits resolution, and one library for generic programming,
+Shapeless. \acs{ADT}'s are a functional programming concept that allow data
+representation in terms of \textit{products} and \textit{sums} of types. A
+\textit{product} is a combination of different types $(A \& B)$, on the other
+hand a \textit{sum} is an alternation of different types $(A | B)$. In Scala,
+\acs{ADT} are expressed as case classes and traits as shown in
+listing~\ref{code:adt}.
+
+\begin{lstlisting}[language=scala, frame=trBL, label=code:adt, float=ht, caption = {\acs{ADT} example}]
+  sealed trait Message // Message = (Tweet | Account)
+  case class Tweet(user: String, text: String, timestamp: Long) extend Message // Tweet = (String & String & Long)
+  case class Account(name: String, age: Int) extend Message // Account = (String & Int)
+\end{lstlisting}
+
+Taking this into account, case classes could be represented as lists of types,
+in \lstinline[columns=fixed]{Tweet} example it can be summarized as a list of
+three types, \lstinline[columns=fixed]{String & String & Long}. Shapeless allows
+to represent case classes as a heterogeneous lists of types and work with them
+as they are regular types. Once it is possible to encode \acs{ADT}'s as
+heterogeneous lists of types a tool to convert that generic representation into
+a serializer is needed. To achieve this goal, Scala implicit type system is the
+answer. Scala implicits are a way to provide certain parameters marked as
+implicits to functions without the need to pass them explicitly. Scala compiler has
+a set of strict rules\footnote{http://docs.scala-lang.org/tutorials/FAQ/finding-implicits.html}
+to look for implicit parameters. The interesting part comes when functions with implicit
+parameters use parametric polymorphism, such as Alcaudon's serialization typeclass
+listed in~\ref{code:typeclass}.
+\begin{lstlisting}[language=scala, frame=trBL, label=code:typeclass, float=ht, caption = {Serializer Deserializer typeclass}]
+trait TypeInfo[T] {
+  def serialize(obj: T)(implicit output: DataOutput): DataOutput
+  def deserialize(t: DataInput): T
 }
 \end{lstlisting}
+
+It is possible to write a rule that creates a \lstinline[columns=fixed]{TypeInfo} for $(A, B)$ given
+\lstinline[columns=fixed]{TypeInfo} for $A$ and $B$. This feature is provided by Scala implicit resolution
+mechanism that works as an inductive solver.
+
+\begin{lstlisting}[language=scala, frame=trBL, label=code:typeclass, float=ht, caption = {Serializer Deserializer typeclass}]
+  implicit def genericObjectEncoder[A, H <: HList, O <: HList](
+      implicit generic: LabelledGeneric.Aux[A, H],
+      repFormat: Lazy[TypeInfo[H]],
+      keys: Keys.Aux[H, O],
+      ktl: ToList[O, Any]
+  ): TypeInfo[A] =
+    new TypeInfo[A] {
+      def serialize(v: A)(implicit output: DataOutput) = {
+        repFormat.value.serialize(generic.to(v))
+      }
+
+      def deserialize(input: DataInput) = {
+        generic.from(repFormat.value.deserialize(input))
+      }
+    }
+
+  implicit def hListFormat[Key <: Symbol, Value, Remaining <: HList](
+      implicit key: Witness.Aux[Key],
+      lazyTih: Lazy[TypeInfo[Value]],
+      lazyTit: Lazy[TypeInfo[Remaining]]
+  ): TypeInfo[FieldType[Key, Value] :: Remaining] =
+    new TypeInfo[FieldType[Key, Value] :: Remaining] {
+
+      val tih = lazyTih.value
+      val tit = lazyTit.value
+
+      def serialize(hlist: FieldType[Key, Value] :: Remaining)(
+          implicit output: DataOutput) = {
+        val headOutput = tih.serialize(hlist.head)
+        tit.serialize(hlist.tail)(headOutput)
+      }
+
+      def deserialize(input: DataInput) = {
+        val head = tih.deserialize(input)
+        val tail = tit.deserialize(input)
+        field[Key](head) :: tail
+      }
+
+    }
+
+    ...
+    ...
+  implicit object LongTypeInfo extends TypeInfo[Long] {
+    def serialize(t: Long)(implicit output: DataOutput): DataOutput = ...
+    def deserialize(t: DataInput): Long = ...
+  }
+  implicit object FloatTypeInfo extends TypeInfo[Float] {
+    def serialize(t: Float)(implicit output: DataOutput): DataOutput = ...
+    def deserialize(t: DataInput): Float = ...
+  }
+\end{lstlisting}
+
+\subsection{Coordinator node}
+\lipsum
+
+\subsection{Computation node}
+\lipsum
