@@ -1,0 +1,11 @@
+@startuml
+autonumber
+ComputationManager -> LibraryManager : RegisterDataflow(dataflow)
+LibraryManager -> BlobServer : GetBlob(uuid, jarURI)
+BlobServer -> BlobServer : BlobCacheLookup(uuid)
+BlobServer -> S3 : Download(uri) // If not found in cache
+BlobServer -> LibraryManager : BlobPath(key, file)
+LibraryManager -> LibraryManager : StoreBlobFilePathIntoCache(key, file)
+ComputationManager -> LibraryManager : GetClassLoaderForDataflow(id)
+LibraryManager -> ComputationManager : ClassLoaderForDataflow(id, classLoader)
+@enduml

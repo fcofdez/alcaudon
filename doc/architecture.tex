@@ -112,14 +112,30 @@ trait Computation
 }
 \end{lstlisting}
 
+\begin{lstlisting}[language=scala, frame=trBL, label=code:computationExample, float=ht, caption = {Computation example}]
+class Windower extends Computation {
+  // Counts the number of records per key
+  def processRecord(record: Record): Unit = {
+    val bucketCount: Int = deserialize(get(record.key))
+    set(record.key, serialize(bucketCount + 1))
+    setTimer(FixedRecurrentTimer(record.key, 5.minutes))
+  }
+
+  // Timers are triggered and produce records with the count of keys.
+  def processTimer(timer: Timer): Unit = {
+    val bucketCount: Int = deserialize(get(timer.tag))
+    produceRecord("windowsCount", RawRecord(get(timer.tag), timer.timestamp))
+  }
+}
+\end{lstlisting}
+
 These methods represent the main entry point into user code, hooked in reaction to
 record receipt and timers expiration. These constitute the application logic.
 Within the execution of these methods, Alcaudon provides different functions to
 work with persistent state, publish new records to streams, set timers or
-serialize arbitrary data types. Those auxiliary API's are listed
-in~\ref{code:auxiliaryComputations}. In Alcaudon, each computation can subscribe to
+serialize arbitrary data types. In Alcaudon, each computation can subscribe to
 multiple sources represented as streams. Data travels in its simplest form,
-as an array of bytes.
+as an array of bytes. One specific example can be found in listing~\ref{code:computationExample}.
 
 \begin{figure}
   \begin{center}
@@ -129,13 +145,13 @@ as an array of bytes.
   \end{center}
 \end{figure}
 
-However, for each stream subscription users should provide
-a key extraction function, this process can be shown in figure
-~\ref{fig:keypartitioning}. Having a key per record allows the implementation of
-parallelization strategies such as key partitioning. Therefor, every record
-emitted by one of the subscribed sources, an instance of the class
-\lstinline[columns=fixed]{Record} listed in ~\ref{code:records} will be
-injected with the call to \lstinline[columns=fixed]{processRecord}.
+However, for each stream subscription users should provide a key extraction
+function, this process shown in figure~\ref{fig:keypartitioning}. Having a key
+per record allows the implementation of parallelization strategies such as key
+partitioning. Therefore, every record emitted by one of the subscribed sources,
+an instance of the class \lstinline[columns=fixed]{Record} listed
+in~\ref{code:records}, will be injected with the call to
+\lstinline[columns=fixed]{processRecord}.
 
 \begin{lstlisting}[language=scala, frame=trBL, label=code:records, float=ht, caption = {Record classes}]
 case class RawRecord(value: Array[Byte], timestamp: Long) {
@@ -154,17 +170,17 @@ Alcaudon there are three types of timers:
 \begin{itemize}
 \item \textit{Fixed timers}: This kind of timers are triggered once at a
   specific wall time.
-\item \textit{Recurrent fixed timers}: This timer is just like the previous
-  timers, however it is executed recurrently. I.E., every five minutes.
-\item \textit{Watermark timers}: This timer try to estimate the point where all
+\item \textit{Recurrent fixed timers}: This timer resembles the previous timers
+  with the exception that it is executed recurrently. I.E., every five minutes.
+\item \textit{Watermark timers}: This timer tries to estimate the point where all
   the events up to certain window have been consumed by the system and execute
   then. The mechanism and algorithm used to implement them will be explained
   later.
 \end{itemize}
 
 When a timer is executed it has as a parameter an instance of the class Timer
-listed in ~\ref{code:timers}. This constructs are key to the domain of unbounded
-data-sets due to its very nature. A mean to emit partial results is needed, so
+listed in ~\ref{code:timers}. These constructs are key to the domain of unbounded
+data-sets due to their very nature. A mean to emit partial results is needed, so
 this is the mechanism provided by Alcaudon to emit results.
 
 \begin{lstlisting}[language=scala, frame=trBL, label=code:timers, float=ht, caption = {Timer class}]
@@ -187,22 +203,22 @@ These main entities that can be used in Alcaudon are:
     different computations in Alcaudon. Computations subscribe to one or more
     streams and publish to zero or more streams. Alcaudon guarantees the
     delivery of records along these streams.
-  \item \textit{Sinks}: Sinks are an special kind of streams, providing a way to
+  \item \textit{Sinks}: Sinks are a special kind of streams, providing a way to
     publish data to external systems such as http endpoints or databases. They
     are useful to project final results.
 \end{itemize}
 
 Alcaudon dataflow builder is defined in listing~\ref{code:builder}. Dependencies
-are checked, thus if one computation depends or publish into an unknown stream,
+are checked, thus if one computation depends or publishes into an unknown stream,
 the dataflow definition will be considered invalid. Internally, defined
-dataflows are represented as a directed acyclic graph. In this graph, vertices
+dataflows are represented as a \acf{DAG}~\ref{fig:dataflowbuilder}. In this graph, vertices
 represent computations and streams while edges represent the dependencies
 between them or how data flow along the system. Considering that the execution
 of the dataflow is performed remotely and computations are arbitrary user code,
-computations are represented as its fully qualified name inside the JVM
+computations are represented as their fully qualified name inside the \acs{JVM}
 classpath. Using this fully qualified name in combination with dynamic class
-loaders it is possible to load code dynamically. In conclusion, with this builder
-it is possible to create a declarative representations of Alcaudon data pipelines.
+loaders, it is possible to load code dynamically. In conclusion, with this builder
+it is possible to create declarative representations of Alcaudon data pipelines.
 This representation abstracts away all the details about in which compute nodes
 code will run or how parallelism will be implemented. This approach is quite
 similar to how Free Monad\cite{freemonad}, SQL or Prolog works.
@@ -223,13 +239,13 @@ DataflowBuilder(dataflowName: String)
 \begin{figure}
   \centering
   \includegraphics[width=0.8\textwidth]{dataflowbuilder.pdf}
-  \caption{Dataflow example}
+  \caption{Dataflow \acs{DAG} example}
   \label{fig:dataflowbuilder}
 \end{figure}
 
-Once the computations and topology have been defined as in
-figure~\ref{fig:dataflowbuilder}, it is needed to have some machinery in order
-to execute them in an Alcaudon cluster. In Alcaudon library there are the tools
+Once the computations and topology have been defined, some machinery is required
+in order to execute them in an Alcaudon cluster
+(figure~\ref{fig:dataflowbuilder}). In Alcaudon library there are the tools
 needed to connect to an existing cluster and perform certain operations. The
 available operations are listed in table~\ref{tab:operations}. Creating a
 dataflow pipeline is an asynchronous operation, returning a DataflowPipeline
@@ -274,11 +290,12 @@ sequence diagram in figure~\ref{fig:pipelinecreation}. This process is performed
 transparently by the library from users perspective.
 
 \begin{figure}[!h]
-\begin{center}
-\includegraphics[width=0.8\textwidth]{dataflowcreation.png}
+  \centering
+  \scalebox{0.6}{
+    \input{figures/dataflowcreation.latex}
+  }
 \caption{Sequence diagram for Dataflow pipeline creation}
 \label{fig:pipelinecreation}
-\end{center}
 \end{figure}
 
 \subsubsection{Serialization API}
@@ -309,9 +326,9 @@ listing~\ref{code:adt}.
 Taking this into account, case classes could be represented as lists of types,
 in \lstinline[columns=fixed]{Tweet} example it can be summarized as a list of
 three types, \lstinline[columns=fixed]{String & String & Long}. Shapeless allows
-to represent case classes as a heterogeneous lists of types and work with them
+to represent case classes as a \acf{HList} of types and work with them
 as they are regular types. Once it is possible to encode \acs{ADT}'s as
-heterogeneous lists of types a tool to convert that generic representation into
+\acs{HList} of types a tool to convert that generic representation into
 a serializer is needed. To achieve this goal, Scala implicit type system is the
 answer. Scala implicits are a way to provide certain parameters marked as
 implicits to functions without the need to pass them explicitly. Scala compiler has
@@ -326,16 +343,22 @@ trait TypeInfo[T] {
 }
 \end{lstlisting}
 
-It is possible to write a rule that creates a \lstinline[columns=fixed]{TypeInfo} for $(A, B)$ given
-\lstinline[columns=fixed]{TypeInfo} for $A$ and $B$. This feature is provided by Scala implicit resolution
-mechanism that works as an inductive solver.
+It is possible to write an implicit rule that creates a
+\lstinline[columns=fixed]{TypeInfo} for \lstinline[columns=fixed]{(A, B)} given
+\lstinline[columns=fixed]{TypeInfo} for \lstinline[columns=fixed]{A} and
+\lstinline[columns=fixed]{B}. This feature is provided by Scala implicit
+resolution mechanism that works as an inductive solver. Therefore, if
+\lstinline[columns=fixed]{TypeInfo} instances for every basic data type are
+implemented it is possible to write rules for \acs{HList} of
+\textit{products}. As a result, Scala compiler will be able to inductively
+generate \lstinline[columns=fixed]{TypeInfo} instances for any \acs{ADT}
+during compile time.
 
-\begin{lstlisting}[language=scala, frame=trBL, label=code:typeclass, float=ht, caption = {Serializer Deserializer typeclass}]
+\begin{lstlisting}[language=scala, frame=trBL, label=code:generation1, float=ht, caption = {Serializer Deserializer typeclass}]
   implicit def genericObjectEncoder[A, H <: HList, O <: HList](
       implicit generic: LabelledGeneric.Aux[A, H],
       repFormat: Lazy[TypeInfo[H]],
-      keys: Keys.Aux[H, O],
-      ktl: ToList[O, Any]
+      keys: Keys.Aux[H, O]
   ): TypeInfo[A] =
     new TypeInfo[A] {
       def serialize(v: A)(implicit output: DataOutput) = {
@@ -346,17 +369,25 @@ mechanism that works as an inductive solver.
         generic.from(repFormat.value.deserialize(input))
       }
     }
+\end{lstlisting}
 
+Details about how rules for generic types and \acs{HList} are implemented can be
+found in listings ~\ref{code:generation1} and ~\ref{code:generation}. For
+objects of type T, Shapeless is used in order to obtain its encoding as an
+\acs{HList}, this is done in \lstinline[columns=fixed]{genericObjectEncoder}.
+With this encoding, it is possible to call the serializer for \acs{HList}'s in
+implicit method \lstinline[columns=fixed]{hListFormat}. In this method, using
+recursive induction, a type class for each type is searched and combined, thus
+creating a serializer for the \acs{HList} then for the type T.
+
+\begin{lstlisting}[language=scala, frame=trBL, label=code:generation, float=ht, caption = {Serializer Deserializer typeclass}]
   implicit def hListFormat[Key <: Symbol, Value, Remaining <: HList](
       implicit key: Witness.Aux[Key],
       lazyTih: Lazy[TypeInfo[Value]],
       lazyTit: Lazy[TypeInfo[Remaining]]
   ): TypeInfo[FieldType[Key, Value] :: Remaining] =
     new TypeInfo[FieldType[Key, Value] :: Remaining] {
-
-      val tih = lazyTih.value
-      val tit = lazyTit.value
-
+      ...
       def serialize(hlist: FieldType[Key, Value] :: Remaining)(
           implicit output: DataOutput) = {
         val headOutput = tih.serialize(hlist.head)
@@ -368,23 +399,212 @@ mechanism that works as an inductive solver.
         val tail = tit.deserialize(input)
         field[Key](head) :: tail
       }
-
     }
+\end{lstlisting}
 
-    ...
-    ...
-  implicit object LongTypeInfo extends TypeInfo[Long] {
-    def serialize(t: Long)(implicit output: DataOutput): DataOutput = ...
-    def deserialize(t: DataInput): Long = ...
+As an interesting note, this part of the system has been tested using property
+based testing\cite{quickcheck}. Using this kind of testing helped to spot
+otherwise difficult bugs to detect.
+
+\subsection{Coordinator node}
+
+\subsection{Computation node}
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.5\textwidth]{computationnode.pdf}
+  \caption{Alcaudon architecture schema}
+  \label{fig:computationnode}
+\end{figure}
+
+Finally, computation node architecture design will be presented. This component
+is in charge of executing the actual computations. A high level overview of this
+sub-component can be found in figure~\ref{fig:computationnode}. It is composed
+of four modules:
+\begin{itemize}
+\item \textit{Cluster membership client}: This module is in charge of handling
+  the communications with the cluster coordinator. It announces the availability
+  of a new computing node once it is up and ready to receive work. It announces
+  the intention to leave the cluster so it is possible to re-schedule work into
+  other computing nodes gracefully. Another responsibility of this module is to
+  send heatbeats to the cluster coordinator in order to assure that the node is
+  healthy.
+\item \textit{Library manager}: Library manager handles the download of user
+  defined code as well as loading them into the process classpath dynamically.
+  It downloads the contents from the object storage into disk, so content is
+  just downloaded once per computing node. Once the \acs{jar}'s are downloaded,
+  they are loaded into a controlled user \acs{JVM} classpath, this avoids
+  classpath collisions, i.e. different computations use a library but with
+  different versions. This process is described as a sequence diagram in
+  figure~\ref{fig:librarymanagement}.
+\item \textit{Computation manager}: Computation manager is responsible for
+  deploying computations and streams into the computing node. A computing node
+  has a limited amount of resources, these resources are represented as
+  \textit{computation slots} in Alcaudon. \textit{Computation slots}
+  define how many computations can run in parallel. Usually, the number of
+  available slots are correlated with underlying physical hardware in which the
+  computing node is running. This value is configurable, thus Alcaudon do not
+  impose any limits in the number of \textit{computation slots}. However, it
+  is recommended to use values near the number of available CPU's. During
+  the membership phase, coordinator node is informed about the number
+  of usable slots. This information is used during scheduling. When a new
+  job is scheduled to be run in a certain node, the computation manager
+  is the point of communication between the coordinator and the node.
+  It deploys the scheduled streams and computations and supervise them,
+  using actor supervision.
+\end{itemize}
+
+\begin{figure}[!h]
+  \centering
+  \scalebox{0.45}{
+    \input{figures/librarymanagement.latex}
   }
-  implicit object FloatTypeInfo extends TypeInfo[Float] {
-    def serialize(t: Float)(implicit output: DataOutput): DataOutput = ...
-    def deserialize(t: DataInput): Float = ...
+  \caption{Alcaudon computing node LibraryManager}
+  \label{fig:librarymanagement}
+\end{figure}
+
+Once a high level overview of this sub-system has been done, a more
+comprehensive description of the modules will be done.
+
+\subsubsection{Cluster membership}
+\lipsum
+\subsubsection{Computation manager}
+
+As exposed before, computation manager is responsible for deploying and
+supervising computations and streams. In order to deploy computations and
+streams, it is needed to have the addresses of each of them. To accomplish this
+goal, akka location transparency mechanism is used. Akka gives a logical address
+to each actor deployed into the system. Having this address it is possible to
+send messages between actors, the translation between the logical address and
+the physical address is done transparently by akka. Once this detail is
+clarified, deployment process will be described. Cluster Coordinator, as
+described in previous subsections, schedule provided dataflow topologies among
+the available computing nodes. First, cluster coordinator send a request to a
+computing node asking for deploy certain computations and streams. The computing
+node responds with an acknowledgment, the computation will be deployed. The next
+step is to start a ComputationExecutor actor for each computation in the request
+as well as Stream actors. Once these actors have been started, their logical
+addresses are communicated to other members that belong to the same dataflow via
+\acs{CRDT}. Using this approach avoiding centralized knowledge for the location
+of different computations allows better scalability and resilience. One of the
+drawbacks of this approach is an increase in the complexity of ComputationExecutor
+actors. Finally, computation manager sends back a message to the coordinator
+informing that the deployment has finished. The whole process is represented as
+a sequence diagram in figure~\ref{fig:librarymanagement}.
+
+\begin{figure}[!h]
+  \centering
+  \scalebox{0.45}{
+    \input{figures/deployment.latex}
+  }
+  \caption{Alcaudon computing node LibraryManager}
+  \label{fig:deployment}
+\end{figure}
+
+\subsubsection{Computation executor}
+
+When computations are deployed, they are ready to process incoming records from
+different sources and streams. One of the goals of the system is to provide
+exactly once record processing semantics. In order to implement exactly once
+semantics guarantees Alcaudon process records and timers in an idempotent
+manner. The algorithm to provide these guarantees can be summarized as follows.
+
+When a new record arrives into a computation the next steps are performed:
+\begin{enumerate}
+  \item Using duplication detection logic, records are checked to avoid duplicates.
+  \item User defined code is run for the received record. This execution can
+    result in pending changes to timers, state or downstream productions.
+  \item Pending changes are saved into the database.
+  \item An acknowledgment is sent back to senders.
+  \item Pending new records are sent.
+\end{enumerate}
+
+Since storing the result of every new record processing could be costly, the
+above operations can be grouped into batches optimizing the process. Records are
+sent until the sender gets an acknowledgment, that means that in reality records
+are sent at least once, but the computations are idempotent.
+
+\begin{lstlisting}[language=scala, frame=trBL, label=code:computationState, float=ht, caption = {Alcaudon internal computation state}]
+case class ComputationState(kv: Map[String, Array[Byte]],
+                              timers: Map[String, Timer],
+                              bloomFilter: CuckooFilter[String],
+                              var latestWatermark: Long = 0,
+                              var processedRecords: Long = 0,
+                              var failedExecutions: Long = 0)
+\end{lstlisting}
+
+In order to understand better how Alcaudon implements this logic, it will be
+explained in depth. Alcaudon uses the actor model widely, computations are not
+an exception. One powerful feature provided by Akka is persistent actors. This
+extension enables stateful actors to persist their internal state so it can be
+recovered in the case of a failure or a cluster migration. Alcaudon uses this
+extension alongside with Apache Cassandra\footnote{Apple has a cluster with over
+  75000 nodes storing 10 PB of data} as data store. User code can work with
+persistent state, create timers or produce records using Alcaudon \acs{API}'s,
+that generates state that should be handled by computation actors. Internal
+state contains persistent state from the computations executed, timers and
+meta-information, the details are listed in~\ref{code:computationState}. Each
+deployed computation actor has an internal instance of
+\lstinline[columns=fixed]{ComputationState}. Once a computation execution has
+finished, it possible has pending data to be stored. These changes are wrapped
+into a \lstinline[columns=fixed]{Transaction} is persisted using akka extension.
+Once data has been saved into the backing storage, changes are applied into
+\lstinline[columns=fixed]{ComputationState} and senders are
+acknowledged~\ref{code:computationStateStorage}. During failure scenarios stored
+transactions will be materialized again once the actor is started again, this is
+know as recovery process. This process could be costly, since it has to re-apply
+every stored transaction. To decrease recovery time it is possible to take
+snapshots of the state, therefore only transactions from that instant will be
+re-applied during recovery phase. Alcaudon allows to configure the frequency in
+which snapshots are taken. This behavior is almost identical to regular
+databases, transactions are stored into an append-only log, materialized into a
+in-memory image of the system and snapshots are taken eventually to avoid long
+recoveries. This architectural pattern helps to build a fault-tolerant system
+and it is easy to reason about.
+
+\begin{lstlisting}[language=scala, frame=trBL, label=code:computationStateStorage, float=ht, caption = {Computation state persistence}]
+case _: ComputationFinished =>
+  persist(Transaction(pendingChanges)) { transaction =>
+    applyTx(transaction, origin) // Transaction is materialized
+    context.become(receiveCommand)
+    cuckooFilter.put(runningRecordId) // Deduplication data is updated
+    state.newProcessedRecord()
+    clearPendingChanges()
+    origin ! ACK(self, runningRecordId, 0l) // Senders are acknowledged
   }
 \end{lstlisting}
 
-\subsection{Coordinator node}
-\lipsum
+As it has been illustrated, executed computations can lead to internal state
+changes. This means that if a record is received more than once, a mechanism to
+reject already processed records is needed. One solution could be to store every
+single record \acs{UUID} into a database and check against that database for
+every received record. This approach is quite simple, but it does not scale and
+can lead to failures if the database is unresponsive. Alcaudon deals with this
+problem using probabilistic data structures. Bloom filters are a space-efficient
+probabilistic data structure used to test if an element is member of a set.
+Bloom filters has been used since the 1970s but there are newer data structures
+such as Cuckoo Filters\cite{cuckoo} that outperform the former. Alcaudon uses
+Cuckoo filters in order to detect duplicated records. One downside of these
+probabilistic data structures is that they can return false-positives, meaning
+that a record can be considered as it has been already processed. To solve this
+issue, processes records \acs{UUID}'s are stored into a cuckoo filter and
+Cassandra. When the cuckoo filter considers that a record has been already
+processed it is checked against the database. Taking into account that the total
+probability of a false-positive is $2b/2^{f}$ where $b$ is the number of entries
+per bucket and $f$ the fingerprint length in bits. The number of false-positives
+is low.
 
-\subsection{Computation node}
-\lipsum
+\begin{figure}[!h]
+  \centering
+  \scalebox{0.45}{
+    \input{figures/recordprocessing.latex}
+  }
+  \caption{Alcaudon computing node LibraryManager}
+  \label{fig:recordprocessing}
+\end{figure}
+
+\subsubsection{Timers}
+\subsubsection{Streams}
+\subsection{Deployment}
+
+In order to deploy the different components

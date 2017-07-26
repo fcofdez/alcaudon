@@ -41,6 +41,90 @@
  keywords = {Kan extension, coroutine, effect handler, effect interaction, free monad, open union, type and effect system},
 } 
 
+@inproceedings{typeclasses,
+ author = {Wadler, P. and Blott, S.},
+ title = {How to Make Ad-hoc Polymorphism Less Ad Hoc},
+ booktitle = {Proceedings of the 16th ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages},
+ series = {POPL '89},
+ year = {1989},
+ isbn = {0-89791-294-2},
+ location = {Austin, Texas, USA},
+ pages = {60--76},
+ numpages = {17},
+ url = {http://doi.acm.org/10.1145/75277.75283},
+ doi = {10.1145/75277.75283},
+ acmid = {75283},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@misc{manifesto,
+  added-at = {2007-12-30T11:39:05.000+0100},
+  author = {Beck, Kent and Beedle, Mike and van Bennekum, Arie and Cockburn, Alistair and Cunningham, Ward and Fowler, Martin and Grenning, James and Highsmith, Jim and Hunt, Andrew and Jeffries, Ron and Kern, Jon and Marick, Brian and Martin, Robert C. and Mellor, Steve and Schwaber, Ken and Sutherland, Jeff and Thomas, Dave},
+  biburl = {https://www.bibsonomy.org/bibtex/28954248a545d88dd2c0e688d1c7e2f9d/juve},
+  booktitle = {Manifesto for Agile Software Development},
+  description = {Manifesto for Agile Software Development},
+  interhash = {098cc7e185f10c3da390459a01e0d535},
+  intrahash = {8954248a545d88dd2c0e688d1c7e2f9d},
+  keywords = {imported},
+  timestamp = {2007-12-30T11:39:05.000+0100},
+  title = {Manifesto for Agile Software Development},
+  url = {http://www.agilemanifesto.org/},
+  year = 2001
+}
+
+@book{gof,
+   title =     {Design patterns.Elements of reusable object-oriented software},
+   author =    {Erich Gamma Richard Helm Ralph Johnson John M. Vlissides},
+   publisher = {Addison-Wesley Professional},
+   isbn =      {},
+   year =      {1994},
+   series =    {},
+   edition =   {1},
+   volume =    {}}
+
+@inproceedings{cuckoo,
+ author = {Fan, Bin and Andersen, Dave G. and Kaminsky, Michael and Mitzenmacher, Michael D.},
+ title = {Cuckoo Filter: Practically Better Than Bloom},
+ booktitle = {Proceedings of the 10th ACM International on Conference on Emerging Networking Experiments and Technologies},
+ series = {CoNEXT '14},
+ year = {2014},
+ isbn = {978-1-4503-3279-8},
+ location = {Sydney, Australia},
+ pages = {75--88},
+ numpages = {14},
+ url = {http://doi.acm.org/10.1145/2674005.2674994},
+ doi = {10.1145/2674005.2674994},
+ acmid = {2674994},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {bloom filters, compression, cuckoo hashing},
+}
+
+@inproceedings{monads,
+ author = {Wadler, Philip},
+ title = {Monads for Functional Programming},
+ booktitle = {Advanced Functional Programming, First International Spring School on Advanced Functional Programming Techniques-Tutorial Text},
+ year = {1995},
+ isbn = {3-540-59451-5},
+ pages = {24--52},
+ numpages = {29},
+ url = {http://dl.acm.org/citation.cfm?id=647698.734146},
+ acmid = {734146},
+ publisher = {Springer-Verlag},
+ address = {London, UK, UK},
+} 
+
+@book{cd,
+   title =     {Continuous Delivery: Reliable Software Releases through Build, Test, and Deployment Automation},
+   author =    {Jez Humble, David Farley},
+   publisher = {Addison-Wesley},
+   isbn =      {978-0-321-60191-9},
+   year =      {2010},
+   series =    {},
+   edition =   {},
+   volume =    {},
+   url =       {http://gen.lib.rus.ec/book/index.php?md5=FE4028F072C77534A105B81C56FF0469}}
 
 @book{geneticbook,
  editor = {Zalzala, A. M. and Fleming, P. J.},
@@ -120,7 +204,42 @@ issue	= {3},
 page	= {361--399}
 }
 
-@article{werner,
+@book{tla,
+   title =     {Specifying Systems: The TLA+ Language and Tools for Hardware and Software Engineering},
+   author =    {Lamport L.},
+   publisher = {Addison Wesley},
+   isbn =      {0-321-14306-X},
+   year =      {2002},
+   series =    {},
+   edition =   {1},
+   volume =    {}}
+
+@Misc{wikiactor,
+title = {Wikipedia: Actor model},
+howpublished = {\url{https://en.wikipedia.org/wiki/Actor_model#Actor_libraries_and_frameworks}},
+note = {Retrieved on July, 2017},
+author = {.}
+}
+
+@phdthesis{erlang,
+  added-at = {2006-07-05T18:58:42.000+0200},
+  author = {Armstrong, Joe},
+  biburl = {https://www.bibsonomy.org/bibtex/215d8c07ad9165e23f433ca0c058c1fc4/tmalsburg},
+  description = {Making Reliable Distributed Systems in the Presence of Software Errors (ResearchIndex)},
+  interhash = {7be8cc075fadd4db3a32f21fca847087},
+  intrahash = {15d8c07ad9165e23f433ca0c058c1fc4},
+  keywords = {erlang concurrency distributedcomputing robustness},
+  month = {December},
+  school = {The Royal Institute of Technology, Stockholm, Sweden},
+  timestamp = {2006-07-05T18:58:42.000+0200},
+  title = {Making Reliable Distributed Systems in the Presence of Software Errors},
+  url = {citeseer.ist.psu.edu/armstrong03making.html},
+  year = 2003
+}
+
+
+
+@article{vogels,
  author = {Van Renesse, Robbert and Birman, Kenneth P. and Vogels, Werner},
  title = {Astrolabe: A Robust and Scalable Technology for Distributed System Monitoring, Management, and Data Mining},
  journal = {ACM Trans. Comput. Syst.},
@@ -138,6 +257,53 @@ page	= {361--399}
  publisher = {ACM},
  address = {New York, NY, USA},
  keywords = {Aggregation, epidemic protocols, failure detection, gossip, membership, publish-subscribe, scalability},
+} 
+
+@Misc{awsserverless,
+title = {Surviving the Zombie Apocalypse with Serverless Microservices},
+howpublished = {\url{https://aws.amazon.com/blogs/compute/surviving-the-zombie-apocalypse-with-serverless-microservices/}},
+author = {Kyle Somers},
+note = {Retrieved on July, 2017}
+}
+
+@Misc{ntp,
+title = {NTP: The Network Time Protocol},
+howpublished = {\url{http://www.ntp.org/}},
+note = {Retrieved on July, 2017},
+author = {.}
+}
+
+@TechReport{crdt,
+  author =       {Mihai Le{\c t}ia and Nuno Pregui{\c c}a
+                  and Marc Shapiro},
+  title =        {{CRDTs}: Consistency without concurrency control},
+}
+
+@book{kanban,
+   title =     {Kanban in Action},
+   author =    {Marcus Hammarberg, Joakim Sunden},
+   publisher = {Manning Publications},
+   isbn =      {1617291056,9781617291050},
+   year =      {2014},
+   series =    {},
+   edition =   {1},
+   volume =    {}}
+
+@inproceedings{gossip,
+ author = {Demers, Alan and Greene, Dan and Hauser, Carl and Irish, Wes and Larson, John and Shenker, Scott and Sturgis, Howard and Swinehart, Dan and Terry, Doug},
+ title = {Epidemic Algorithms for Replicated Database Maintenance},
+ booktitle = {Proceedings of the Sixth Annual ACM Symposium on Principles of Distributed Computing},
+ series = {PODC '87},
+ year = {1987},
+ isbn = {0-89791-239-X},
+ location = {Vancouver, British Columbia, Canada},
+ pages = {1--12},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/41840.41841},
+ doi = {10.1145/41840.41841},
+ acmid = {41841},
+ publisher = {ACM},
+ address = {New York, NY, USA},
 } 
 
 @Misc{waterfall,
@@ -303,8 +469,7 @@ publisher = { }
    year =      {2016},
    series =    {},
    edition =   {3},
-   volume =    {},
-   url =       {http://gen.lib.rus.ec/book/index.php?md5=F95C8EDB691F67A014FD972B45095244}
+   volume =    {}
    }
 
 @Misc{linkedin,
@@ -339,8 +504,7 @@ publisher = { }
    year =      {2002},
    series =    {},
    edition =   {2},
-   volume =    {},
-   url =       {http://gen.lib.rus.ec/book/index.php?md5=875BA80648218E512C5E64867920BBF9}}
+   volume =    {}}
 
 @inproceedings {180268,
 author = {James C. Corbett and Jeffrey Dean and Michael Epstein and Andrew Fikes and Christopher Frost and JJ Furman and Sanjay Ghemawat and Andrey Gubarev and Christopher Heiser and Peter Hochschild and Wilson Hsieh and Sebastian Kanthak and Eugene Kogan and Hongyi Li and Alexander Lloyd and Sergey Melnik and David Mwaura and David Nagle and Sean Quinlan and Rajesh Rao and Lindsay Rolig and Yasushi Saito and Michal Szymaniak and Christopher Taylor and Ruth Wang and Dale Woodford},
@@ -493,5 +657,4 @@ publisher = {USENIX Association},
    year =      {2015},
    series =    {Management for Professionals},
    edition =   {1},
-   volume =    {},
-   url =       {http://gen.lib.rus.ec/book/index.php?md5=DE769327C80B8BA16A69E430CD2366A6}}
+   volume =    {}}

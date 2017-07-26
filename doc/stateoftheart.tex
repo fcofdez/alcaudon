@@ -254,8 +254,21 @@ goals of the system is to avoid centralized coordination as much as possible, so
 consensus based stores are discarded. One available option is Convergent
 Replicated Data Types (CRDT)\cite{crdt}.
 
-TODO, I don't know if this subsection makes more sense in the architecture
-section.
+
+\begin{definition}{Merge properties}
+  Let $P$ be a set. An order (or partial order) on $P$ is a binary relation
+  $\leq$ on $P$ such that, for all $x$, $y$, $z \in P$,
+  \begin{enumerate}
+  \item $x \leq x$
+  \item $x \leq y$ and $y \leq x$ imply $y$
+  \item $x \leq y$ and $y \leq z$ imply $x \leq z$
+  \end{enumerate}
+\end{definition}
+
+last watermark, and that depends on the state of a its dependencies. One of the
+goals of the system is to avoid centralized coordination as much as possible, so
+consensus based stores are discarded. One available option is Convergent
+Replicated Data Types (CRDT)\cite{crdt}.
 
 \subsubsection{Distributed system reliability}
 
@@ -363,7 +376,8 @@ build distributed systems.
   ships are built, where the hull is compartmentalized into different watertight
   bulkheads. Therefore, if the hull is broken, the failure is limited to that
   bulkhead without compromising the ship stability. Alcaudon will benefit from
-  this pattern to achieve fault-tolerant computations.
+  this pattern to achieve fault-tolerant computations. One actor supervision
+  tree can be found in figure~\ref{fig:supervision}.
 \item Logical addresses: Each actor has a virtual address based on the actor
   system and its hierarchy. This helps providing location transparency, as
   actors can change their physical location and the framework will take care of
@@ -380,6 +394,14 @@ build distributed systems.
   well to mantain Alcaudon persistent state of computations, since computations
   can be defined as actors.
 \end{itemize}
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[width=0.8\textwidth]{supervision.png}
+\caption{Actor supervision tree}
+\label{fig:supervision}
+\end{center}
+\end{figure}
 
 In conclusion, the actor model is a good computational model to base Alcaudon
 on. It has properties that allows tackling all the presented difficulties around

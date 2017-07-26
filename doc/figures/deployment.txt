@@ -1,0 +1,17 @@
+@startuml
+autonumber
+ClusterCoordinator -> ComputationManager : DeployComputations(id: ID, \ncomputation: List[ComputationDescription], \nstream: List[Stream])
+ComputationManager -> ClusterCoordinator : ACK(id)
+ComputationManager -> ComputationExecutor  : Deploy(ComputationDescription)
+ComputationManager -> Stream  : Deploy(Stream)
+ComputationExecutor -> CRDT : Add(self)
+Stream -> CRDT : Add(self)
+CRDT -> CRDT : Replicate changes
+CRDT -> Stream : ComputationJoined(Address)
+CRDT -> ComputationExecutor : StreamJoined(Address)
+rnote over CRDT
+Replication is done asynchronously
+to all subscribed nodes.
+endrnote
+ComputationManager -> ClusterCoordinator : DeploymentFinished(id)
+@enduml

@@ -3,7 +3,7 @@ autonumber
 ClusterClient -> ClusterCoordinator : DataflowPipelineCreationRequest
 ClusterCoordinator -> ClusterCoordinator : CreatePendingDataflowPipeline
 ClusterCoordinator -> ClusterCoordinator : Pre-Sign S3 URL
-ClusterClient <- ClusterCoordinator : Pre-Signed S3 URL & PendingDataflowPipelineUUID
+ClusterClient <- ClusterCoordinator : Pre-Signed S3 URL and PendingDataflowPipelineUUID
 ClusterClient -> S3  : HTTP PUT Request to Upload jar files using Pre-Signed URL
 ClusterClient <- S3  : HTTP Response with Status-Code:201
 ClusterClient -> ClusterCoordinator : Create final DataflowPipeline

@@ -1,0 +1,16 @@
+@startuml
+autonumber
+Stream -> ComputationExecutor : Record(uuid, data)
+ComputationExecutor -> ComputationExecutor: cuckooFilter.get(record.uuid)
+ComputationExecutor -> Computation : processRecord(record)
+Computation -> ForkJoinPool : Future(processRecord(record))
+ForkJoinPool -> Computation : FutureFinished
+Computation -> ComputationExecutor: ComputationFinished
+ComputationExecutor -> AkkaPersitence : persist(Transaction)
+ComputationExecutor <- AkkaPersitence : persistCallback
+ComputationExecutor -> ComputationState : applyTx(transaction)
+ComputationExecutor -> ComputationExecutor: cuckooFilter.put(record.uuid)
+ComputationExecutor -> ComputationExecutor: cassandra.put(record.uuid)
+ComputationExecutor -> Downstream : RawRecord
+ComputationExecutor -> Stream : ACK(uuid)
+@enduml
