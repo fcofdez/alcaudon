@@ -284,8 +284,8 @@ coordinator. Once cluster clients have the URL, they can use it to upload user
 code directly to the object storage service. With the user code uploaded, the
 next step is to create the actual Dataflow pipeline. Given the returned UUID a
 request is done to cluster coordinator in order to finish the dataflow pipeline
-creation. The communication is performed using akka-remote that allows
-communicate with remote actor systems.The whole process is represented as a
+creation. The communication is performed using akka remote that allows
+communications with remote actor systems.The whole process is represented as a
 sequence diagram in figure~\ref{fig:pipelinecreation}. This process is performed
 transparently by the library from users perspective.
 
@@ -305,28 +305,28 @@ domain they are working on. As it has been described previously, records in
 Alcaudon are a tuple of a key and an array of bytes. Given this fact, a way to
 work with high level entities is needed. There are many options to serialize and
 deserialize data available, such as JSON, Protocol Buffers, etc. Alcaudon users
-are free to use the serialization format that they prefer but to ease to work
+are free to use the serialization format they prefer. However, to ease working
 with the platform, a generic serialization library typeclass is provided. This
 library is capable of, given an \acs{ADT} generate automatically serializers and
-deserializers during compile time. This is possible thanks to an advance Scala
+deserializers during compile time. This is possible thanks to an advanced Scala
 feature, implicits resolution, and one library for generic programming,
 Shapeless. \acs{ADT}'s are a functional programming concept that allow data
 representation in terms of \textit{products} and \textit{sums} of types. A
-\textit{product} is a combination of different types $(A \& B)$, on the other
+\textit{product} is a combination of different types $(A \& B)$. On the other
 hand a \textit{sum} is an alternation of different types $(A | B)$. In Scala,
 \acs{ADT} are expressed as case classes and traits as shown in
 listing~\ref{code:adt}.
 
 \begin{lstlisting}[language=scala, frame=trBL, label=code:adt, float=ht, caption = {\acs{ADT} example}]
   sealed trait Message // Message = (Tweet | Account)
-  case class Tweet(user: String, text: String, timestamp: Long) extend Message // Tweet = (String & String & Long)
+  case class Tweet(user: String, id: Int, timestamp: Long) extend Message // Tweet = (String & Int & Long)
   case class Account(name: String, age: Int) extend Message // Account = (String & Int)
 \end{lstlisting}
 
 Taking this into account, case classes could be represented as lists of types,
 in \lstinline[columns=fixed]{Tweet} example it can be summarized as a list of
-three types, \lstinline[columns=fixed]{String & String & Long}. Shapeless allows
-to represent case classes as a \acf{HList} of types and work with them
+three types, \lstinline[columns=fixed]{String & Int & Long}. Shapeless allows
+to represent case classes as a \acf{HList} of types working with them
 as they are regular types. Once it is possible to encode \acs{ADT}'s as
 \acs{HList} of types a tool to convert that generic representation into
 a serializer is needed. To achieve this goal, Scala implicit type system is the
@@ -374,7 +374,7 @@ during compile time.
 Details about how rules for generic types and \acs{HList} are implemented can be
 found in listings ~\ref{code:generation1} and ~\ref{code:generation}. For
 objects of type T, Shapeless is used in order to obtain its encoding as an
-\acs{HList}, this is done in \lstinline[columns=fixed]{genericObjectEncoder}.
+\acs{HList}; this is done in \lstinline[columns=fixed]{genericObjectEncoder}.
 With this encoding, it is possible to call the serializer for \acs{HList}'s in
 implicit method \lstinline[columns=fixed]{hListFormat}. In this method, using
 recursive induction, a type class for each type is searched and combined, thus
@@ -430,27 +430,27 @@ of four modules:
   send heatbeats to the cluster coordinator in order to assure that the node is
   healthy.
 \item \textit{Library manager}: Library manager handles the download of user
-  defined code as well as loading them into the process classpath dynamically.
+  defined code as well as loading it into the process classpath dynamically.
   It downloads the contents from the object storage into disk, so content is
   just downloaded once per computing node. Once the \acs{jar}'s are downloaded,
-  they are loaded into a controlled user \acs{JVM} classpath, this avoids
+  they are loaded into a controlled user \acs{JVM} classpath. This avoids
   classpath collisions, i.e. different computations use a library but with
   different versions. This process is described as a sequence diagram in
   figure~\ref{fig:librarymanagement}.
 \item \textit{Computation manager}: Computation manager is responsible for
   deploying computations and streams into the computing node. A computing node
-  has a limited amount of resources, these resources are represented as
-  \textit{computation slots} in Alcaudon. \textit{Computation slots}
+  has a limited amount of resources, and in Alcaudon they are represented as
+  \textit{computation slots}. \textit{Computation slots}
   define how many computations can run in parallel. Usually, the number of
-  available slots are correlated with underlying physical hardware in which the
-  computing node is running. This value is configurable, thus Alcaudon do not
+  available slots is correlated with underlying physical hardware in which the
+  computing node is running. This value is configurable, thus Alcaudon does not
   impose any limits in the number of \textit{computation slots}. However, it
   is recommended to use values near the number of available CPU's. During
   the membership phase, coordinator node is informed about the number
   of usable slots. This information is used during scheduling. When a new
   job is scheduled to be run in a certain node, the computation manager
   is the point of communication between the coordinator and the node.
-  It deploys the scheduled streams and computations and supervise them,
+  It deploys the scheduled streams and computations and supervises them,
   using actor supervision.
 \end{itemize}
 
@@ -464,7 +464,7 @@ of four modules:
 \end{figure}
 
 Once a high level overview of this sub-system has been done, a more
-comprehensive description of the modules will be done.
+comprehensive description of the modules will be undertaken.
 
 \subsubsection{Cluster membership}
 \lipsum
@@ -472,16 +472,16 @@ comprehensive description of the modules will be done.
 
 As exposed before, computation manager is responsible for deploying and
 supervising computations and streams. In order to deploy computations and
-streams, it is needed to have the addresses of each of them. To accomplish this
+streams, the addresses of each of them are needed. To accomplish this
 goal, akka location transparency mechanism is used. Akka gives a logical address
-to each actor deployed into the system. Having this address it is possible to
-send messages between actors, the translation between the logical address and
-the physical address is done transparently by akka. Once this detail is
+to each actor deployed into the system. Having this address allows sending
+messages between actors. The translation between the logical address and the
+physical address is done transparently by akka. Once this detail is
 clarified, deployment process will be described. Cluster Coordinator, as
-described in previous subsections, schedule provided dataflow topologies among
-the available computing nodes. First, cluster coordinator send a request to a
-computing node asking for deploy certain computations and streams. The computing
-node responds with an acknowledgment, the computation will be deployed. The next
+described in previous subsections, schedules provided dataflow topologies among
+the available computing nodes. First, cluster coordinator sends a request to a
+computing node asking to deploy certain computations and streams. When the computing
+node responds with an acknowledgment, the computation is deployed. The next
 step is to start a ComputationExecutor actor for each computation in the request
 as well as Stream actors. Once these actors have been started, their logical
 addresses are communicated to other members that belong to the same dataflow via
@@ -521,7 +521,7 @@ When a new record arrives into a computation the next steps are performed:
 
 Since storing the result of every new record processing could be costly, the
 above operations can be grouped into batches optimizing the process. Records are
-sent until the sender gets an acknowledgment, that means that in reality records
+sent until the sender gets an acknowledgment, meaning that in reality records
 are sent at least once, but the computations are idempotent.
 
 \begin{lstlisting}[language=scala, frame=trBL, label=code:computationState, float=ht, caption = {Alcaudon internal computation state}]
@@ -543,22 +543,22 @@ extension alongside with Apache Cassandra\footnote{Apple has a cluster with over
 persistent state, create timers or produce records using Alcaudon \acs{API}'s,
 that generates state that should be handled by computation actors. Internal
 state contains persistent state from the computations executed, timers and
-meta-information, the details are listed in~\ref{code:computationState}. Each
+meta-information(~\ref{code:computationState}). Each
 deployed computation actor has an internal instance of
 \lstinline[columns=fixed]{ComputationState}. Once a computation execution has
-finished, it possible has pending data to be stored. These changes are wrapped
-into a \lstinline[columns=fixed]{Transaction} is persisted using akka extension.
+finished, it is possible it has pending data to be stored. These changes are wrapped
+into a \lstinline[columns=fixed]{Transaction}, persisted using akka extension.
 Once data has been saved into the backing storage, changes are applied into
 \lstinline[columns=fixed]{ComputationState} and senders are
-acknowledged~\ref{code:computationStateStorage}. During failure scenarios stored
-transactions will be materialized again once the actor is started again, this is
+acknowledged~\ref{code:computationStateStorage}. During failure scenarios, stored
+transactions will be re-materialized once the actor is restarted, this is
 know as recovery process. This process could be costly, since it has to re-apply
 every stored transaction. To decrease recovery time it is possible to take
 snapshots of the state, therefore only transactions from that instant will be
 re-applied during recovery phase. Alcaudon allows to configure the frequency in
 which snapshots are taken. This behavior is almost identical to regular
-databases, transactions are stored into an append-only log, materialized into a
-in-memory image of the system and snapshots are taken eventually to avoid long
+databases, where transactions are stored into an append-only log, materialized into an
+in-memory image of the system. Snapshots are taken frequently avoiding long
 recoveries. This architectural pattern helps to build a fault-tolerant system
 and it is easy to reason about.
 
@@ -581,30 +581,121 @@ single record \acs{UUID} into a database and check against that database for
 every received record. This approach is quite simple, but it does not scale and
 can lead to failures if the database is unresponsive. Alcaudon deals with this
 problem using probabilistic data structures. Bloom filters are a space-efficient
-probabilistic data structure used to test if an element is member of a set.
-Bloom filters has been used since the 1970s but there are newer data structures
+probabilistic data structure used to test if an element is a member of a set.
+Bloom filters have been used since the 1970s but there are newer data structures
 such as Cuckoo Filters\cite{cuckoo} that outperform the former. Alcaudon uses
 Cuckoo filters in order to detect duplicated records. One downside of these
 probabilistic data structures is that they can return false-positives, meaning
 that a record can be considered as it has been already processed. To solve this
-issue, processes records \acs{UUID}'s are stored into a cuckoo filter and
+issue, processed records \acs{UUID}s are stored into a cuckoo filter and
 Cassandra. When the cuckoo filter considers that a record has been already
 processed it is checked against the database. Taking into account that the total
 probability of a false-positive is $2b/2^{f}$ where $b$ is the number of entries
 per bucket and $f$ the fingerprint length in bits. The number of false-positives
-is low.
-
-\begin{figure}[!h]
-  \centering
-  \scalebox{0.45}{
-    \input{figures/recordprocessing.latex}
-  }
-  \caption{Alcaudon computing node LibraryManager}
-  \label{fig:recordprocessing}
-\end{figure}
+is low and therefore the database accesses will be minimal.
 
 \subsubsection{Timers}
+
+Given the infinite nature of streaming processing, an instrument to
+emit partial results is needed. Alcaudon implements timers as a mean
+to produce partial results, a different solution to this problem could
+be based on triggers. As it was stated in previous sections, the system
+implements three types of timers:
+
+\begin{itemize}
+\item \textit{Fixed timers}
+\item \textit{Recurrent fixed timers}
+\item \textit{Watermark timers}
+\end{itemize}
+
+
+\begin{figure}
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=0.8\linewidth]{constantskew.pdf}
+  \caption{Constant time skew}
+  \label{fig:constantskew}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.8\linewidth]{realskew.pdf}
+  \caption{Irregular time skew}
+  \label{fig:randomskew}
+\end{subfigure}
+\caption{Differences between ideal event time-process time skew and real world skew}
+\label{fig:skew}
+\end{figure}
+
+Fixed timers are triggered based on system wall clocks, meaning that they do not
+take into account event time. These timers are implemented using akka scheduler,
+a system that allows scheduling message delivery between actors. They are a good
+fit for computations that need to emit results at constant rate and do not need
+a correlation with event times. However, there are occasions where it is needed
+to know if events up to certain point in time have been processed. Due to the
+nature of distributed systems it is difficult to know if at given point in time,
+all the events up to a point have been received. In the ideal world, the
+difference between event time and processing time would be a constant $\delta$ as
+shown in figure~\ref{fig:constantskew}. Sadly, reality looks more
+like figure~\ref{fig:randomskew}. Alcaudon tries to deal with this constraints
+providing the grounds to work with and reason about out of order data. That tool
+is watermark timers, defined as follows:
+
+\begin{definition}{Watermark}
+Given a computation, $A$, let the oldest processed record in $A$ be a timestamp
+corresponding to the oldest unfinished record in $A$.
+Given this, watermark of $A$ is:
+$min(oldest record of A, watermark of C : A depends on C)$
+\end{definition}
+
+Watermarks try to predict a $T_n$ timestamp signaling that up to that instant
+all records have been received. Alcaudon implements a simple heuristic in order
+to predict low watermarks, however more advanced techniques such us machine learning
+can be used in order to predict better low watermarks. It is worth mentioning that this
+very same algorithm was implemented by Google\cite{milwheel} and just about $0.001\%$
+of records were dropped due to an incorrect prediction.
+Therefore, using watermarks it is possible to configure timers that are
+triggered once the watermark has reached some point, i.e. all records up to a
+timestamp $T$ have been processed. 
+
+In order to implement watermarks in Alcaudon, a system to replicate low
+watermarks between different computations and streams is needed. One possible
+option could be centralizing this knowledge in the cluster coordinator. The main
+downside of this approach is that it could be a single-point of failure. Another
+reason to avoid centralization is that watermarks are calculated in computation
+basis, thus computations only need to have knowledge about their dependencies.
+With this set of constraints \acs{CRDT}s are a good fit for the problem. They
+are able to replicate changes among peers, they do not need coordination and are
+have eventual strong consistency. Again, akka provides an extension that allows
+working with \acs{CRDT}s, akka distributed data. With this akka extension it is
+possible to subscribe to changes in certain \acs{CRDT}
+
+
+\begin{lstlisting}[language=scala, frame=trBL, label=code:timeExecutor, float=ht, caption = {Computation state persistence}]
+class TimerExecutor(computationId: String,
+                    sources: Set[String],
+                    initialWatermark: Long = System.currentTimeMillis())
+    extends Actor
+    with ActorLogging {
+
+      ...
+  override def preStart(): Unit = {
+    sources.foreach { srcId =>
+      val key = GWatermarkKey(s"watermark-$srcId")
+      replicator ! Subscribe(key, self) //TODO move crdt name to a fn
+      replicator ! Get(key, ReadMajority(2.seconds))
+    }
+  }
+  ...
+}
+\end{lstlisting}
+
+To implement watermarks, a new type of \acs{CRDT} has been implemented, 
+
+
 \subsubsection{Streams}
+
+Flow control
 \subsection{Deployment}
 
 In order to deploy the different components
