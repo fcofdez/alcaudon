@@ -1,0 +1,14 @@
+@startuml
+autonumber
+ComputationProducer -> Stream: RawRecord
+ComputationProducer <- Stream: Ack
+Stream -> ComputationExecutor : Record(KeyExtractor(RawRecord), RawRecord)
+ComputationExecutor -> Stream : Ack(recordId)
+Stream -> Stream : UpdateLatestConsumedRecord(consumerId, recordId)
+Stream -> Stream : CheckOverwhelmeddSubscribers 
+Stream -> Stream : AddToQuarentine(overwhelmedSubscribers)
+Stream -> Stream : SignalOverwhelmedSubscribers
+Stream -> OverwhelmedComputationExecutor : Record
+Stream <- OverwhelmedComputationExecutor : Ack(recordId)
+Stream -> Stream : RemoveFromQuarentine(overwhelmedSubscriber)
+@enduml

@@ -310,7 +310,7 @@ with the platform, a generic serialization library typeclass is provided. This
 library is capable of, given an \acs{ADT} generate automatically serializers and
 deserializers during compile time. This is possible thanks to an advanced Scala
 feature, implicits resolution, and one library for generic programming,
-Shapeless. \acs{ADT}'s are a functional programming concept that allow data
+Shapeless. \acs{ADT}s are a functional programming concept that allow data
 representation in terms of \textit{products} and \textit{sums} of types. A
 \textit{product} is a combination of different types $(A \& B)$. On the other
 hand a \textit{sum} is an alternation of different types $(A | B)$. In Scala,
@@ -327,7 +327,7 @@ Taking this into account, case classes could be represented as lists of types,
 in \lstinline[columns=fixed]{Tweet} example it can be summarized as a list of
 three types, \lstinline[columns=fixed]{String & Int & Long}. Shapeless allows
 to represent case classes as a \acf{HList} of types working with them
-as they are regular types. Once it is possible to encode \acs{ADT}'s as
+as they are regular types. Once it is possible to encode \acs{ADT}s as
 \acs{HList} of types a tool to convert that generic representation into
 a serializer is needed. To achieve this goal, Scala implicit type system is the
 answer. Scala implicits are a way to provide certain parameters marked as
@@ -336,7 +336,7 @@ a set of strict rules\footnote{http://docs.scala-lang.org/tutorials/FAQ/finding-
 to look for implicit parameters. The interesting part comes when functions with implicit
 parameters use parametric polymorphism, such as Alcaudon's serialization typeclass
 listed in~\ref{code:typeclass}.
-\begin{lstlisting}[language=scala, frame=trBL, label=code:typeclass, float=ht, caption = {Serializer Deserializer typeclass}]
+\begin{lstlisting}[language=scala, frame=trBL, label=code:typeclass, float=ht, caption = {Serializer-Deserializer typeclass}]
 trait TypeInfo[T] {
   def serialize(obj: T)(implicit output: DataOutput): DataOutput
   def deserialize(t: DataInput): T
@@ -354,7 +354,7 @@ implemented it is possible to write rules for \acs{HList} of
 generate \lstinline[columns=fixed]{TypeInfo} instances for any \acs{ADT}
 during compile time.
 
-\begin{lstlisting}[language=scala, frame=trBL, label=code:generation1, float=ht, caption = {Serializer Deserializer typeclass}]
+\begin{lstlisting}[language=scala, frame=trBL, label=code:generation1, float=ht, caption = {Serializer-Deserializer typeclass using parametric polymorphism}]
   implicit def genericObjectEncoder[A, H <: HList, O <: HList](
       implicit generic: LabelledGeneric.Aux[A, H],
       repFormat: Lazy[TypeInfo[H]],
@@ -375,12 +375,12 @@ Details about how rules for generic types and \acs{HList} are implemented can be
 found in listings ~\ref{code:generation1} and ~\ref{code:generation}. For
 objects of type T, Shapeless is used in order to obtain its encoding as an
 \acs{HList}; this is done in \lstinline[columns=fixed]{genericObjectEncoder}.
-With this encoding, it is possible to call the serializer for \acs{HList}'s in
+With this encoding, it is possible to call the serializer for \acs{HList}s in
 implicit method \lstinline[columns=fixed]{hListFormat}. In this method, using
 recursive induction, a type class for each type is searched and combined, thus
 creating a serializer for the \acs{HList} then for the type T.
 
-\begin{lstlisting}[language=scala, frame=trBL, label=code:generation, float=ht, caption = {Serializer Deserializer typeclass}]
+\begin{lstlisting}[language=scala, frame=trBL, label=code:generation, float=ht, caption = {Serializer-Deserializer typeclass for \acs{HList}}]
   implicit def hListFormat[Key <: Symbol, Value, Remaining <: HList](
       implicit key: Witness.Aux[Key],
       lazyTih: Lazy[TypeInfo[Value]],
@@ -406,14 +406,12 @@ As an interesting note, this part of the system has been tested using property
 based testing\cite{quickcheck}. Using this kind of testing helped to spot
 otherwise difficult bugs to detect.
 
-\subsection{Coordinator node}
-
 \subsection{Computation node}
 
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.5\textwidth]{computationnode.pdf}
-  \caption{Alcaudon architecture schema}
+  \caption{Computation node modules}
   \label{fig:computationnode}
 \end{figure}
 
@@ -485,7 +483,7 @@ implementation of The Phi Accrual Failure Detector\cite{phifailure}.
 \end{center}
 \end{figure}
 
-In figure~\ref{fig:statecluster} the different states in which a cluster node
+In figure~\ref{fig:statescluster} the different states in which a cluster node
 can be are illustrated. Alcaudon uses this mechanism in order to register new
 nodes into the cluster using seed nodes. After joining the cluster, computation
 nodes send a message to cluster coordinator in order to signal that they are
@@ -506,7 +504,7 @@ figure~\ref{fig:stopprotocol}.
   \scalebox{0.45}{
     \input{figures/exitnode.latex}
   }
-  \caption{Compute node graceful stop protocol}
+  \caption{Computation node stop protocol}
   \label{fig:stopprotocol}
 \end{figure}
 
@@ -539,7 +537,7 @@ a sequence diagram in figure~\ref{fig:librarymanagement}.
   \scalebox{0.45}{
     \input{figures/deployment.latex}
   }
-  \caption{Alcaudon computing node LibraryManager}
+  \caption{Computation deployment sequence diagram}
   \label{fig:deployment}
 \end{figure}
 
@@ -694,7 +692,7 @@ Watermarks try to predict a $T_n$ timestamp signaling that up to that instant
 all records have been received. Alcaudon implements a simple heuristic in order
 to predict low watermarks, however more advanced techniques such us machine learning
 can be used in order to predict better low watermarks. It is worth mentioning that this
-very same algorithm was implemented by Google\cite{milwheel} and just about $0.001\%$
+very same algorithm was implemented by Google\cite{millwheel} and just about $0.001\%$
 of records were dropped due to an incorrect prediction.
 Therefore, using watermarks it is possible to configure timers that are
 triggered once the watermark has reached some point, i.e. all records up to a
@@ -720,7 +718,7 @@ actor, \lstinline[columns=fixed]{TimeExecutor}, who is in charge of keep track
 and trigger timers. This actor subscribes to \acs{CRDT} watermark changes that are
 originated in computation dependencies(~\ref{code:timeExecutor}).
 
-\begin{lstlisting}[language=scala, frame=trBL, label=code:timeExecutor, float=ht, caption = {Computation state persistence}]
+\begin{lstlisting}[language=scala, frame=trBL, label=code:timeExecutor, float=ht, caption = {TimerExecutor \acs{CRDT}s dependencies subscription}]
 class TimerExecutor(computationId: String,
                     sources: Set[String],
                     initialWatermark: Long)
@@ -767,7 +765,84 @@ triggered(~\ref{code:watermarkUpdate}).
 
 \subsubsection{Streams}
 
-Flow control
+\begin{lstlisting}[language=scala, frame=trBL, label=code:recordstorage, float=ht, caption = {Stream record storage}]
+case record: RawRecord =>
+  val origin = sender()
+  persist(RawStreamRecord(state.nextRecordSeq, record)) { event =>
+    state.update(event)
+    origin ! ReceiveACK(event.rawRecord.id)
+    signalSubscribers(overwhelmedSubscribers)
+    if (shouldTakeSnapshot)
+      saveSnapshot(state)
+\end{lstlisting}
+
+In Alcaudon, streams represent the delivery instrument between different
+computations. Computations subscribe to one or more streams and publish to zero
+or more streams. As with computations, durability is a key part of streams,
+meaning that during failure scenarios data published into a stream should be
+recovered once the system is restarted. Streams are implemented as actors, in
+order to make them durable akka persistence has been used. As explained before,
+with akka persistence it is possible to to store actor state. Alcaudon's streams
+work pretty much as an append-only log, computations or sources publish records
+and they are delivered to subscribed computations. Each received record is
+stored into a durable storage, in this case Cassandra. Internally, this
+operation is done in batches, minimizing I/O overhead. This process is listed
+in~\ref{code:recordstorage}. As it can bee observed, stream publishers are
+acknowledged when a record has been received, again at least-once delivery
+semantics are used to avoid any data loss. Once a record has been received,
+pending records are sent to subscribers. A typical problem when implementing
+publisher-subscriber systems is how to deal with slow-consumers. This is known as
+flow control, and some patterns to solve this problem are listed below: 
+
+\begin{itemize}
+\item \textit{Back-pressure}: Consumers signal producers that they are able to
+  process messages, defining message rate.
+\item \textit{Managed queue pattern}: Where the consumer uses a bounded queue in
+  order to store pending records.
+\item \textit{Drop messages}: This pattern is an evolution of managed queue pattern. When
+  the rate difference between producer and consumer is too big, messages are dropped.
+  This pattern is biased towards system stability over correctness.
+\item \textit{Throttling}: Throttle publisher output rate according to contracts
+  with consumers.
+\end{itemize}
+
+Alcaudon deals with this problem using an hybrid approach. Stream actors store
+latest message offset acknowledged by each consumer. With this information, it
+is possible to know an approximate consume rate for each consumer. A consumer is
+considered overwhelmed when it has $n$ pending records to acknowledge, where $n$
+is a configurable parameter. In order to avoid exhausted consumers, Alcaudon
+streams stop sending messages to overwhelmed consumers for a while. To check if
+consumers are able to handle new messages again, streams send them a record to
+check if they are able to process it and if they are able to handle it, take
+them out of quarantine. This process is represented as a sequence diagram in
+figure~\ref{fig:flowcontrol}.
+
+\begin{figure}[!h]
+  \centering
+  \scalebox{0.5}{
+    \input{figures/flowcontrol.latex}
+  }
+\caption{Alcaudon flow control sequence diagram}
+\label{fig:flowcontrol}
+\end{figure}
+
+As described in previous sections, users should provide a key extraction
+function. With this function, each record gets a key assigned. This allows to
+parallelize computations using that key as a routing property. In particular,
+Alcaudon uses consistent hashing in order to decide to which computation
+executor a record should be delivered~\ref{fig:streamkeypart}. The number of
+parallel computations is configurable as a global parameter in Alcaudon
+settings.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{stream.pdf}
+  \caption{Streams key partitioning}
+  \label{fig:streamkeypart}
+\end{figure}
+
+\subsection{Coordinator node}
+TODO
 \subsection{Deployment}
 
 In order to deploy the different components
