@@ -665,16 +665,23 @@ downside of this approach is that it could be a single-point of failure. Another
 reason to avoid centralization is that watermarks are calculated in computation
 basis, thus computations only need to have knowledge about their dependencies.
 With this set of constraints \acs{CRDT}s are a good fit for the problem. They
-are able to replicate changes among peers, they do not need coordination and are
-have eventual strong consistency. Again, akka provides an extension that allows
-working with \acs{CRDT}s, akka distributed data. With this akka extension it is
-possible to subscribe to changes in certain \acs{CRDT}
-
+are able to replicate changes among peers, they do not need coordination and
+they provide eventual strong consistency. Again, akka provides an extension that
+allows working with \acs{CRDT}s, akka distributed data. By default, this
+extension provides different data type implementations such as counters, sets,
+maps or registers. None of them are suitable to work with timestamps as is the
+case of watermarks. Alcaudon implements a new \acs{CRDT} data type
+\lstinline{GWatermark} that is able to satisfy the timestamps semantics as well
+as \acs{CRDT} properties.
+In Alcaudon, each \lstinline[columns=fixed]{ComputationExecutor} has a companion
+actor, \lstinline[columns=fixed]{TimeExecutor}, who is in charge of keep track
+and trigger timers. This actor subscribes to \acs{CRDT} watermark changes that are
+originated in computation dependencies(~\ref{code:timeExecutor}).
 
 \begin{lstlisting}[language=scala, frame=trBL, label=code:timeExecutor, float=ht, caption = {Computation state persistence}]
 class TimerExecutor(computationId: String,
                     sources: Set[String],
-                    initialWatermark: Long = System.currentTimeMillis())
+                    initialWatermark: Long)
     extends Actor
     with ActorLogging {
 
@@ -682,7 +689,7 @@ class TimerExecutor(computationId: String,
   override def preStart(): Unit = {
     sources.foreach { srcId =>
       val key = GWatermarkKey(s"watermark-$srcId")
-      replicator ! Subscribe(key, self) //TODO move crdt name to a fn
+      replicator ! Subscribe(key, self)
       replicator ! Get(key, ReadMajority(2.seconds))
     }
   }
@@ -690,8 +697,31 @@ class TimerExecutor(computationId: String,
 }
 \end{lstlisting}
 
-To implement watermarks, a new type of \acs{CRDT} has been implemented, 
+Once values from dependencies are known, the algorithm implementation to
+calculate computation watermarks is straightforward(~\ref{code:watermarkUpdate}).
 
+\begin{lstlisting}[language=scala, frame=trBL, label=code:watermarkUpdate, float=ht, caption = {Watermark update logic}]
+def updateWatermarks(watermarkTimers: List[WatermarkTracker],
+                     sourceWatermarks: Map[SourceID, Long],
+                     timestamp: Long): Unit = {
+  val minWatermarkSource =
+    Try(sourceWatermarks.values.min).getOrElse(Long.MaxValue)
+  latestWatermark = oldestComputationTimestamp.min(minWatermarkSource)
+  val overdueTimers =
+    watermarkTimers.filter(tracker => tracker.overdue(latestWatermark))
+  val pendingTimers =
+    watermarkTimers.filterNot(tracker => tracker.overdue(latestWatermark))
+  val trackers = overdueTimers.map { tracker =>
+    tracker.origin ! ExecuteTimer(tracker.timer)
+    tracker.copy(lastWatermark = latestWatermark)
+  } ::: pendingTimers
+  context.become(working(trackers, sourceWatermarks))
+}
+\end{lstlisting}
+
+Once watermarks are calculated, it is checked against the created timers if some
+of them has past that point, if it is the case, timer is
+triggered(~\ref{code:watermarkUpdate}).
 
 \subsubsection{Streams}
 
