@@ -14,7 +14,7 @@ next subsections, those concepts will be analyzed in more depth.
 \end{center}
 \end{figure}
 
-\subsection{Data Processing}
+\section{Data Processing}
 
 According to a recent study by Cisco \cite{ciscosurvey}~\ref{fig:ciscodata} the
 data storage is growing by 40\% yearly. This implies that that by 2020
@@ -68,7 +68,7 @@ and its processing. Alcaudon fits in this category of data processing systems,
 as one of its aims is being able to process unbounded data sets with low
 latency.
 
-\subsubsection{Cloud Computing}
+\subsection{Cloud Computing}
 
 Cloud computing might be seen as a recent development. However, during the 1990s
 researchers at Xerox PARC started to develop ideas around what they named
@@ -99,7 +99,7 @@ Alcaudon, as an elastic data processing system, will be able to adapt to
 different loads as the computing needs increase.. It will be able to use more
 computing resources dynamically as more servers are added to the pool.
 
-\subsection{Distributed systems}
+\section{Distributed systems}
 \label{subsection:distsys}
 
 Distributed systems can be defined as a set of computer programs, executing on
@@ -178,7 +178,7 @@ the following properties:
 \end{center}
 \end{figure}
 
-\subsubsection{Taxonomy of a distributed system}
+\subsection{Taxonomy of a distributed system}
 
 Once described what distributed systems are and why they are useful, it is
 possible to define a taxonomy of distributed systems topics such as coordination
@@ -243,7 +243,7 @@ As it can be seen the topic is wide, so for this documents only
   need of more computing power.
 \end{itemize}
 
-\subsubsection{CRDT}
+\subsection{CRDT}
 
 As previously presented, Alcaudon will be founded watermark heuristics. In order
 to implement these heuristics, there is a need for some global knowledge about
@@ -268,7 +268,7 @@ Replicated Data Types (CRDT)\cite{crdt}.
 TODO
 
 
-\subsubsection{Distributed system reliability}
+\subsection{Distributed system reliability}
 
 Building distributed systems is not an easy task. In this subsection, different
 failure scenarios that can happen in a distributed environment will be presented.
@@ -323,7 +323,7 @@ Alcaudon's goal is to provide users a simple but powerful interface that enables
 them to parallelize and distribute computations for unbounded datasets without all
 the described problems.
 
-\subsubsection{Actor Model}
+\subsection{Actor Model}
 
 To tackle all the complexity described in previous sections there is a
 computation model that is well suited: the actor model.
@@ -405,7 +405,7 @@ In conclusion, the actor model is a good computational model to base Alcaudon
 on. It has properties that allows tackling all the presented difficulties around
 writing distributed systems properly.
 
-\subsection{Job scheduling}
+\section{Job scheduling}
 
 Computations in distributed data processing clusters are expressed as a
 dataflows. They can be considered as a direct acyclic graph (DAG) as the one in
@@ -473,7 +473,7 @@ below:
 
 How alcaudon solves this issue.
 
-\subsection{Library design}
+\section{Library design}
 
 Humans have been using abstraction since the very beginnings of their existence.
 The reality around is too complex to understand every detail of it. Thus,
