@@ -415,10 +415,10 @@ otherwise difficult bugs to detect.
   \label{fig:computationnode}
 \end{figure}
 
-Finally, computation node architecture design will be presented. This component
-is in charge of executing the actual computations. A high level overview of this
-sub-component can be found in figure~\ref{fig:computationnode}. It is composed
-of four modules:
+Once Alcaudon library has been described, computation node architecture design
+will be presented. This component is in charge of executing the actual
+computations. A high level overview of this component can be found in
+figure~\ref{fig:computationnode}. It is composed of four modules:
 \begin{itemize}
 \item \textit{Cluster membership client}: This module is in charge of handling
   the communications with the cluster coordinator. It announces the availability
@@ -842,6 +842,87 @@ settings.
 \end{figure}
 
 \section{Coordinator node}
+
+Finally, coordinator node architecture design will be presented. This component
+is in charge of keeping track of computation nodes, gathering different metrics,
+creating new dataflow pipelines and scheduling them. A high level overview of this
+system can be found in figure~\ref{fig:coordinatormodules}.
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.6\textwidth]{coordinator.pdf}
+  \caption{Coordinator node modules}
+  \label{fig:coordinatormodules}
+\end{figure}
+
+Alcaudon coordinator node is composed of modules defined below:
+\begin{itemize}
+  \item \textit{Library manager}: It is in charge of storing user defined code
+    into an object storage service.
+  \item \textit{Cluster membership manager}: Module that manages the life-cycle of
+    computing nodes in order to be able to schedule tasks in them.
+  \item \textit{Dataflow manager}: Dataflow manager is the interface between
+    users and the cluster. It defines how users create, monitor or destroy
+    dataflow pipelines.
+  \item \textit{Scheduler}: Scheduler is in charge of, given a dataflow pipeline
+    to be deployed, get a deployment plan as optimal as possible.
+  \item \textit{Cluster health manager}: This module is in charge of collecting
+    different metrics such as CPU usage, memory usage, number of records
+    processed, unhealthy nodes, etc. This nodes exposes an \acs{HTTP} interface
+    so Prometheus is able to pull metrics data from it. It is used in
+    combination with Grafana, a tool to generate time series dashboards.
+\end{itemize}
+
+Modules such as Library Manager and Dataflow Manager have been exposed in
+previous sections, therefore this section will be focused on scheduling, cluster
+membership manager, cluster health manager.
+
+\subsection{Scheduler}
+
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{scheduling.pdf}
+  \caption{Scheduling process}
+  \label{fig:scheduler}
+\end{figure}
+
+When dataflow pipelines are created, Alcaudon should deploy these computations
+into available compute nodes~\ref{fig:scheduler}. Some desirable properties that
+these deployments should have are:
+
+\begin{itemize}
+\item High cluster utilization
+\item Fast job completion
+\item Fairness
+\item Efficiency
+\end{itemize}
+
+As it was described in previous sections, this problem is know as
+\textit{flexible Job-shop scheduling problem} and it is cataloged as a NP-Hard
+problem. Existing algorithms are based on heuristics and usually these
+algorithms are biased towards fairness, performance or efficiency.
+Alcaudon uses an state of the art cluster scheduler platform\cite{firmament},
+named Firmament. It allows to use \acf{HTTP} in order to perform scheduling
+requests. An interesting feature that this scheduler offers is that it allows
+using different scheduling policies. These policies are listed below.
+
+\begin{itemize}
+\item \textit{Trivial}: Fixed costs, tasks always schedule if resources are idle.
+\item \textit{Random}: Random costs, for fuzz tests.
+\item \textit{SJF}: Shortest job first policy based on avg. past runtimes.
+\item \textit{Quincy}: Original Quincy cost model, with data locality.       
+\item \textit{Whare}: Implementation of Whare-Map's M and MCs policies.
+\item \textit{Coco}: Coordinated co-location model.
+\item \textit{Octopus}: Simple load balancing based on task counts.     
+\item \textit{Void}: Bogus cost model used for KB with simple scheduler.  
+\item \textit{NET-BW}: Network-bandwidth-aware cost model (avoids hotspots).  
+\end{itemize}
+
+After some testing and evaluation, Alcaudon uses \textit{CoCo} scheduling
+policy. It is preferred to co-locate computations in order to save network
+roundtrips.
+
+TODO, sequence diagram for scheduling process.
 \section{Deployment}
 
 In order to deploy the different components

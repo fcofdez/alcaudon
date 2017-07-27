@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="131.85788mm"
+   height="21.250057mm"
+   viewBox="0 0 131.85788 21.250058"
+   version="1.1"
+   id="svg5289"
+   inkscape:version="0.92.1 r15371"
+   sodipodi:docname="scheduling.svg"
+   inkscape:export-filename="/home/fran/Downloads/arch.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
+  <defs
+     id="defs5283">
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker6348"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         inkscape:connector-curvature="0"
+         id="path6346"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#bababa;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(0.8,0,0,0.8,10,0)" />
+    </marker>
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="marker5813"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lend">
+      <path
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill:#ffc45e;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path5811"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker5761"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         id="path5759"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(0.8,0,0,0.8,10,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         id="path4722"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00000003pt;stroke-opacity:1"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <symbol
+       id="ToiletsMen">
+      <title
+         id="title10150">Toilets - Men</title>
+      <g
+         style="stroke:none"
+         id="g10156">
+        <circle
+           style="stroke-width:0.26458332"
+           cx="9.5249996"
+           cy="2.3812499"
+           r="1.3229166"
+           id="circle10152" />
+        <path
+           style="stroke-width:0.26458332"
+           inkscape:connector-curvature="0"
+           d="M 6.35,5.8208333 V 9.921875 a 0.5953125,0.5953125 0 0 0 1.190625,0 V 6.0854167 H 7.8052083 V 16.536458 a 0.79375,0.79375 0 0 0 1.5875,0 v -5.953125 h 0.2645834 v 5.953125 a 0.79375015,0.79375015 0 0 0 1.5875003,0 V 6.0854167 h 0.264583 V 9.921875 a 0.5953125,0.5953125 0 0 0 1.190625,0 V 5.8208333 A 1.8520833,1.8520833 0 0 0 10.847917,3.96875 H 8.2020833 A 1.8520833,1.8520833 0 0 0 6.35,5.8208333 Z"
+           id="path10154" />
+      </g>
+    </symbol>
+    <symbol
+       id="ToiletsWomen">
+      <title
+         id="title10170">Toilets - Women</title>
+      <g
+         style="stroke:none"
+         id="g10176">
+        <circle
+           style="stroke-width:0.26458332"
+           cx="9.5249996"
+           cy="2.6458333"
+           r="1.3229166"
+           id="circle10172" />
+        <path
+           style="stroke-width:0.26458332"
+           inkscape:connector-curvature="0"
+           d="m 9.3927083,16.933333 a 0.66145833,0.66145833 0 0 1 -1.3229166,0 V 12.435417 H 6.35 L 8.2020833,6.2177083 H 7.9375 L 6.8527083,9.763125 A 0.555625,0.555625 0 0 1 5.794375,9.445625 L 7.0114583,5.4239583 A 1.7197917,1.7197917 0 0 1 8.73125,4.2333333 h 1.5875 a 1.7197917,1.7197917 0 0 1 1.719792,1.190625 l 1.217083,4.0216667 a 0.555625,0.555625 0 0 1 -1.058333,0.3175 L 11.1125,6.2177083 H 10.847917 L 12.7,12.435417 h -1.719792 v 4.497916 a 0.66145833,0.66145833 0 0 1 -1.3229163,0 V 12.435417 H 9.3927083 Z"
+           id="path10174" />
+      </g>
+    </symbol>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="313.17531"
+     inkscape:cy="173.37007"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     showborder="true"
+     inkscape:lockguides="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="1019"
+     inkscape:window-x="0"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
+     inkscape:connector-spacing="17"
+     fit-margin-top="0.3"
+     fit-margin-right="0.3"
+     fit-margin-bottom="0.3"
+     fit-margin-left="0.3">
+    <inkscape:grid
+       type="xygrid"
+       id="grid5834"
+       originx="118.99605"
+       originy="-182.23119" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5286">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(118.99605,-93.51875)">
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="42.333332"
+       y="-84"
+       id="text6035"><tspan
+         sodipodi:role="line"
+         id="tspan6033"
+         x="42.333332"
+         y="-74.63623"
+         style="stroke-width:0.26458332" /></text>
+    <circle
+       style="fill:#70a39f;fill-opacity:1;stroke:#000000;stroke-width:0.12359811;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863"
+       cx="-108.56995"
+       cy="104.0378"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="2.6161599" />
+    <circle
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.12359811;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3"
+       cx="-98.836281"
+       cy="101.4715"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="2.6161599" />
+    <circle
+       style="fill:#e0b061;fill-opacity:1;stroke:#000000;stroke-width:0.12359811;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3-6"
+       cx="-99.021507"
+       cy="108.07381"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="2.6161599" />
+    <circle
+       style="fill:#965f5f;fill-opacity:1;stroke:#000000;stroke-width:0.12359811;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3-6-1"
+       cx="-90.085808"
+       cy="104.22306"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="2.6161599" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.06155666px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -106.21955,102.88895 4.77197,-1.25814"
+       id="path5934"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5863"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:connection-end="#path5863-3" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.06155666px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -106.01268,104.58956 4.81342,2.03458"
+       id="path5936"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5863"
+       inkscape:connection-end="#path5863-3-6"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.06155666px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -96.853119,106.6102 4.214249,-1.81609"
+       id="path5938"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#path5863-3-6"
+       inkscape:connection-end="#path5863-3-6-1"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.06155666px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -96.236073,101.75996 3.852947,1.21155"
+       id="path5940"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-end="#path5863-3-6-1"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:connection-start="#path5863-3" />
+    <rect
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.23265514;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5942"
+       width="37.881824"
+       height="19.903912"
+       x="-118.57973"
+       y="94.191826"
+       ry="7.2143164"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="55.5625"
+       y="249.375"
+       id="text6151"><tspan
+         sodipodi:role="line"
+         id="tspan6149"
+         x="55.5625"
+         y="253.12051"
+         style="font-size:4.23333311px;stroke-width:0.26458332" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:4.23333311px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="58.208332"
+       y="257.3125"
+       id="text6174"><tspan
+         sodipodi:role="line"
+         id="tspan6172"
+         x="58.208332"
+         y="261.05801"
+         style="stroke-width:0.26458332" /></text>
+    <g
+       id="use27394"
+       style="fill:#000000;stroke:none"
+       transform="matrix(0.42907927,0,0,0.42907927,-17.734732,101.13697)">
+      <title
+         id="title27606">Preferences System Network Proxy
+            </title>
+      <path
+         inkscape:connector-curvature="0"
+         id="path27608"
+         d="M 1.75,4 C 0.798,4 0,4.798 0,5.75 v 4.5 C 0,11.202 0.798,12 1.75,12 H 1.875 L 1.095,13.563 0.374,15 h 9.25 L 8.904,13.562 8.126,12 h 0.125 c 0.952,0 1.75,-0.798 1.75,-1.75 V 5.75 C 10,4.798 9.202,4 8.25,4 Z M 2,6 h 6 v 4 H 2 Z" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path27610"
+         d="M 7.75,1 C 6.798,1 6,1.798 6,2.75 V 3 h 8 v 4 h -3 v 3.25 c 0,0.66 -0.252,1.27 -0.656,1.75 h 5.28 l -1.5,-3 H 14.25 C 15.202,9 16,8.202 16,7.25 V 2.75 C 16,1.798 15.202,1 14.25,1 Z" />
+    </g>
+    <g
+       id="use27394-5"
+       style="fill:#000000;stroke:none"
+       transform="matrix(0.42907928,0,0,0.42907928,-5.8284835,105.10572)">
+      <title
+         id="title27606-3">Preferences System Network Proxy
+            </title>
+      <path
+         inkscape:connector-curvature="0"
+         id="path27608-5"
+         d="M 1.75,4 C 0.798,4 0,4.798 0,5.75 v 4.5 C 0,11.202 0.798,12 1.75,12 H 1.875 L 1.095,13.563 0.374,15 h 9.25 L 8.904,13.562 8.126,12 h 0.125 c 0.952,0 1.75,-0.798 1.75,-1.75 V 5.75 C 10,4.798 9.202,4 8.25,4 Z M 2,6 h 6 v 4 H 2 Z" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path27610-6"
+         d="M 7.75,1 C 6.798,1 6,1.798 6,2.75 V 3 h 8 v 4 h -3 v 3.25 c 0,0.66 -0.252,1.27 -0.656,1.75 h 5.28 l -1.5,-3 H 14.25 C 15.202,9 16,8.202 16,7.25 V 2.75 C 16,1.798 15.202,1 14.25,1 Z" />
+    </g>
+    <g
+       id="use27394-2"
+       style="fill:#000000;stroke:none"
+       transform="matrix(0.42907928,0,0,0.42907928,3.4319336,99.420657)">
+      <title
+         id="title27606-9">Preferences System Network Proxy
+            </title>
+      <path
+         inkscape:connector-curvature="0"
+         id="path27608-1"
+         d="M 1.75,4 C 0.798,4 0,4.798 0,5.75 v 4.5 C 0,11.202 0.798,12 1.75,12 H 1.875 L 1.095,13.563 0.374,15 h 9.25 L 8.904,13.562 8.126,12 h 0.125 c 0.952,0 1.75,-0.798 1.75,-1.75 V 5.75 C 10,4.798 9.202,4 8.25,4 Z M 2,6 h 6 v 4 H 2 Z" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path27610-2"
+         d="M 7.75,1 C 6.798,1 6,1.798 6,2.75 V 3 h 8 v 4 h -3 v 3.25 c 0,0.66 -0.252,1.27 -0.656,1.75 h 5.28 l -1.5,-3 H 14.25 C 15.202,9 16,8.202 16,7.25 V 2.75 C 16,1.798 15.202,1 14.25,1 Z" />
+    </g>
+    <rect
+       style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.25283468;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5942-7"
+       width="43.65625"
+       height="20.397223"
+       x="-31.220837"
+       y="93.945168"
+       ry="7.3931189"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <circle
+       style="fill:#70a39f;fill-opacity:1;stroke:#000000;stroke-width:0.08558656;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-9"
+       cx="-15.732958"
+       cy="104.74225"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="1.8115822" />
+    <circle
+       style="fill:#e0b061;fill-opacity:1;stroke:#000000;stroke-width:0.08558656;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3-6-36"
+       cx="-3.9329791"
+       cy="108.65469"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="1.8115822" />
+    <circle
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.08558656;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3-0"
+       cx="-5.1142039"
+       cy="102.21465"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="1.8115822" />
+    <circle
+       style="fill:#965f5f;fill-opacity:1;stroke:#000000;stroke-width:0.08558656;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3-6-1-6"
+       cx="5.3267241"
+       cy="102.99027"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="1.8115822" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="-28.440075"
+       y="98.630768"
+       id="text5946-2"><tspan
+         sodipodi:role="line"
+         id="tspan5944-6"
+         x="-28.440075"
+         y="98.630768"
+         style="stroke-width:0.04262543">Compute Nodes</tspan></text>
+    <g
+       id="use27394-2-1"
+       style="fill:#000000;stroke:none"
+       transform="matrix(0.42907929,0,0,0.42907929,-7.2941155,98.133415)">
+      <title
+         id="title27606-9-8">Preferences System Network Proxy
+            </title>
+      <path
+         inkscape:connector-curvature="0"
+         id="path27608-1-7"
+         d="M 1.75,4 C 0.798,4 0,4.798 0,5.75 v 4.5 C 0,11.202 0.798,12 1.75,12 H 1.875 L 1.095,13.563 0.374,15 h 9.25 L 8.904,13.562 8.126,12 h 0.125 c 0.952,0 1.75,-0.798 1.75,-1.75 V 5.75 C 10,4.798 9.202,4 8.25,4 Z M 2,6 h 6 v 4 H 2 Z" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path27610-2-9"
+         d="M 7.75,1 C 6.798,1 6,1.798 6,2.75 V 3 h 8 v 4 h -3 v 3.25 c 0,0.66 -0.252,1.27 -0.656,1.75 h 5.28 l -1.5,-3 H 14.25 C 15.202,9 16,8.202 16,7.25 V 2.75 C 16,1.798 15.202,1 14.25,1 Z" />
+    </g>
+    <circle
+       style="fill:#fffafa;fill-opacity:1;stroke:#000000;stroke-width:0.08558656;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5863-3-2"
+       cx="-5.0954003"
+       cy="101.54915"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       r="1.8115822" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="-114.51229"
+       y="98.184807"
+       id="text5946-2-0"><tspan
+         sodipodi:role="line"
+         id="tspan5944-6-2"
+         x="-114.51229"
+         y="98.184807"
+         style="fill:#000000;fill-opacity:1;stroke-width:0.04262543">Dataflow</tspan></text>
+    <rect
+       style="opacity:1;fill:#d3d3d3;fill-opacity:1;stroke:#000000;stroke-width:0.16110402;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect5846-37"
+       width="27.280277"
+       height="11.935122"
+       x="-69.084442"
+       y="98.176216"
+       ry="3.4100347"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.70501733px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04262543"
+       x="-61.212612"
+       y="104.58382"
+       id="text6115-3-7-59"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="/home/fran/Downloads/arch.png"><tspan
+         sodipodi:role="line"
+         id="tspan6113-6-5-2"
+         x="-61.212612"
+         y="104.58382"
+         style="font-size:2.27335668px;stroke-width:0.04262543">Scheduler</tspan></text>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M -31.220837,105.32381 H -41.804165"
+       id="path34823"
+       inkscape:connector-type="orthogonal"
+       inkscape:connector-curvature="77"
+       inkscape:connection-start="#rect5942-7"
+       inkscape:connection-end="#rect5846-37" />
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -80.697903,104.5457 h 4.880683 c 2.282457,0 4.564914,-0.0101 6.732778,-0.028"
+       id="path34825"
+       inkscape:connector-type="orthogonal"
+       inkscape:connector-curvature="77"
+       inkscape:connection-start="#rect5942"
+       inkscape:connection-end="#rect5846-37" />
+  </g>
+</svg>
