@@ -427,7 +427,7 @@ of four modules:
   of a new computing node once it is up and ready to receive work. It announces
   the intention to leave the cluster so it is possible to re-schedule work into
   other computing nodes gracefully. Another responsibility of this module is to
-  send heatbeats to the cluster coordinator in order to assure that the node is
+  send heartbeats to the cluster coordinator in order to assure that the node is
   healthy.
 \item \textit{Library manager}: Library manager handles the download of user
   defined code as well as loading it into the process classpath dynamically.
@@ -467,7 +467,49 @@ Once a high level overview of this sub-system has been done, a more
 comprehensive description of the modules will be undertaken.
 
 \subsubsection{Cluster membership}
-\lipsum
+
+Computing nodes need a procedure to join to existing Alcaudon's clusters
+dynamically. This feature allows scaling out when more computing resources are
+needed and down-scaling when there are over capacity. Cluster membership is a
+wide topic and it has many corner cases. Alcaudon uses akka to leverage all the
+complexities of managing cluster membership. It provides a failure detector,
+where nodes belonging to the cluster monitor each other sending heartbeats in
+order to detect unreachable nodes. Heartbeat arrival time are interpreted by an
+implementation of The Phi Accrual Failure Detector\cite{phifailure}.
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[width=0.8\textwidth]{membershipcluster.png}
+\caption{Cluster membership states}
+\label{fig:statescluster}
+\end{center}
+\end{figure}
+
+In figure~\ref{fig:statecluster} the different states in which a cluster node
+can be are illustrated. Alcaudon uses this mechanism in order to register new
+nodes into the cluster using seed nodes. After joining the cluster, computation
+nodes send a message to cluster coordinator in order to signal that they are
+ready to receive new computations(\ref{code:noderegistering}).
+
+\begin{lstlisting}[language=scala, frame=trBL, label=code:noderegistering, float=ht, caption = {Compute node registration}]
+def register(member: Member): Unit =
+    context.actorSelection(RootActorPath(member.address) / "user" / "coordinator") !
+      ComputationNodeRegistration(member.id)
+\end{lstlisting}
+
+In order to shut-down nodes gracefully, a protocol to leave Alcaudon clusters is
+needed. This protocol is described in sequence diagram shown in
+figure~\ref{fig:stopprotocol}.
+
+\begin{figure}[!h]
+  \centering
+  \scalebox{0.45}{
+    \input{figures/exitnode.latex}
+  }
+  \caption{Compute node graceful stop protocol}
+  \label{fig:stopprotocol}
+\end{figure}
+
 \subsubsection{Computation manager}
 
 As exposed before, computation manager is responsible for deploying and
@@ -672,7 +714,7 @@ extension provides different data type implementations such as counters, sets,
 maps or registers. None of them are suitable to work with timestamps as is the
 case of watermarks. Alcaudon implements a new \acs{CRDT} data type
 \lstinline{GWatermark} that is able to satisfy the timestamps semantics as well
-as \acs{CRDT} properties.
+as \acs{CRDT} properties such as a monotonic merge function.
 In Alcaudon, each \lstinline[columns=fixed]{ComputationExecutor} has a companion
 actor, \lstinline[columns=fixed]{TimeExecutor}, who is in charge of keep track
 and trigger timers. This actor subscribes to \acs{CRDT} watermark changes that are

@@ -1,0 +1,10 @@
+@startuml
+autonumber
+Linux -> ComputationNode : SIGTERM
+ComputationManager -> ComputationSlots : StopComputations
+ClusterMembershipClient -> ClusterCoordinator : ComputationNodeStopping(id)
+ComputationSlots -> ComputationManager : ComputationsStopped
+ComputationManager -> ClusterMembershipClient : AllComputationsStopped
+ClusterMembershipClient -> ClusterCoordinator : ComputationNodeStopped(id)
+ComputationNode -> Linux : System.exit(0)
+@enduml
