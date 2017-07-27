@@ -5,7 +5,7 @@ Alcaudon's architecture will be described in this chapter following a top-down
 approach. Firstly, a general description of the different components of the system
 will be explained. Finally, each of the components will be described more thoroughly.
 
-\subsection{General description}
+\section{General description}
 
 Alcaudon's platform is composed by 3 main units.
 
@@ -53,7 +53,7 @@ inspected in detail.
   \label{fig:architecture}
 \end{figure}
 
-\subsection{Alcaudon library}
+\section{Alcaudon library}
 
 In the first place, the user facing interface will be presented in detail. In order
 to create a streaming data processing pipeline, or dataflow topology as it has
@@ -81,7 +81,7 @@ This library is composed of three modules as it is shown in figure~\ref{fig:libr
   as the stream processing pipeline definition.
 \end{itemize}
 
-\subsubsection{Computation API's}
+\subsection{Computation API's}
 
 \begin{figure}[!h]
   \begin{center}
@@ -187,7 +187,7 @@ this is the mechanism provided by Alcaudon to emit results.
   case class Timer(tag: String, timestamp: Long)
 \end{lstlisting}
 
-\subsubsection{Dataflow builder}
+\subsection{Dataflow builder}
 
 Once the computations are implemented, users need a way to build the dataflow topologies.
 To achieve this goal, the system provides a dataflow builder. Using this instrument,
@@ -234,7 +234,7 @@ DataflowBuilder(dataflowName: String)
   .build()
 \end{lstlisting}
 
-\subsubsection{Cluster client}
+\subsection{Cluster client}
 
 \begin{figure}
   \centering
@@ -298,7 +298,7 @@ transparently by the library from users perspective.
 \label{fig:pipelinecreation}
 \end{figure}
 
-\subsubsection{Serialization API}
+\subsection{Serialization API}
 
 Programmers are used to work with high level abstractions in order to model the
 domain they are working on. As it has been described previously, records in
@@ -406,7 +406,7 @@ As an interesting note, this part of the system has been tested using property
 based testing\cite{quickcheck}. Using this kind of testing helped to spot
 otherwise difficult bugs to detect.
 
-\subsection{Computation node}
+\section{Computation node}
 
 \begin{figure}[!h]
   \centering
@@ -464,7 +464,7 @@ of four modules:
 Once a high level overview of this sub-system has been done, a more
 comprehensive description of the modules will be undertaken.
 
-\subsubsection{Cluster membership}
+\subsection{Cluster membership}
 
 Computing nodes need a procedure to join existing Alcaudon's clusters
 dynamically. This feature allows scaling up when more computing resources are
@@ -508,7 +508,7 @@ figure~\ref{fig:stopprotocol}.
   \label{fig:stopprotocol}
 \end{figure}
 
-\subsubsection{Computation manager}
+\subsection{Computation manager}
 
 As exposed before, computation manager is responsible for deploying and
 supervising computations and streams. In order to deploy computations and
@@ -541,7 +541,7 @@ a sequence diagram in figure~\ref{fig:librarymanagement}.
   \label{fig:deployment}
 \end{figure}
 
-\subsubsection{Computation executor}
+\subsection{Computation executor}
 
 When computations are deployed, they are ready to process incoming records from
 different sources and streams. One of the goals of the system is to provide
@@ -634,7 +634,7 @@ probability of a false-positive is $2b/2^{f}$ where $b$ is the number of entries
 per bucket and $f$ the fingerprint length in bits. The number of false-positives
 is low and therefore the database accesses will be minimal.
 
-\subsubsection{Timers}
+\subsection{Timers}
 
 Given the infinite nature of streaming processing, an instrument to
 emit partial results is needed. Alcaudon implements timers as a mean
@@ -763,7 +763,7 @@ Once watermarks are calculated, it is checked against the created timers if some
 of them are past that point. If this is the case, a timer is
 triggered(~\ref{code:watermarkUpdate}).
 
-\subsubsection{Streams}
+\subsection{Streams}
 
 \begin{lstlisting}[language=scala, frame=trBL, label=code:recordstorage, float=ht, caption = {Stream record storage}]
 case record: RawRecord =>
@@ -841,7 +841,7 @@ settings.
   \label{fig:streamkeypart}
 \end{figure}
 
-\subsection{Coordinator node}
-\subsection{Deployment}
+\section{Coordinator node}
+\section{Deployment}
 
 In order to deploy the different components
