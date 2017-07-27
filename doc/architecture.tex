@@ -466,13 +466,13 @@ comprehensive description of the modules will be undertaken.
 
 \subsubsection{Cluster membership}
 
-Computing nodes need a procedure to join to existing Alcaudon's clusters
-dynamically. This feature allows scaling out when more computing resources are
+Computing nodes need a procedure to join existing Alcaudon's clusters
+dynamically. This feature allows scaling up when more computing resources are
 needed and down-scaling when there are over capacity. Cluster membership is a
 wide topic and it has many corner cases. Alcaudon uses akka to leverage all the
 complexities of managing cluster membership. It provides a failure detector,
 where nodes belonging to the cluster monitor each other sending heartbeats in
-order to detect unreachable nodes. Heartbeat arrival time are interpreted by an
+order to detect unreachable nodes. Heartbeat arrival time is interpreted by an
 implementation of The Phi Accrual Failure Detector\cite{phifailure}.
 
 \begin{figure}[!h]
@@ -486,8 +486,8 @@ implementation of The Phi Accrual Failure Detector\cite{phifailure}.
 In figure~\ref{fig:statescluster} the different states in which a cluster node
 can be are illustrated. Alcaudon uses this mechanism in order to register new
 nodes into the cluster using seed nodes. After joining the cluster, computation
-nodes send a message to cluster coordinator in order to signal that they are
-ready to receive new computations(\ref{code:noderegistering}).
+nodes send a message to cluster coordinator in order to signal their
+availability to receive new computations(\ref{code:noderegistering}).
 
 \begin{lstlisting}[language=scala, frame=trBL, label=code:noderegistering, float=ht, caption = {Compute node registration}]
 def register(member: Member): Unit =
@@ -495,7 +495,7 @@ def register(member: Member): Unit =
       ComputationNodeRegistration(member.id)
 \end{lstlisting}
 
-In order to shut-down nodes gracefully, a protocol to leave Alcaudon clusters is
+In order to shut-down nodes neatly, a protocol to leave Alcaudon clusters is
 needed. This protocol is described in sequence diagram shown in
 figure~\ref{fig:stopprotocol}.
 
@@ -673,12 +673,12 @@ a system that allows scheduling message delivery between actors. They are a good
 fit for computations that need to emit results at constant rate and do not need
 a correlation with event times. However, there are occasions where it is needed
 to know if events up to certain point in time have been processed. Due to the
-nature of distributed systems it is difficult to know if at given point in time,
-all the events up to a point have been received. In the ideal world, the
+nature of distributed systems it is difficult to know if at a given point in time,
+all the events up to then have been received. In the ideal world, the
 difference between event time and processing time would be a constant $\delta$ as
 shown in figure~\ref{fig:constantskew}. Sadly, reality looks more
 like figure~\ref{fig:randomskew}. Alcaudon tries to deal with this constraints
-providing the grounds to work with and reason about out of order data. That tool
+providing the grounds to work with and reason about out of order data. The choosen tool
 is watermark timers, defined as follows:
 
 \begin{definition}{Watermark}
@@ -688,14 +688,14 @@ Given this, watermark of $A$ is:
 $min(oldest record of A, watermark of C : A depends on C)$
 \end{definition}
 
-Watermarks try to predict a $T_n$ timestamp signaling that up to that instant
+Watermarks try to predict a timestamp $T_n$ signaling that up to that instant
 all records have been received. Alcaudon implements a simple heuristic in order
-to predict low watermarks, however more advanced techniques such us machine learning
-can be used in order to predict better low watermarks. It is worth mentioning that this
+to predict low watermarks. However more advanced techniques such us machine learning
+can be used in order to predict low watermarks better. It is worth mentioning that this
 very same algorithm was implemented by Google\cite{millwheel} and just about $0.001\%$
 of records were dropped due to an incorrect prediction.
 Therefore, using watermarks it is possible to configure timers that are
-triggered once the watermark has reached some point, i.e. all records up to a
+triggered once the watermark has reached a certain point, i.e. all records up to a
 timestamp $T$ have been processed. 
 
 In order to implement watermarks in Alcaudon, a system to replicate low
@@ -707,15 +707,15 @@ basis, thus computations only need to have knowledge about their dependencies.
 With this set of constraints \acs{CRDT}s are a good fit for the problem. They
 are able to replicate changes among peers, they do not need coordination and
 they provide eventual strong consistency. Again, akka provides an extension that
-allows working with \acs{CRDT}s, akka distributed data. By default, this
+allows working with \acs{CRDT}s; akka distributed data. By default, this
 extension provides different data type implementations such as counters, sets,
 maps or registers. None of them are suitable to work with timestamps as is the
 case of watermarks. Alcaudon implements a new \acs{CRDT} data type
 \lstinline{GWatermark} that is able to satisfy the timestamps semantics as well
 as \acs{CRDT} properties such as a monotonic merge function.
 In Alcaudon, each \lstinline[columns=fixed]{ComputationExecutor} has a companion
-actor, \lstinline[columns=fixed]{TimeExecutor}, who is in charge of keep track
-and trigger timers. This actor subscribes to \acs{CRDT} watermark changes that are
+actor, \lstinline[columns=fixed]{TimeExecutor}, who is in charge of keeping track
+and triggering timers. This actor subscribes to \acs{CRDT} watermark changes that are
 originated in computation dependencies(~\ref{code:timeExecutor}).
 
 \begin{lstlisting}[language=scala, frame=trBL, label=code:timeExecutor, float=ht, caption = {TimerExecutor \acs{CRDT}s dependencies subscription}]
@@ -760,7 +760,7 @@ def updateWatermarks(watermarkTimers: List[WatermarkTracker],
 \end{lstlisting}
 
 Once watermarks are calculated, it is checked against the created timers if some
-of them has past that point, if it is the case, timer is
+of them are past that point. If this is the case, a timer is
 triggered(~\ref{code:watermarkUpdate}).
 
 \subsubsection{Streams}
@@ -780,15 +780,15 @@ In Alcaudon, streams represent the delivery instrument between different
 computations. Computations subscribe to one or more streams and publish to zero
 or more streams. As with computations, durability is a key part of streams,
 meaning that during failure scenarios data published into a stream should be
-recovered once the system is restarted. Streams are implemented as actors, in
+recovered once the system is restarted. Streams are implemented as actors, and in
 order to make them durable akka persistence has been used. As explained before,
 with akka persistence it is possible to to store actor state. Alcaudon's streams
-work pretty much as an append-only log, computations or sources publish records
+work largely as an append-only log, where computations or sources publish records
 and they are delivered to subscribed computations. Each received record is
 stored into a durable storage, in this case Cassandra. Internally, this
 operation is done in batches, minimizing I/O overhead. This process is listed
-in~\ref{code:recordstorage}. As it can bee observed, stream publishers are
-acknowledged when a record has been received, again at least-once delivery
+in~\ref{code:recordstorage}. As it can be observed, stream publishers are
+acknowledged when a record has been received. Again at least-once delivery
 semantics are used to avoid any data loss. Once a record has been received,
 pending records are sent to subscribers. A typical problem when implementing
 publisher-subscriber systems is how to deal with slow-consumers. This is known as
@@ -806,15 +806,15 @@ flow control, and some patterns to solve this problem are listed below:
   with consumers.
 \end{itemize}
 
-Alcaudon deals with this problem using an hybrid approach. Stream actors store
-latest message offset acknowledged by each consumer. With this information, it
+Alcaudon deals with this problem using a hybrid approach. Stream actors store
+the latest message offset acknowledged by each consumer. With this information, it
 is possible to know an approximate consume rate for each consumer. A consumer is
 considered overwhelmed when it has $n$ pending records to acknowledge, where $n$
-is a configurable parameter. In order to avoid exhausted consumers, Alcaudon
+is a configurable parameter. In order to avoid consumers instability, Alcaudon
 streams stop sending messages to overwhelmed consumers for a while. To check if
 consumers are able to handle new messages again, streams send them a record to
-check if they are able to process it and if they are able to handle it, take
-them out of quarantine. This process is represented as a sequence diagram in
+check if they are able to process it.They are taken out of quarantine if they
+are able to handle it. This process is represented as a sequence diagram in
 figure~\ref{fig:flowcontrol}.
 
 \begin{figure}[!h]
@@ -842,7 +842,6 @@ settings.
 \end{figure}
 
 \subsection{Coordinator node}
-TODO
 \subsection{Deployment}
 
 In order to deploy the different components
