@@ -245,6 +245,8 @@ As it can be seen the topic is wide, so for this documents only
 
 \subsection{CRDT}
 
+TODO
+
 As previously presented, Alcaudon will be founded watermark heuristics. In order
 to implement these heuristics, there is a need for some global knowledge about
 latest processed events to keep track of the progress of ingested events into
@@ -367,7 +369,7 @@ build distributed systems.
 \item Actor supervision: One interesting approach of actor based design is how
   to handle failures. Each actor has a supervisor that handles its life-cycle,
   exceptions included. With this supervision schema it is easier to isolate failure
-  scenarios into concrete actors instead of affecting the whole system. Each
+  scenarios into specific actors instead of affecting the whole system. Each
   supervisor can define a strategy to apply when a child actor fails, i.e.
   restarting the actor or stopping it. This is highly beneficial because error
   handling logic is separated from business logic. These patterns resemble how
