@@ -951,13 +951,13 @@ this feature, Prometheus has been used as a time series database and Grafana
 as the dashboards generator. 
 
 The component in charge of collecting metrics is \textit{cluster health
-  manager}. This component listen to akka cluster events, in order to determine
-the health from different nodes in the system. In also listen to some statistics
+  manager}. This component listens to akka cluster events, in order to determine
+the health from different nodes in the system. In also listens to some statistics
 regarding actors, such as number of messages sent, mailbox size, CPU usage,
 memory usage, statistics about jvm fork join pool,
-etc(\ref{code:metricsSample}). All these metrics are stored into Prometheus,
+etc (\ref{code:metricsSample}). All these metrics are stored into Prometheus,
 allowing to query that times series data efficiently. Finally, Grafana consumes
-data from Prometheus in order to graph different metrics.
+data from Prometheus in order to plot different metrics.
 
 \begin{lstlisting}[language=scala, frame=trBL, label=code:metricsSample, float=ht, caption = {Example of Alcaudon exposed metrics}]
 # HELP akka_dispatcher_forkjoinpool_steal_count Akka ForkJoinPool Dispatcher Steal Count
@@ -980,9 +980,9 @@ akka_actor_group_mailboxes_size{groupName="all",} 1.0
 Grafana~\ref{fig:grafana} allows to define custom dashboards and configure
 alerts. Alerting is essential when monitoring distributed system. It is possible
 to define alerts based on predictive models and warn system operators before
-than the actual problem occurs, i.e. using simple linear regression for disk
+the actual problem occurs, i.e. using simple linear regression for disk
 size. An example for Alcaudon's domain could be, based on the growth of pending
-dataflow pipelines to schedule, trigger an alert if that metric keep growing for
+dataflow pipelines to schedule, trigger an alert if that metric keeps growing for
 2 hours, meaning that the number of compute nodes is not enough.
 
 \begin{figure}[!h]
@@ -993,6 +993,22 @@ dataflow pipelines to schedule, trigger an alert if that metric keep growing for
 \end{center}
 \end{figure}
 
-\section{Deployment}
+\section{Alcaudon deployment}
 
-In order to deploy the different components
+In order to deploy the different components of Alcaudon, they are distributed as
+docker containers. Latest Alcaudon versions are available in
+docker-hub\footnote{https://hub.docker.com/u/fcofdezc/}. Using containers to
+deploy Alcaudon make it suitable to be deployed using modern container
+schedulers such as Apache Mesos, Kubernetes or AWS ECS.
+
+In order to deploy a cluster coordinator:
+
+\begin{lstlisting}
+  $ docker run --volume /etc/alcaudon/alcaudon.conf:/etc/alcaudon/alcaudon.conf fcofdezc/alcaudon-coordinator
+\end{lstlisting}
+
+\begin{lstlisting}
+  $ docker run --volume /etc/alcaudon/alcaudon-compute.conf:/etc/alcaudon/alcaudon-compute.conf fcofdezc/alcaudon-compute
+\end{lstlisting}
+
+\lipsum
