@@ -257,7 +257,7 @@ possible to perform some operations over the pipeline.
 \begin{tabular}{|l|l|l|}
 \hline
 \textbf{Action} & \textbf{Parameters} & \textbf{Returned info} \\ \hline
-\begin{tabular}[c]{@{}l@{}}Send Dataflow topology\end{tabular}  & DataflowGraph and user JAR's & DataflowPipeline UUID \\ \hline
+\begin{tabular}[c]{@{}l@{}}Send Dataflow topology\end{tabular}  & DataflowGraph and \acs{jar}s & DataflowPipeline UUID \\ \hline
 \begin{tabular}[c]{@{}l@{}}Get DataflowJob execution info\end{tabular} & DataflowPipeline UUID & DatflowPipelineStatus \\ \hline
 \begin{tabular}[c]{@{}l@{}}Stop DataflowJob execution\end{tabular} & DataflowPipeline UUID & DatflowPipelineStatus \\ \hline
 \end{tabular}
@@ -477,7 +477,7 @@ implementation of The Phi Accrual Failure Detector\cite{phifailure}.
 
 \begin{figure}[!h]
 \begin{center}
-\includegraphics[width=0.8\textwidth]{membershipcluster.png}
+\includegraphics[width=0.7\textwidth]{membershipcluster.png}
 \caption{Cluster membership states}
 \label{fig:statescluster}
 \end{center}
@@ -939,8 +939,59 @@ sequence diagram in figure~\ref{fig:schedulefirmament}.
 \end{figure}
 
 
-\subsection{Cluster}
+\subsection{Cluster health manager}
 
+Operating large distributed systems is challenging. In these environments,
+multiple components are working together and eventually some of them could fail.
+If the available tools to debug and monitor them are not adequate, finding a
+problematic component could take hours. Given these facts, providing the tools
+to monitor distributed systems is mandatory. One of Alcaudon's aims is to
+provide metrics and mechanisms to deal with this problem. In order to implement
+this feature, Prometheus has been used as a time series database and Grafana
+as the dashboards generator. 
+
+The component in charge of collecting metrics is \textit{cluster health
+  manager}. This component listen to akka cluster events, in order to determine
+the health from different nodes in the system. In also listen to some statistics
+regarding actors, such as number of messages sent, mailbox size, CPU usage,
+memory usage, statistics about jvm fork join pool,
+etc(\ref{code:metricsSample}). All these metrics are stored into Prometheus,
+allowing to query that times series data efficiently. Finally, Grafana consumes
+data from Prometheus in order to graph different metrics.
+
+\begin{lstlisting}[language=scala, frame=trBL, label=code:metricsSample, float=ht, caption = {Example of Alcaudon exposed metrics}]
+# HELP akka_dispatcher_forkjoinpool_steal_count Akka ForkJoinPool Dispatcher Steal Count
+# TYPE akka_dispatcher_forkjoinpool_steal_count gauge
+akka_dispatcher_forkjoinpool_steal_count{dispatcherName="WebServer_akka.actor.default-dispatcher",} 49.0
+# HELP akka_actor_group_processing_time Akka Actor Group processing time (Nanos)
+# TYPE akka_actor_group_processing_time counter
+akka_actor_group_processing_time{groupName="all",} 1.04116122E8
+# HELP akka_router_processing_time_webserver_system_io_tcp_selectors Akka Router processing time (Nanos)
+# TYPE akka_router_processing_time_webserver_system_io_tcp_selectors counter
+akka_router_processing_time_webserver_system_io_tcp_selectors 2.541922E7
+# HELP akka_router_error_count_webserver_system_io_tcp_selectors Akka Router errors
+# TYPE akka_router_error_count_webserver_system_io_tcp_selectors counter
+akka_router_error_count_webserver_system_io_tcp_selectors 0.0
+# HELP akka_actor_group_mailboxes_size Akka Actor Group mailboxes size
+# TYPE akka_actor_group_mailboxes_size gauge
+akka_actor_group_mailboxes_size{groupName="all",} 1.0
+\end{lstlisting}
+
+Grafana~\ref{fig:grafana} allows to define custom dashboards and configure
+alerts. Alerting is essential when monitoring distributed system. It is possible
+to define alerts based on predictive models and warn system operators before
+than the actual problem occurs, i.e. using simple linear regression for disk
+size. An example for Alcaudon's domain could be, based on the growth of pending
+dataflow pipelines to schedule, trigger an alert if that metric keep growing for
+2 hours, meaning that the number of compute nodes is not enough.
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[width=0.7\textwidth]{grafana.png}
+\caption{Grafana dasboard}
+\label{fig:grafana}
+\end{center}
+\end{figure}
 
 \section{Deployment}
 
