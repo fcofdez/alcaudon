@@ -918,11 +918,30 @@ using different scheduling policies. These policies are listed below.
 \item \textit{NET-BW}: Network-bandwidth-aware cost model (avoids hotspots).  
 \end{itemize}
 
-After some testing and evaluation, Alcaudon uses \textit{CoCo} scheduling
-policy. It is preferred to co-locate computations in order to save network
-roundtrips.
+After performing tests with different scheduling policies, Alcaudon uses
+\textit{CoCo} scheduling policy as the defualt scheduling policy. It is
+preferred to co-locate computations in order to save network round-trips.
+However, it is possible to configure Alcaudon to use different policies.
+Firmament calculations could take a long time, depending on the complexity
+and \acs{DAG} to schedule size. In order to avoid long blocking \acs{HTTP}
+requests, when a new scheduling request is performed, an operation code
+is returned. With this code is possible to inspect how the operation is
+evolving and eventually get a result. This process is summarized as as
+sequence diagram in figure~\ref{fig:schedulefirmament}.
 
-TODO, sequence diagram for scheduling process.
+\begin{figure}[!h]
+  \centering
+  \scalebox{0.5}{
+    \input{figures/schedulefirmament.latex}
+  }
+\caption{Sequence diagram for interaction between Firmament and Alcaudon}
+\label{fig:schedulefirmament}
+\end{figure}
+
+
+\subsection{Cluster}
+
+
 \section{Deployment}
 
 In order to deploy the different components

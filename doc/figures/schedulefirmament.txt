@@ -1,0 +1,10 @@
+@startuml
+autonumber
+DataflowManager -> Scheduler : DataflowPipeline(DAG)
+Scheduler -> Firmament : HTTP POST JobRequest(DAGFirmament, schedulingPolicy)
+Firmament -> Scheduler : HTTP Response 201 -> OperationCode(id)
+Scheduler -> Scheduler : CheckAsyncFirmamentOperationAfter(time)
+Scheduler -> Firmament : HTTP GET JobInformation(operationID)
+Firmament -> Scheduler : HTTP Response 200 -> JobSchedule
+Scheduler -> ComputationNode : DeployComputations(id: ID, \ncomputation: List[ComputationDescription], \nstream: List[Stream])
+@enduml
