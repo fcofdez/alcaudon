@@ -998,8 +998,12 @@ dataflow pipelines to schedule, trigger an alert if that metric keeps growing fo
 In order to deploy the different components of Alcaudon, they are distributed as
 docker containers. Latest Alcaudon versions are available in
 docker-hub\footnote{https://hub.docker.com/u/fcofdezc/}. Using containers to
-deploy Alcaudon make it suitable to be deployed using modern container
-schedulers such as Apache Mesos, Kubernetes or AWS ECS.
+deploy Alcaudon, abstracts away all the build process details creating a
+reproducible environment to execute it. Furthermore, containers have become an
+industry de facto standard to deliver software. Distributing Alcaudon as Docker
+containers makes it suitable to be deployed using container schedulers such as
+Kubernets, Mesos or AWS ECS, leveraging all the deployment complexities to
+those tools.
 
 In order to deploy a cluster coordinator:
 
@@ -1007,8 +1011,17 @@ In order to deploy a cluster coordinator:
   $ docker run --volume /etc/alcaudon/alcaudon.conf:/etc/alcaudon/alcaudon.conf fcofdezc/alcaudon-coordinator
 \end{lstlisting}
 
+In order to deploy compute nodes:
+
 \begin{lstlisting}
   $ docker run --volume /etc/alcaudon/alcaudon-compute.conf:/etc/alcaudon/alcaudon-compute.conf fcofdezc/alcaudon-compute
 \end{lstlisting}
 
-\lipsum
+Alcaudon library is published into Sonatype repository. In order to include it into
+an SBT build and start building Alcaudon Dataflow pipelines, this dependency should be added:
+
+\begin{lstlisting}
+resolvers += 
+  "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+libraryDependencies += "com.github.fcofdez" % "alcaudon"
+\end{lstlisting}
