@@ -1,0 +1,107 @@
+\chapter{Results}
+
+In this chapter, attained results during the development of this project will be
+presented. First, a series of benchmarks have been used in order to
+exercise key Alcaudon modules and measure how the system behaves. To conclude,
+a summary of accomplished objectives is presented.
+
+\section{Benchmarks}
+
+Alcaudon has been tested thoroughly, both using traditional testing techniques
+as well as more state-of-the-art techniques such as property based testing.
+These tests can guarantee correctness in terms of behavior, but they do not
+measure system correctness in terms of performance goals. Even though Alcaudon
+have been designed carefully, using the adequate data structures and taking
+care of performance, empiric results are needed. It is known that creating
+accurate benchmarks is difficult\cite{benchbias}, there are many factors
+that can lead to misleading results. Presented benchmarks use implemented using
+JMH\footnote{http://openjdk.java.net/projects/code-tools/jmh/} trying to be as
+accurate as possible.
+
+\subsection{Computation execution benchmark}
+
+This benchmark measures the number of computations per second that Alcaundon can
+handle.
+
+TODO -> figure
+
+\subsection{Stream benchmark}
+
+This benchmark measures the number of records that an stream can handle.
+
+TODO -> figure
+
+\subsection{Record router benchmark}
+
+This benchmark measures the number of records that a router can route.
+
+TODO -> figure
+
+\section{Accomplished objectives}
+
+During the development of this project, all objectives defined at the beginning
+of this document have been accomplished. Alcaudon provides all the necessary
+tools to deploy distributed stream data processing pipelines. It attain this
+objective by supplying an abstract model, the Computation \acs{API}, that users
+implement, leveraging the all complexities around fault-tolerant distributed
+models to Alcaudon.
+
+Regarding to concrete objectives, these have been accomplished as well:
+
+\begin{itemize}
+\item Alcaudon provides an abstraction in order to create distributed
+  computations; computation \acs{API} alongside the dataflow builder.
+\item The system provides exactly-once processing semantics, using at-least once
+  delivery in combination with idempotent record processing. In order to achieve
+  idempotence, state-of-the-art probabilistic data structures have been used as
+  well as persistent actors to guarantee persistent state durability.
+\item The system provide watermark based timers in order to work with
+  out-of-order data. The implementation of this subsystem uses state-of-the-art
+  coordination-free distributed data types in order to replicate knowledge about
+  time event evolution inside the system.
+\item Dataflow \acs{DAG}s are scheduled into available compute nodes using an
+  state-of-the-art flexible cluster scheduler\cite{firmament}. Different scheduling
+  policies can be configured depending on the needs, where the default choice is
+  biased towards co-location.
+\item A few sources and sinks are provided by default such as Twitter streaming
+  API, TCP Sockets or Apache Kafka. However it is possible to implement new ones
+  just extending SourceFn and SinkFN interfaces.
+\item Alcaudon provides an elastic distributed implementations where compute
+  nodes can join the cluster in the events of burst of load. The system has been
+  designed in order to be resilient and fault-tolerant. The actor model has
+  helped a lot in terms of resilience due to is supervision mechanism that
+  allows to isolate failure.
+\item Alcaudon provides different metrics about the state of the system. It has been
+  integrated with industry proven technologies in the space of monitoring such as
+  Prometheus and Graphana. Using these tools it is possible to create a rich set
+  of alerts and dashboards giving a good overview of how the different components
+  of Alcaudon perform.
+\item Alongside the previously presented results, Alcaudon is distributed using Docker
+  containers and its library is available in SonaType repository. This makes almost
+  trivial to deploy a full-featured Alcaudon cluster.
+\end{itemize}
+
+\section{Future work}
+
+Given that Alcaudon has been designed in a modular way and it has many automatic
+tests, including new features should be easy. In this section some future work
+that could be done to the platform is presented.
+
+\begin{itemize}
+\item Improve system performance avoiding object allocations in certain
+  sensitive parts of the system such as the Streams. High allocation rate
+  usually hurts managed systems performance due to garbage collection. Some
+  systems such as netty\cite{https://netty.io/} use pre-allocated memory buffers
+  in order to avoid heap allocations as much as possible. This approach could be
+  explored in order to improve Alcaudon performance.
+\item Implement a machine learning algorithm in order to select an scheduling policy
+  based on similar already run dataflow pipelines, improving the overall performance.
+\item Implement a fully functional programming interface on top of the
+  computation API in order to offer a more expressive API to the users.
+  Providing \textit{combinators} such as map, groupBy, filter, etc.
+\item Alcaudon watermark algorithm is just a minimal version. Used heuristic
+  could be improved and it would be interesting to test different machine
+  learning algorithms in order to predict watermarks. Another interesting
+  approach to the problem that watermarks solve is to use virtual tables as
+  Apache Kafka Streaming does\cite{kafka}.
+\end{itemize}
