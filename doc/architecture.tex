@@ -477,8 +477,8 @@ implementation of The Phi Accrual Failure Detector\cite{phifailure}.
 
 \begin{figure}[!h]
 \begin{center}
-\includegraphics[width=0.7\textwidth]{membershipcluster.png}
-\caption{Cluster membership states}
+\includegraphics[width=0.6\textwidth]{membershipcluster.png}
+\caption{Akka cluster membership states\cite{akkastates}}
 \label{fig:statescluster}
 \end{center}
 \end{figure}
@@ -681,22 +681,22 @@ like figure~\ref{fig:randomskew}. Alcaudon tries to deal with this constraints
 providing the grounds to work with and reason about out of order data. The choosen tool
 is watermark timers, defined as follows:
 
-\begin{definition}{Watermark}
+\begin{definition}{(Watermark)}
 Given a computation, $A$, let the oldest processed record in $A$ be a timestamp
 corresponding to the oldest unfinished record in $A$.
 Given this, watermark of $A$ is:
-$min(oldest record of A, watermark of C : A depends on C)$
+$min($oldest record of $A$, watermark of $C$ : $A$ depends on C$)$.
 \end{definition}
 
 Watermarks try to predict a timestamp $T_n$ signaling that up to that instant
-all records have been received. Alcaudon implements a simple heuristic in order
-to predict low watermarks. However more advanced techniques such us machine learning
-can be used in order to predict low watermarks better. It is worth mentioning that this
-very same algorithm was implemented by Google\cite{millwheel} and just about $0.001\%$
-of records were dropped due to an incorrect prediction.
-Therefore, using watermarks it is possible to configure timers that are
-triggered once the watermark has reached a certain point, i.e. all records up to a
-timestamp $T$ have been processed. 
+all records have been received. This provides a notion of logical time. Alcaudon
+implements a simple heuristic in order to predict low watermarks. However more
+advanced techniques such us machine learning can be used in order to predict low
+watermarks better. It is worth mentioning that this very same algorithm was
+implemented by Google\cite{millwheel} and just about $0.001\%$ of records were
+dropped due to an incorrect prediction. Therefore, using watermarks it is
+possible to configure timers that are triggered once the watermark has reached a
+certain point, i.e. all records up to a timestamp $T$ have been processed.
 
 In order to implement watermarks in Alcaudon, a system to replicate low
 watermarks between different computations and streams is needed. One possible
