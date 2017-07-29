@@ -11,7 +11,7 @@ Alcaudon has been tested thoroughly, both using traditional testing techniques
 as well as more state-of-the-art techniques such as property based testing.
 These tests can guarantee correctness in terms of behavior, but they do not
 measure system correctness in terms of performance goals. Even though Alcaudon
-have been designed carefully, using the adequate data structures and taking
+has been designed carefully, using the adequate data structures and taking
 care of performance, empiric results are needed. It is known that creating
 accurate benchmarks is difficult\cite{benchbias}, there are many factors
 that can lead to misleading results. Presented benchmarks use implemented using
@@ -91,7 +91,7 @@ that could be done to the platform is presented.
 \item Improve system performance avoiding object allocations in certain
   sensitive parts of the system such as the Streams. High allocation rate
   usually hurts managed systems performance due to garbage collection. Some
-  systems such as netty\cite{https://netty.io/} use pre-allocated memory buffers
+  systems such as Netty\footnote{https://netty.io/} use pre-allocated memory buffers
   in order to avoid heap allocations as much as possible. This approach could be
   explored in order to improve Alcaudon performance.
 \item Implement a machine learning algorithm in order to select an scheduling policy

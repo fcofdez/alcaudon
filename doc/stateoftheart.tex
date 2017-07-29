@@ -202,21 +202,23 @@ As it can be seen the topic is wide, so for this documents only
   Spanner\cite{180268} that can drift up to 100ms. Given the exposed facts, the
   only assumption that can be taken about global state that is partially
   ordered. A formal definition for partial order is \cite{book:lattices}:
-\begin{definition}{Partial order}
-  Let $P$ be a set. An order (or partial order) on $P$ is a binary relation
-  $\leq$ on $P$ such that, for all $x$, $y$, $z \in P$,
-  \begin{enumerate}
-  \item $x \leq x$
-  \item $x \leq y$ and $y \leq x$ imply $y$
-  \item $x \leq y$ and $y \leq z$ imply $x \leq z$
-  \end{enumerate}
-\end{definition}
-  Given the exposed facts, message order in distributed systems is partial. In
-  environments where the message flow is unbounded the notion of completeness is
-  weak. There is no guarantee about when all the messages up to a moment $T_n$
-  have been received or processed. To deal with this, Alcaudon uses watermark
-  heuristics. A watermark heuristic defines that up to the instant $T_i$ there
-  are high chances that all messages up to that point have been received.
+  \begin{definition}{Partial order}
+    Let $P$ be a set. An order (or partial order) on $P$ is a binary relation
+    $\leq$ on $P$ such that, for all $x$, $y$, $z \in P$,
+    \begin{enumerate}
+    \item $x \leq x$
+    \item $x \leq y$ and $y \leq x$ imply $y$
+    \item $x \leq y$ and $y \leq z$ imply $x \leq z$
+    \end{enumerate}
+  \end{definition}
+  Given the exposed facts, message order in distributed systems is partial.
+  However, there are algorithms that focuses on maintaining a global total order
+  of operations\cite{orderops}. In environments where the message flow is unbounded
+  the notion of completeness is weak. There is no guarantee about when all the
+  messages up to a moment $T_n$ have been received or processed. To deal with
+  this, Alcaudon uses watermark heuristics. A watermark heuristic defines that up
+  to the instant $T_i$ there are high chances that all messages up to that point
+  have been received.
 \item \textit{Distributed snapshots}:
   Since Alcaudon aims to be a fault-tolerant system, guarantees about persistent
   state must be enforced. To design a resilient system, persistent state
@@ -245,30 +247,78 @@ As it can be seen the topic is wide, so for this documents only
 
 \subsection{CRDT}
 
-TODO
+One of the problems when building distributed systems is sharing state among
+different participants. In order to provide a global vision of shared state,
+replication\cite{book:replication} algorithms have been developed during the last
+years. Nevertheless, these algorithms have certain limitations in terms of
+performance and scalability due to serialization. Eric Brewer made the
+conjecture that it is impossible for a distributed system to provide 
+consistency, availability and partition-tolerance guarantees. Where
+they can be defined as:
 
-As previously presented, Alcaudon will be founded watermark heuristics. In order
-to implement these heuristics, there is a need for some global knowledge about
-latest processed events to keep track of the progress of ingested events into
-the system. Each computation should be able to have partial knowledge of the
-last watermark, and that depends on the state of a its dependencies. One of the
-goals of the system is to avoid centralized coordination as much as possible, so
-consensus based stores are discarded. One available option is Convergent
-Replicated Data Types (CRDT)\cite{crdt}.
+\begin{itemize}
+\item \textit{Consistency}: A global total order of operations is provided,
+  meaning that all nodes see the same data.
+\item \textit{Availability}: The system is able to respond to requests even in
+  the presence of partial failures.
+\item \textit{Partition tolerance}: The system is able to continue operating in
+  the event of network failures.
+\end{itemize}
 
+This conjecture was proved\cite{capprove} later and it is known today as the CAP
+theorem. This theorem establishes a trade-off between consistency (total order
+of operations) and partition-tolerance.
 
-\begin{definition}{Merge properties}
-  Let $P$ be a set. An order (or partial order) on $P$ is a binary relation
-  $\leq$ on $P$ such that, for all $x$, $y$, $z \in P$,
-  \begin{enumerate}
-  \item $x \leq x$
-  \item $x \leq y$ and $y \leq x$ imply $y$
-  \item $x \leq y$ and $y \leq z$ imply $x \leq z$
-  \end{enumerate}
+\begin{figure}[!h]
+  \centering
+\begin{tikzpicture}
+  \begin{scope}[blend group = soft light]
+    \fill[red!30!white]   ( 90:1.2) circle (2);
+    \fill[green!30!white] (210:1.2) circle (2);
+    \fill[blue!30!white]  (330:1.2) circle (2);
+  \end{scope}
+  \node at ( 90:2)    {Consistency};
+  \node at ( 210:2)   {Availabilty};
+  \node at ( 330:2)   {Partition};
+\end{tikzpicture}
+\caption{CAP theorem}
+\end{figure}
+
+There are systems where total order of operations is not mandatory, these systems
+choose to be partition tolerant. They are known as \textit{eventual consistent}
+systems. A replica execute an operation without synchronizing its new state with
+other replicas. This operation is sent asynchronously to the rest of replicas.
+Every replica eventually applies the updates, without any guarantee about the
+order in which these updates are applied. This approach establish that data is
+available even during network partitions. One of the problems of eventual
+consistent systems is conflicting updates, systems such Dynamo\cite{dynamo}
+allows to choose if clients should resolve conflicts or use simple approaches as
+`last write wins'. \acf{CRDT} provides a model based on simple mathematical
+properties that ensures eventual consistency. \acs{CRDT}s do not require
+synchronization, since updates are executed immediately. This property
+allows \acs{CRDT}s to be scalable and fault-tolerant. In order to guarantee
+convergence in \acs{CRDT}s, data types should follow the next properties:
+
+A join semilattice\cite{book:lattices} is a partial order $\leq_{v}$ equipped with a
+least upper bound (LUB) $\sqcup_v$, defined as follows:
+
+\begin{definition}{Least Upper Bound (LUB)}
+  $m = x \sqcup_v y$ is a Least Upper Bound of $\{x, y\}$ under $\leq_{v}$ \textit{iff}
+  $x\leq_{v}m$ and $y\leq_{v}m$ and there is no $m'\leq_{v}m$ such that $x\leq_{v}m'$ and $y\leq_{v}m'$.
 \end{definition}
 
-TODO
+It follows from the definition that $\sqcup_v$ is commutative: $x \sqcup_v y =_v y \sqcup_v x$; idempotent:
+$x \sqcup_v x =_v x$; and associative: $(x \sqcup_v y) \sqcup_v z =_v x \sqcup_v (y \sqcup_v z)$.
 
+
+\begin{definition}{Join Semilattice}
+  An ordered set ${S, \leq_v}$ is a \textit{Join Semilattice} \textit{iff}
+  $\forall x, y \in S, x \sqcup_v y$ exists.
+\end{definition}
+
+A \acs{CRDT} whose payload take its values in a semilattice and where
+\textbf{merge}$(x,y) = x \sqcup_v y$, converges towards the LUB of the initial
+and update values.
 
 \subsection{Distributed system reliability}
 
