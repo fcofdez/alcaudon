@@ -1,7 +1,7 @@
 \chapter{Architecture}
 \label{chapter:architecture}
 
-Alcaudon's architecture will be described in this chapter following a top-down
+\drop{A}{lcaudon's} architecture will be described in this chapter following a top-down
 approach. Firstly, a general description of the different components of the system
 will be explained. Finally, each of the components will be described more thoroughly.
 
@@ -32,7 +32,7 @@ Alcaudon's platform is composed by 3 main units.
   from one computing node up to thousands, as needed. Each of these nodes
   provides certain resources to the system, known as \textit{computation slots}.
   The number of slots is configurable, but they correlate with the number of
-  available CPU's in the underlying hardware.
+  available CPUs in the underlying hardware.
 \end{itemize}
 
 A high level overview of the system can be seen in
@@ -72,7 +72,7 @@ that can be found at at Sonatype OSSRH \footnote{http://central.sonatype.org/pag
 This library is composed of three modules as it is shown in figure~\ref{fig:library}:
 
 \begin{itemize}
-\item Computation API's: Interface that users should implement in order to
+\item Computation \acs{API}s: Interface that users should implement in order to
   create computations.
 \item Dataflow builder: This component is used to build dataflow topologies and
   later on submit the to the cluster coordinator.
@@ -171,11 +171,11 @@ Alcaudon there are three types of timers:
 \item \textit{Fixed timers}: This kind of timers are triggered once at a
   specific wall time.
 \item \textit{Recurrent fixed timers}: This timer resembles the previous timers
-  with the exception that it is executed recurrently. I.E., every five minutes.
-\item \textit{Watermark timers}: This timer tries to estimate the point where all
-  the events up to certain window have been consumed by the system and execute
-  then. The mechanism and algorithm used to implement them will be explained
-  later.
+  with the exception that it is executed recurrently, i.e. every five minutes.
+\item \textit{Watermark timers}: This timer tries to estimate the point in time
+  where all the events up to certain window have been consumed by the system and
+  execute then. The mechanism and algorithm used to implement them will be
+  explained later.
 \end{itemize}
 
 When a timer is executed it has as a parameter an instance of the class Timer
@@ -221,7 +221,7 @@ loaders, it is possible to load code dynamically. In conclusion, with this build
 it is possible to create declarative representations of Alcaudon data pipelines.
 This representation abstracts away all the details about in which compute nodes
 code will run or how parallelism will be implemented. This approach is quite
-similar to how Free Monad\cite{freemonad}, SQL or Prolog works.
+similar to how Free Monad\cite{freemonad}, SQL or Prolog work.
 
 \begin{lstlisting}[language=scala, frame=trBL, label=code:builder, float=ht, caption = {Alcaudon's DataflowBuilder}]
 DataflowBuilder(dataflowName: String)
@@ -276,7 +276,7 @@ are stored into an object storage service. In this case, they are stored in
 Amazon S3\footnote{https://aws.amazon.com/s3/}. These services usually provide a
 way to avoid the need to first upload the data to a backend server in order to
 get access to credentials to later on upload data to an object storage services.
-This is achieved using pre-signed URL's, based on a temporary token generated
+This is achieved using pre-signed URLs, based on a temporary token generated
 using service credentials and a timestamp. In Alcaudon, cluster clients
 request the creation of a dataflow pipeline. As a response, a pre-signed URL
 alongside an UUID that identifies the operation is returned by the cluster
@@ -285,7 +285,7 @@ code directly to the object storage service. With the user code uploaded, the
 next step is to create the actual Dataflow pipeline. Given the returned UUID a
 request is done to cluster coordinator in order to finish the dataflow pipeline
 creation. The communication is performed using akka remote that allows
-communications with remote actor systems.The whole process is represented as a
+communications with remote actor systems. The whole process is represented as a
 sequence diagram in figure~\ref{fig:pipelinecreation}. This process is performed
 transparently by the library from users perspective.
 
@@ -372,7 +372,7 @@ during compile time.
 \end{lstlisting}
 
 Details about how rules for generic types and \acs{HList} are implemented can be
-found in listings ~\ref{code:generation1} and ~\ref{code:generation}. For
+found in listings~\ref{code:generation1} and~\ref{code:generation}. For
 objects of type T, Shapeless is used in order to obtain its encoding as an
 \acs{HList}; this is done in \lstinline[columns=fixed]{genericObjectEncoder}.
 With this encoding, it is possible to call the serializer for \acs{HList}s in
@@ -430,7 +430,7 @@ figure~\ref{fig:computationnode}. It is composed of four modules:
 \item \textit{Library manager}: Library manager handles the download of user
   defined code as well as loading it into the process classpath dynamically.
   It downloads the contents from the object storage into disk, so content is
-  just downloaded once per computing node. Once the \acs{jar}'s are downloaded,
+  just downloaded once per computing node. Once the \acs{jar}s are downloaded,
   they are loaded into a controlled user \acs{JVM} classpath. This avoids
   classpath collisions, i.e. different computations use a library but with
   different versions. This process is described as a sequence diagram in
@@ -443,7 +443,7 @@ figure~\ref{fig:computationnode}. It is composed of four modules:
   available slots is correlated with underlying physical hardware in which the
   computing node is running. This value is configurable, thus Alcaudon does not
   impose any limits in the number of \textit{computation slots}. However, it
-  is recommended to use values near the number of available CPU's. During
+  is recommended to use values near the number of available CPUs. During
   the membership phase, coordinator node is informed about the number
   of usable slots. This information is used during scheduling. When a new
   job is scheduled to be run in a certain node, the computation manager
@@ -524,8 +524,8 @@ computing node asking to deploy certain computations and streams. When the compu
 node responds with an acknowledgment, the computation is deployed. The next
 step is to start a ComputationExecutor actor for each computation in the request
 as well as Stream actors. Once these actors have been started, their logical
-addresses are communicated to other members that belong to the same dataflow via
-\acs{CRDT}. Using this approach avoiding centralized knowledge for the location
+addresses are communicated to other members belonging to the same dataflow via
+\acs{CRDT}. Using this approach, avoiding centralized knowledge for the location
 of different computations allows better scalability and resilience. One of the
 drawbacks of this approach is an increase in the complexity of ComputationExecutor
 actors. Finally, computation manager sends back a message to the coordinator
@@ -580,10 +580,10 @@ extension enables stateful actors to persist their internal state so it can be
 recovered in the case of a failure or a cluster migration. Alcaudon uses this
 extension alongside with Apache Cassandra\footnote{Apple has a cluster with over
   75000 nodes storing 10 PB of data} as data store. User code can work with
-persistent state, create timers or produce records using Alcaudon \acs{API}'s,
+persistent state, create timers or produce records using Alcaudon \acs{API}s,
 that generates state that should be handled by computation actors. Internal
 state contains persistent state from the computations executed, timers and
-meta-information(~\ref{code:computationState}). Each
+meta-information(\ref{code:computationState}). Each
 deployed computation actor has an internal instance of
 \lstinline[columns=fixed]{ComputationState}. Once a computation execution has
 finished, it is possible it has pending data to be stored. These changes are wrapped
@@ -626,7 +626,7 @@ Bloom filters have been used since the 1970s but there are newer data structures
 such as Cuckoo Filters\cite{cuckoo} that outperform the former. Alcaudon uses
 Cuckoo filters in order to detect duplicated records. One downside of these
 probabilistic data structures is that they can return false-positives, meaning
-that a record can be considered as it has been already processed. To solve this
+that a new record can be considered as it has been already processed. To solve this
 issue, processed records \acs{UUID}s are stored into a cuckoo filter and
 Cassandra. When the cuckoo filter considers that a record has been already
 processed it is checked against the database. Taking into account that the total
@@ -700,14 +700,14 @@ certain point, i.e. all records up to a timestamp $T$ have been processed.
 
 In order to implement watermarks in Alcaudon, a system to replicate low
 watermarks between different computations and streams is needed. One possible
-option could be centralizing this knowledge in the cluster coordinator. The main
+option could be centralizing this knowledge into the cluster coordinator. The main
 downside of this approach is that it could be a single-point of failure. Another
 reason to avoid centralization is that watermarks are calculated in computation
 basis, thus computations only need to have knowledge about their dependencies.
 With this set of constraints \acs{CRDT}s are a good fit for the problem. They
 are able to replicate changes among peers, they do not need coordination and
-they provide eventual strong consistency. Again, akka provides an extension that
-allows working with \acs{CRDT}s; akka distributed data. By default, this
+they provide eventual strong consistency. Again, Akka provides an extension that
+allows working with \acs{CRDT}s; Akka distributed data. By default, this
 extension provides different data type implementations such as counters, sets,
 maps or registers. None of them are suitable to work with timestamps as is the
 case of watermarks. Alcaudon implements a new \acs{CRDT} data type
@@ -716,7 +716,7 @@ as \acs{CRDT} properties such as a monotonic merge function.
 In Alcaudon, each \lstinline[columns=fixed]{ComputationExecutor} has a companion
 actor, \lstinline[columns=fixed]{TimeExecutor}, who is in charge of keeping track
 and triggering timers. This actor subscribes to \acs{CRDT} watermark changes that are
-originated in computation dependencies(~\ref{code:timeExecutor}).
+originated in computation dependencies(\ref{code:timeExecutor}).
 
 \begin{lstlisting}[language=scala, frame=trBL, label=code:timeExecutor, float=ht, caption = {TimerExecutor \acs{CRDT}s dependencies subscription}]
 class TimerExecutor(computationId: String,
@@ -738,7 +738,7 @@ class TimerExecutor(computationId: String,
 \end{lstlisting}
 
 Once values from dependencies are known, the algorithm implementation to
-calculate computation watermarks is straightforward(~\ref{code:watermarkUpdate}).
+calculate computation watermarks is straightforward(\ref{code:watermarkUpdate}).
 
 \begin{lstlisting}[language=scala, frame=trBL, label=code:watermarkUpdate, float=ht, caption = {Watermark update logic}]
 def updateWatermarks(watermarkTimers: List[WatermarkTracker],
@@ -813,7 +813,7 @@ considered overwhelmed when it has $n$ pending records to acknowledge, where $n$
 is a configurable parameter. In order to avoid consumers instability, Alcaudon
 streams stop sending messages to overwhelmed consumers for a while. To check if
 consumers are able to handle new messages again, streams send them a record to
-check if they are able to process it.They are taken out of quarantine if they
+check if they are able to process it. They are taken out of quarantine if they
 are able to handle it. This process is represented as a sequence diagram in
 figure~\ref{fig:flowcontrol}.
 
