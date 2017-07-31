@@ -6,6 +6,47 @@
    year =      {2012}
 }
 
+@article{lampsnapshot,
+ author = {Chandy, K. Mani and Lamport, Leslie},
+ title = {Distributed Snapshots: Determining Global States of Distributed Systems},
+ journal = {ACM Trans. Comput. Syst.},
+ issue_date = {Feb. 1985},
+ volume = {3},
+ number = {1},
+ month = feb,
+ year = {1985},
+ issn = {0734-2071},
+ pages = {63--75},
+ numpages = {13},
+ url = {http://doi.acm.org/10.1145/214451.214456},
+ doi = {10.1145/214451.214456},
+ acmid = {214456},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+@misc{reactivemanifesto,
+  title = {Reactive Manifesto},
+  howpublished = {\url{http://www.reactivemanifesto.org/}},
+  author = {Jonas Bóner},
+  note = {Retrieved on July, 2017}}
+
+@Inbook{twophase,
+author="Raz, Yoav",
+editor="Gottlob, Georg
+and Vardi, Moshe Y.",
+title="The Dynamic Two Phase Commitment (D2PC) protocol",
+bookTitle="Database Theory --- ICDT '95: 5th International Conference Prague, Czech Republic, January 11--13, 1995 Proceedings",
+year="1995",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="162--176",
+abstract="Since the Two Phase Commitment (2PC) protocol is an essential component for Distributed Transaction Processing, needed in the commit process of each distributed transaction, a substantial effort has been invested in optimizing its performance. The Dynamic Two Phase Commitment (D2PC) protocol is an enhancement of the common (static) Tree Two Phase Commitment (T2PC) protocols. Unlike T2PC, with D2PC the commit coordinator is dynamically determined by racing READY (YES vote) messages, on a per transaction basis, rather than being fixed, predetermined. As a result, the protocol commits each transaction participant in minimum possible time, allowing early release of locked resources. This result is true for the various existing variants of T2PC. D2PC subsumes several T2PC optimizations that have been proposed earlier.",
+isbn="978-3-540-49136-1",
+doi="10.1007/3-540-58907-4_14",
+url="https://doi.org/10.1007/3-540-58907-4_14"
+}
+
+
 @book{book:replication,
    title =     {Replication: Theory and Practice},
    author =    {Alan D. Fekete},
@@ -768,7 +809,7 @@ publisher = {USENIX Association},
 
 @book{scrum,
    title =     {The Scrum Culture: Introducing Agile Methods in Organizations},
-   author =    {Dominik Maximini (auth.)},
+   author =    {Dominik Maximini},
    publisher = {Springer International Publishing},
    isbn =      {978-3-319-11826-0,978-3-319-11827-7},
    year =      {2015},

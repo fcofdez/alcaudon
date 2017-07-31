@@ -1,5 +1,7 @@
 \chapter{Methodology}
-The software methodology used to develop this project will be described in this
+\label{chap:methodology}
+
+\drop{T}{he} software methodology used to develop this project will be described in this
 chapter. Agile methodologies have been used to drive Alcaudon's development.
 
 Agile methodologies help organizing software development life cycle. They are
@@ -45,8 +47,8 @@ most popular ones are:
   them as soon as possible. It is a good fit for startup teams.
 \end{itemize}
 
-Since Alcaudon's requirements were not clear from the start agile methodologies
-provided the optimal framework. In particular, eXtreme Programming was chosen
+Since Alcaudon's requirements were not clear from the start, agile methodologies
+provided the optimal framework. In particular, \acf{XP} was chosen
 due to the team's small size and the expected requirement changes.
 
 \section{eXtreme Programming}
@@ -70,16 +72,16 @@ practices\cite{xp}:
   the business team was represented by the advisor, \textit{David Villa Alises},
   and the technical team by the author.
 \item Small releases: Every release should be as small as possible providing the
-  maximum business value. Alcaudon is released continuously, meaning that it has
-  adopted Continuous Deployment\cite{cd} techniques. Every commit pushed to the
-  master branch, Travis CI (footnote) launches a continuous delivery pipeline
-  that runs tests, builds and publishes an usable version of Alcaudon as docker
-  containers and a snapshot version of the libraries to Maven central. This
-  practice allows Alcaudon's process to bring value as soon as possible.
-  Moreover, it reduces risks, thus contributing to build a more efficient and
-  robust system.
+  maximum business value. Alcaudon was released continuously, meaning that it
+  has adopted Continuous Deployment\cite{cd} techniques. With every commit
+  pushed to the master branch, Travis CI\footnote{https://travis-ci.org/}
+  launched a continuous delivery pipeline that run tests, built and published
+  an usable version of Alcaudon as docker containers and a snapshot version of
+  the libraries to a repository. This practice allows Alcaudon's process to
+  bring value as soon as possible. Moreover, it reduces risks, thus contributing
+  to build a more efficient and robust system.
 \item \textit{Metaphor}: A common language between different participants in the
-  project should be use. This makes communication easier and therefore
+  project should be used. This makes communication easier and therefore
   misunderstandings are reduced.
 \item Simple design: As defined by\cite{xp}, a simple design follows these rules:
   \begin{enumerate}
@@ -90,15 +92,15 @@ practices\cite{xp}:
   \end{enumerate}
   Alcaudon follows these principles. Consequently, the risks associated to
   changes are minimized.
-\item Testing: In XP there is a strong bias towards writing tests for all the
-  created functionalities, both unit and functional tests. This practice creates
+\item Testing: In \acs{XP} there is a strong bias towards writing tests for all the
+  created features, both unit and functional tests. This practice creates
   a stronger confidence in programmers when they need to change their code.
   Alcaudon has been tested broadly, using unit, integration and property based
   testing. Having a good testing coverage has helped to keep developing the
   system with confidence in its correctness, since this project can not be
   easily tested manually.
 \item Refactoring: Given the previous principle of \textit{simple design},
-  continuous design refinement via refactoring is a key concept in XP.
+  continuous design refinement via refactoring is a key concept in \acs{XP}.
   Refactoring helps to keep control of complexity iterating over software
   design, reducing risks in future changes. During the development of this
   project, there have been some refactors that improved the design of certain
@@ -110,11 +112,11 @@ practices\cite{xp}:
   principle does not apply to Alcaudon since it is an individual project.
 \item Continuous Integration: Code should be integrated and tested every few
   hours. This practice helps to avoid working too long in a big feature, making
-  it harder to integrate later. Again, XP is favoring risk reduction with this
+  it harder to integrate later. Again, \acs{XP} is favoring risk reduction with this
   set of practices. As described before, Alcaudon uses Travis CI as continuous
   integration server, for every commit to master the project is built and
   tested.
-\item On-site customer: XP accentuates the importance of communications. A
+\item On-site customer: \acs{XP} accentuates the importance of communications. A
   domain expert, i.e. an user, should be available to answer questions about the
   business and set small scale priorities. Having this person accessible, saves
   time when developers are not familiar with some details about the domain, therefore
@@ -140,10 +142,10 @@ features.
 
 \subsubsection{Release 1: State of the art analysis}
 \begin{itemize}
-\item \textit{Agreed goal}: Distributed data processing systems State of the art analysis.
+\item \textit{Agreed goal}: Distributed data processing systems state-of-the-art analysis.
   \item \textit{Deliverable}: Document describing existing solutions in the
     distributed data processing space as well as recent developments from
-    different related conferences such as, VLDB, SIGMOD and OSDI.
+    different related conferences such as VLDB, SIGMOD and OSDI.
 \end{itemize}
 
 \subsubsection{Release 2: Technology selection}

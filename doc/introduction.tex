@@ -25,7 +25,7 @@ return for the advertisers are the ones that will overcome the competition.
 
 New technological architectures, like microservices-based, provide solutions to
 problems that before were almost impossible to solve, such as scalability. There is
-a cost associated with this architecture: monitoring those services. Companies
+a cost associated with this architecture: monitoring these services. Companies
 like Netflix have thousands of services running\cite{netflix}, and some of those
 services can produce over 40.000 metrics per second. Analyzing metrics data is
 key to being able to detect anomalies, degradation in services and without doubt
@@ -46,15 +46,16 @@ experiment)\cite{cern}, security, and many more that are arising over time.
 \end{figure}
 
 Traditional DBMS cannot cope with the scale and heterogeneity of the data sets
-cited previously. Over time, models like MapReduce\cite{mapreduce} Figure
-~\ref{fig:mapreduce}, Spark\cite{spark} and Storm appeared. Those architectural
-models facilitated the parallelization of data analysis processes at scale
-running on commodity hardware. These systems are classified as batch processing,
-meaning that all input should be collected into a batch before processing it.
+cited previously. Over time, models like MapReduce\cite{mapreduce}
+Figure~\ref{fig:mapreduce}, Spark\cite{spark} and Storm appeared. Those
+architectural models facilitated the parallelization of data analysis processes
+at scale, running on commodity hardware. These systems are classified as batch
+processing, meaning that all input should be collected into a batch before
+processing it.
 
 MapReduce and batch processing paradigms have been quite successful over the
 years on large data-sets scenarios. But new needs are arising
-and data analysts are becoming more demanding in their explorations. Batch
+and data analysts are becoming more demanding with their requirements. Batch
 systems are designed to run with bounded data, imposing big latencies. In some
 situations it is not feasible to wait hours to get back results from analytics.
 One example could be monitoring microservices architectures where anomalies must
@@ -65,8 +66,8 @@ be investigated and fixed as soon as possible to avoid service disruptions.
 To avoid latencies imposed by batch systems, hybrid systems were designed. One
 paradigmatic example is Lambda Architecture \cite{lambda}. It consists of
 two data processing systems running in parallel. One of the systems, known as
-streaming systems, will provide approximate results in nearly real time. To
-obtain more precise results a classic batch systems run over the same data-set.
+streaming system, will provide approximate results in nearly real time. To
+obtain more precise results, a classic batch systems run over the same data-set.
 Soon, these systems showed many problems; running two processing pipelines in
 parallel is translated into many operational issues as well as more costs
 \cite{kappa}.
@@ -105,6 +106,4 @@ facilitate working with unordered events, the next concepts were introduced\cite
 }
 
 This project will be focused on developing a data processing system using the
-same principles that Google Dataflow and MillWheel are based on. It will also
-provide an expressive functional API that will facilitate expressing complex
-computations.
+same principles that Google Dataflow and MillWheel are based on. 

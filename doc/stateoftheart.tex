@@ -2,9 +2,9 @@
 \label{chap:stateoftheart}
 
 \drop{T}{his} chapter aims to explain the concepts and techniques in which
-Alcaudon is based on. As shown in Figure ~\ref{fig:mindmap}. the project has foundations in
+Alcaudon is based on. As shown in Figure~\ref{fig:mindmap}. the project has foundations in
 distributed systems, job scheduling, library design and data processing. In the
-next subsections, those concepts will be analyzed in more depth.
+next sections, those concepts will be analyzed in more depth.
 
 \begin{figure}[!h]
 \begin{center}
@@ -16,7 +16,7 @@ next subsections, those concepts will be analyzed in more depth.
 
 \section{Data Processing}
 
-According to a recent study by Cisco \cite{ciscosurvey}~\ref{fig:ciscodata} the
+According to a recent study by Cisco \cite{ciscosurvey}~\ref{fig:ciscodata}
 data storage is growing by 40\% yearly. This implies that that by 2020
 datacenters will store over 1000 ExaBytes of information. Keeping that data in
 silos without performing any use of it is a poor investment.
@@ -29,22 +29,23 @@ silos without performing any use of it is a poor investment.
 \end{center}
 \end{figure}
 
-Processing those amounts of data using traditionals RDBMS is not practical, as they
-are not designed to work with that much data. In the last years there have been
-many ongoing efforts on providing tools to process and analyze large volumes of
-data. Some examples could be MapReduce\cite{mapreduce}, Spark\cite{spark} and
-many others. Before those frameworks appeared, there were some systems capable
-of processing large amounts of data, like the supercomputers or HPC. One of the
-main drawbacks of HPC is accessibility to those high end computers. Acquiring a
-new Supercomputer in the event of a peak on data production is not feasible. For
-companies, making an investment in a super computer is a big risk that in some
-cases will not be reverted as profit. Another interesting point to make is that
-Supercomputers perform well many floating-point operations per second. However,
-in general, the computations executed in systems like MapReduce are simple
-strings manipulation, counting and so on. Given these usage patterns, it seems
-that supercomputers are more suited to perform scientific analysis.
+Processing those amounts of data using traditionals RDBMS is not practical, as
+they are not designed to work with that large load of data. In the last years
+there have been many ongoing efforts on providing tools to process and analyze
+large volumes of data. Some examples could be MapReduce\cite{mapreduce},
+Spark\cite{spark} and many others. Before those frameworks appeared, there were
+some systems capable of processing large amounts of data, like the
+supercomputers or HPC. One of the main drawbacks of HPC is accessibility to
+those high end computers. Acquiring a new Supercomputer in the event of a peak
+on data production is not feasible. For companies, making an investment in a
+super computer is a big risk that in some cases will not be reverted as profit.
+Another interesting point to make is that Supercomputers perform well many
+floating-point operations per second. However, in general, the computations
+executed in systems like MapReduce are simple strings manipulation, counting and
+so on. Given these usage patterns, it seems that supercomputers are more suited
+to perform scientific analysis.
 
-Once the limitations of HPC for \textit{big data} scenarios have been described
+Once the limitations of HPC for \textit{big data} scenarios have been described,
 it is possible to explore how modern internet companies are using computing
 resources to process data. For new organizations, it is more sensible to take
 advantage of commodity hardware to process large amounts of data. One of the
@@ -96,7 +97,7 @@ and start using more servers to cope with the load. This is one of the reasons w
 data processing systems should be designed to scale out as there are more
 computing needs.
 Alcaudon, as an elastic data processing system, will be able to adapt to
-different loads as the computing needs increase.. It will be able to use more
+different loads as the computing needs increase. It will be able to use more
 computing resources dynamically as more servers are added to the pool.
 
 \section{Distributed systems}
@@ -164,7 +165,7 @@ the following properties:
   shown in Figure ~\ref{fig:highend} the performance gap between a high end
   server and a cluster of commodity hardware nodes is tolerable. Another factor
   to take into account when distributed systems are used is the cost of
-  networking communications, as it implies an overhead in the computations.
+  networking communications, as it implies an overhead.
 \end{itemize}
 
 \begin{figure}[!h]
@@ -200,7 +201,7 @@ As it can be seen the topic is wide, so for this documents only
   makes heavy use of hardware-assisted time synchronization using GPS clocks and
   atomic clocks to ensure global consistency for their database
   Spanner\cite{180268} that can drift up to 100ms. Given the exposed facts, the
-  only assumption that can be taken about global state that is partially
+  only assumption that can be taken about distributed operations is that they are partially
   ordered. A formal definition for partial order is \cite{book:lattices}:
   \begin{definition}{(Partial order)}
     Let $P$ be a set. An order (or partial order) on $P$ is a binary relation
@@ -223,7 +224,7 @@ As it can be seen the topic is wide, so for this documents only
   Since Alcaudon aims to be a fault-tolerant system, guarantees about persistent
   state must be enforced. To design a resilient system, persistent state
   snapshots should be taken. There are distributed algorithms to deal with this
-  problem such as Lamport, bla, bla . In general, those algorithms are focused
+  problem such as Chandy-Lamport algorithm\cite{lampsnapshot}. In general, those algorithms are focused
   on taking a global state snapshot that given the constraints presented in the
   previous section is a hard problem to solve. In Alcaudon this obstacle is
   solved by taking snapshots by computation. There is no need of a global
@@ -408,8 +409,8 @@ state machines that fit perfectly with protocol design.
 There are many implementations available\cite{wikiactor}, but the more popular
 and stable versions are the Erlang programming language and Akka. Both versions
 have similar features, in fact, Akka is highly inspired by Erlang. Nevertheless
-Akka is built on top of the JVM, making it the most interesting implementation
-available due to the vast ecosystem accessible around the JVM.
+Akka is built on top of the \acf{JVM}, making it the most interesting implementation
+available due to the vast ecosystem accessible around the \acs{JVM}.
 
 Akka has some extensions to the actor model that make it quite interesting to
 build distributed systems.
@@ -431,7 +432,7 @@ build distributed systems.
   actors can change their physical location and the framework will take care of
   routing messages to the new actor location.
 \item Clustering: Support for distributed actors is provided, combined with
-  logical addresses makes facilitates writing distributed applications.
+  logical addresses facilitates writing distributed applications.
 \item Persistence: Akka supports actor state persistence. It is implemented as
   an append-only log. That technique is commonly used as transaction log in
   traditional databases, each change is appended to the transaction log. In case
@@ -521,7 +522,8 @@ below:
 \item Genetic algorithms
 \end{itemize}
 
-How alcaudon solves this issue.
+Alcaudon will use an state-of-the-art scheduling framework,
+Firmament\cite{firmament}, in order to solve this problem.
 
 \section{Library design}
 
@@ -543,8 +545,8 @@ As it has been exposed, providing tools that hide all the complexities is key to
 build more complex systems. One of the main goals of the field since the late
 60s has been to build reusable software\cite{reuse}. There have been many
 advances in code reuse, from libraries and frameworks that are used to build
-software on top them, to software as a service (SaaS). SaaS exposes public HTTP
-API as the entry point to their functionality. This category of software reuse
+software on top them, to \acf{SaaS}. SaaS exposes public \acf{HTTP}
+\acf{API} as the entry point to their functionality. This category of software reuse
 can be the end of the spectrum, since the client just has knowledge about
 the exposed interface and does not know anything about the underlying parts of the
 system.

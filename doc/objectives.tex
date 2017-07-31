@@ -37,13 +37,13 @@ has been delivered and processed. The system will ensure that messages are
 delivered exactly-once, without any change in user code.
 
 To achieve exactly-once delivery in a performant manner, i.e., without two-phase
-commits (citation needed), Alcaudon will enforce idempotency using probabilistic
+commits\cite{twophase}, Alcaudon will enforce idempotency using probabilistic
 data structures and state journaling.
 
 \subsection{Provide tools to work with out-of-order data}
 
 Unordered data is a reality in distributed environments. Some systems enforce
-monotonicity of event time using the injection time instead of the event
+monotonicity of event time using processing time instead of event
 generation time. Alcaudon will provide tools to work with non monotonic event
 times.
 
@@ -61,13 +61,13 @@ and twitter will be available. But users will be able to extend Alcaudon to add
 custom Sources and Sinks.
 
 \subsection{Design and implement an elastic, fault-tolerant and scalable distributed architecture}
-The system should have the properties described in the reactive manifesto(citation needed):
+The system should have the properties described in the reactive manifesto\cite{reactivemanifesto}:
 
 \begin{itemize}
   \item The system should be \textit{resilient}, meaning that in the face of a failure it should keep running.
   \item The system should be \textit{elastic}, in the face of an increase of load it
-    should be responsive allowing adding new resources to cope with the new
-    requirements.
+    should be responsive. Allowing addition of new resources in order to cope
+    with the new requirements.
 \end{itemize}
 
 It should make easy to add new nodes to the cluster, so the resources available
@@ -78,4 +78,4 @@ architecture could facilitate offering Alcaudon as a service.
 
 The project should be designed with observability in mind. Metrics and logging
 should be exposed. This allows an easier operability, giving the site
-reliability engineers tools to reason about the behaviour of the system.
+reliability engineers tools to reason about the behavior of the system.
