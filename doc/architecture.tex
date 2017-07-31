@@ -133,9 +133,11 @@ These methods represent the main entry point into user code, hooked in reaction 
 record receipt and timers expiration. These constitute the application logic.
 Within the execution of these methods, Alcaudon provides different functions to
 work with persistent state, publish new records to streams, set timers or
-serialize arbitrary data types. In Alcaudon, each computation can subscribe to
-multiple sources represented as streams. Data travels in its simplest form,
-as an array of bytes. One specific example can be found in listing~\ref{code:computationExample}.
+serialize arbitrary data types.
+
+In Alcaudon, each computation can subscribe to multiple sources represented as
+streams. Data travels in its simplest form, as an array of bytes. One specific
+example can be found in listing~\ref{code:computationExample}.
 
 \begin{figure}
   \begin{center}
