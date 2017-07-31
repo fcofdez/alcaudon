@@ -2,19 +2,20 @@ name := "alcaudon"
 
 version := "0.0.3"
 
-scalaVersion := "2.12.1"
-
-scalacOptions ++= Seq(
-  "-target:jvm-1.8",
-  "-encoding",
-  "UTF-8",
-  "-unchecked",
-  "-deprecation",
-  "-Xfuture",
-  "-Yno-adapted-args",
-  "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen",
-  "-Ywarn-unused"
+lazy val commonSettings = Seq(
+  scalaVersion := "2.12.1",
+  scalacOptions ++= Seq(
+    "-target:jvm-1.8",
+    "-encoding",
+    "UTF-8",
+    "-unchecked",
+    "-deprecation",
+    "-Xfuture",
+    "-Yno-adapted-args",
+    "-Ywarn-dead-code",
+    "-Ywarn-numeric-widen",
+    "-Ywarn-unused"
+  )
 )
 
 val akkaVersion = "2.4.18"
@@ -53,3 +54,6 @@ resolvers += Resolver.jcenterRepo
 libraryDependencies += "com.github.dnvriend" %% "akka-persistence-inmemory" % "2.4.18.1"
 
 fork := true
+
+lazy val root = (project in file(".")).settings(commonSettings)
+lazy val benchmarks = (project in file("benchmarks")).dependsOn(root).settings(commonSettings)
