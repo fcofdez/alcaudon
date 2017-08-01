@@ -38,10 +38,10 @@ Alcaudon's platform is composed by 3 main units.
 A high level overview of the system can be seen in
 figure~\ref{fig:architecture}. The majority of the parts of the system have been
 modeled as Actors. As it was stated previously it is a very good fit for this
-kind of applications. Where possible, object oriented design patterns\cite{gof}
+kind of applications. Where possible, object oriented design patterns~\cite{gof}
 such as \textbf{builder} or \textbf{factory} have been used. However, functional
-programming constructs such as monads\cite{monads}, type
-classes\cite{typeclasses} or Algebraic Data Types have been used more widely.
+programming constructs such as monads~\cite{monads}, type
+classes~\cite{typeclasses} or Algebraic Data Types have been used more widely.
 
 Once the different parts of the system have been presented, they will be
 inspected in detail.
@@ -223,7 +223,7 @@ loaders, it is possible to load code dynamically. In conclusion, with this build
 it is possible to create declarative representations of Alcaudon data pipelines.
 This representation abstracts away all the details about in which compute nodes
 code will run or how parallelism will be implemented. This approach is quite
-similar to how Free Monad\cite{freemonad}, SQL or Prolog work.
+similar to how Free Monad~\cite{freemonad}, SQL or Prolog work.
 
 \begin{lstlisting}[language=scala, frame=trBL, label=code:builder, float=ht, caption = {Alcaudon's DataflowBuilder}]
 DataflowBuilder(dataflowName: String)
@@ -405,7 +405,7 @@ creating a serializer for the \acs{HList} then for the type T.
 \end{lstlisting}
 
 As an interesting note, this part of the system has been tested using property
-based testing\cite{quickcheck}. Using this kind of testing helped to spot
+based testing~\cite{quickcheck}. Using this kind of testing helped to spot
 otherwise difficult bugs to detect.
 
 \section{Computation node}
@@ -475,12 +475,12 @@ wide topic and it has many corner cases. Alcaudon uses akka to leverage all the
 complexities of managing cluster membership. It provides a failure detector,
 where nodes belonging to the cluster monitor each other sending heartbeats in
 order to detect unreachable nodes. Heartbeat arrival time is interpreted by an
-implementation of The Phi Accrual Failure Detector\cite{phifailure}.
+implementation of The Phi Accrual Failure Detector~\cite{phifailure}.
 
 \begin{figure}[!h]
 \begin{center}
 \includegraphics[width=0.6\textwidth]{membershipcluster.png}
-\caption{Akka cluster membership states\cite{akkastates}}
+\caption{Akka cluster membership states~\cite{akkastates}}
 \label{fig:statescluster}
 \end{center}
 \end{figure}
@@ -625,7 +625,7 @@ can lead to failures if the database is unresponsive. Alcaudon deals with this
 problem using probabilistic data structures. Bloom filters are a space-efficient
 probabilistic data structure used to test if an element is a member of a set.
 Bloom filters have been used since the 1970s but there are newer data structures
-such as Cuckoo Filters\cite{cuckoo} that outperform the former. Alcaudon uses
+such as Cuckoo Filters~\cite{cuckoo} that outperform the former. Alcaudon uses
 Cuckoo filters in order to detect duplicated records. One downside of these
 probabilistic data structures is that they can return false-positives, meaning
 that a new record can be considered as it has been already processed. To solve this
@@ -695,7 +695,7 @@ all records have been received. This provides a notion of logical time. Alcaudon
 implements a simple heuristic in order to predict low watermarks. However more
 advanced techniques such us machine learning can be used in order to predict low
 watermarks better. It is worth mentioning that this very same algorithm was
-implemented by Google\cite{millwheel} and just about $0.001\%$ of records were
+implemented by Google~\cite{millwheel} and just about $0.001\%$ of records were
 dropped due to an incorrect prediction. Therefore, using watermarks it is
 possible to configure timers that are triggered once the watermark has reached a
 certain point, i.e. all records up to a timestamp $T$ have been processed.
@@ -738,6 +738,7 @@ class TimerExecutor(computationId: String,
   ...
 }
 \end{lstlisting}
+% $
 
 Once values from dependencies are known, the algorithm implementation to
 calculate computation watermarks is straightforward(\ref{code:watermarkUpdate}).
@@ -794,7 +795,7 @@ acknowledged when a record has been received. Again at least-once delivery
 semantics are used to avoid any data loss. Once a record has been received,
 pending records are sent to subscribers. A typical problem when implementing
 publisher-subscriber systems is how to deal with slow-consumers. This is known as
-flow control, and some patterns to solve this problem are listed below: 
+flow control, and some patterns to solve this problem are listed below:
 
 \begin{itemize}
 \item \textit{Back-pressure}: Consumers signal producers that they are able to
@@ -903,7 +904,7 @@ As it was described in previous sections, this problem is know as
 \textit{flexible Job-shop scheduling problem} and it is cataloged as a NP-Hard
 problem. Existing algorithms are based on heuristics and usually these
 algorithms are biased towards fairness, performance or efficiency.
-Alcaudon uses an state of the art cluster scheduler platform\cite{firmament},
+Alcaudon uses an state of the art cluster scheduler platform~\cite{firmament},
 named Firmament. It allows to use \acf{HTTP} in order to perform scheduling
 requests. An interesting feature that this scheduler offers is that it allows
 using different scheduling policies. These policies are listed below.
@@ -912,12 +913,12 @@ using different scheduling policies. These policies are listed below.
 \item \textit{Trivial}: Fixed costs, tasks always schedule if resources are idle.
 \item \textit{Random}: Random costs, for fuzz tests.
 \item \textit{SJF}: Shortest job first policy based on avg. past runtimes.
-\item \textit{Quincy}: Original Quincy cost model, with data locality.       
+\item \textit{Quincy}: Original Quincy cost model, with data locality.
 \item \textit{Whare}: Implementation of Whare-Map's M and MCs policies.
 \item \textit{Coco}: Coordinated co-location model.
-\item \textit{Octopus}: Simple load balancing based on task counts.     
-\item \textit{Void}: Bogus cost model used for KB with simple scheduler.  
-\item \textit{NET-BW}: Network-bandwidth-aware cost model (avoids hotspots).  
+\item \textit{Octopus}: Simple load balancing based on task counts.
+\item \textit{Void}: Bogus cost model used for KB with simple scheduler.
+\item \textit{NET-BW}: Network-bandwidth-aware cost model (avoids hotspots).
 \end{itemize}
 
 After performing tests with different scheduling policies, Alcaudon uses
@@ -950,7 +951,7 @@ problematic component could take hours. Given these facts, providing the tools
 to monitor distributed systems is mandatory. One of Alcaudon's aims is to
 provide metrics and mechanisms to deal with this problem. In order to implement
 this feature, Prometheus has been used as a time series database and Grafana
-as the dashboards generator. 
+as the dashboards generator.
 
 The component in charge of collecting metrics is \textit{cluster health
   manager}. This component listens to akka cluster events, in order to determine
@@ -1023,7 +1024,7 @@ Alcaudon library is published into Sonatype repository. In order to include it i
 an SBT build and start building Alcaudon Dataflow pipelines, this dependency should be added:
 
 \begin{lstlisting}
-resolvers += 
+resolvers +=
   "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 libraryDependencies += "com.github.fcofdez" % "alcaudon"
 \end{lstlisting}
