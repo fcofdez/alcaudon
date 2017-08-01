@@ -615,9 +615,9 @@
     Esta clase se distribuye bajo una licencia\\
     Creative Commons Atribución 4.0 Internacional.
 
-    \href{https://creativecommons.org/licenses/by/4.0/}{\includegraphics[width=2cm]{cc-by.pdf}}
+%    \href{https://creativecommons.org/licenses/by/4.0/}{\includegraphics[width=2cm]{cc-by.pdf}}
 
-    \medskip
+%    \medskip
   }
   {\scriptsize [eliminar esta atribución supone la violación de dicha licencia]}
   \end{center}

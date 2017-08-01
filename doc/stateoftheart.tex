@@ -16,7 +16,8 @@ next sections, those concepts will be analyzed in more depth.
 
 \section{Data Processing}
 
-According to a recent study by Cisco \cite{ciscosurvey}~\ref{fig:ciscodata}
+According to a recent study by \FIXME{cita y referencia juntas no
+  quedan bien} Cisco~\cite{ciscosurvey}~\ref{fig:ciscodata}
 data storage is growing by 40\% yearly. This implies that that by 2020
 datacenters will store over 1000 ExaBytes of information. Keeping that data in
 silos without performing any use of it is a poor investment.
@@ -36,7 +37,8 @@ large volumes of data. Some examples could be MapReduce\cite{mapreduce},
 Spark\cite{spark} and many others. Before those frameworks appeared, there were
 some systems capable of processing large amounts of data, like the
 supercomputers or HPC. One of the main drawbacks of HPC is accessibility to
-those high end computers. Acquiring a new Supercomputer in the event of a peak
+those high end computers. Acquiring a new \FIXME{por qué en
+  mayúscula?} Supercomputer in the event of a peak
 on data production is not feasible. For companies, making an investment in a
 super computer is a big risk that in some cases will not be reverted as profit.
 Another interesting point to make is that Supercomputers perform well many
@@ -52,22 +54,27 @@ advantage of commodity hardware to process large amounts of data. One of the
 reasons is that there are many tools to distribute data processing among large
 clusters of commodity machines. Once that job is done, those machines can be
 turned off or used for other purposes. Working with those systems provides
-flexibility, both in resource usage and innovation capacity. 
+flexibility, both in resource usage and innovation capacity.
 
-Even though systems such as Map-Reduce have been quite useful to process large
-amounts of data, they start to have limitations in certain aspects. Currently,
-the need of low latency in data processing is getting mandatory. Organizations
-need to get insights about their data as soon as possible, in order to react
-quickly to new trends. The systems described previously are classified as batch
-systems, as they are oriented to process historical datasets and not
-\textit{real time data}. There have been some adaptations to these systems, using
-approaches like micro-batching where data is processed in smaller batches,
-however the latency is still big. These new needs for data processing have lead
-to the design and development of systems specialized in unbounded data
-processing. These systems try to reduce the time between the event generation
-and its processing. Alcaudon fits in this category of data processing systems,
-as one of its aims is being able to process unbounded data sets with low
-latency.
+Even though systems such as Map-Reduce have been quite useful to
+process large amounts of data, they start to have limitations in
+certain aspects. Currently, the need of low latency in data processing
+is getting mandatory. Organizations need to get insights about their
+data as soon as possible, in order to react quickly to new trends. The
+systems described previously are classified as batch systems, as they
+are oriented to process historical datasets and not \textit{real time
+  data}. There have been some adaptations to these systems, using
+approaches like micro-batching where data is processed in smaller
+batches, however the latency is still big. These new needs for data
+processing have lead to the design and development of systems
+specialized in unbounded data processing. These systems try to reduce
+the time between the event generation and its processing. \FIXME
+{deberías evitar referencias a Alcaudon en este capítulo. Estás
+  contando lo que hay para usarlo como argumento para la necesidad del
+  nuevo proyecto. Un estado del arte debe tener valor en si mismo
+  aunque no escribieras nada más} Alcaudon fits in this category of
+data processing systems, as one of its aims is being able to process
+unbounded data sets with low latency.
 
 \subsection{Cloud Computing}
 
@@ -87,6 +94,7 @@ resources that can be provisioned and released on demand. Given the huge amounts
 of data that users store into the \textit{cloud}, companies need to outsource
 computing and storing capacity, since building datacenters is a huge investment.
 In the last decade, computing infrastructure offering has changed radically.
+
 Companies such as Amazon Web Services are able to offer servers, storage and
 services on demand at scale, from 1 server to 1 million servers. Having the
 ability to start and stop servers on demand has democratized the ability to
@@ -116,7 +124,7 @@ distributed systems as a super set of concurrent systems.
 A more common example of a distributed system is a user requesting a web page to
 a server with his smartphone. This example is a typical \textit{client-server}
 model. This \textit{simple} action involves the interaction of various services
-such as DNS servers, load balancers, HTTP proxies and HTTP servers. All these
+such as DNS servers, load balancers, HTTP proxies and servers. All these
 services use a network as a mean to interchange messages as shown in figure
 ~\ref{fig:client-server}.
 
@@ -128,20 +136,18 @@ services use a network as a mean to interchange messages as shown in figure
 \end{center}
 \end{figure}
 
-As it has been previously discussed, distributed systems are very common
-nowadays. They are present in fields like database systems, internet of things,
-data processing and many more.
-
-There are some reasons that make more convenient to work with distributed
-systems, but the main reason is ability to scale. As defined in \cite{cloudadmin}
+As it has been previously discussed, distributed systems are very
+common nowadays. They are present in fields like database systems,
+internet of things, data processing and many more. There are some
+reasons that make more convenient to work with distributed systems,
+but the main reason is ability to scale. As defined
+in~\cite{cloudadmin}:
+%
 \begin{quote}
   A system's ability to scale is its ability to process a growing workload,
   usually measured in transactions per second, amount of data or number of
   users.
 \end{quote}
-
-Distributed programming can help designing systems with the ability to scale given
-the following properties:
 
 \begin{figure}[!h]
 \begin{center}
@@ -151,6 +157,9 @@ the following properties:
 \end{center}
 \end{figure}
 
+Distributed programming can help designing systems with the ability to scale given
+the following properties:
+%
 \begin{itemize}
 \item \textit{Reliability}: Achieved by \textit{replication} and/or
   \textit{partitioning} as illustrated in Figure ~\ref{fig:partitioning}.
@@ -253,7 +262,7 @@ different participants. In order to provide a global vision of shared state,
 replication\cite{book:replication} algorithms have been developed during the last
 years. Nevertheless, these algorithms have certain limitations in terms of
 performance and scalability due to serialization. Eric Brewer postulated the
-conjecture that it is impossible for a distributed system to provide 
+conjecture that it is impossible for a distributed system to provide
 consistency, availability and partition-tolerance guarantees. Where
 they can be defined as:
 
@@ -406,7 +415,7 @@ that creating protocols comes naturally in this model. The ability to change
 their behavior depending on the incoming messages makes easy to model finite
 state machines that fit perfectly with protocol design.
 
-There are many implementations available\cite{wikiactor}, but the more popular
+There are many implementations available\FIXME{tag extraño en la referencia}~\cite{wikiactor}, but the more popular
 and stable versions are the Erlang programming language and Akka. Both versions
 have similar features, in fact, Akka is highly inspired by Erlang. Nevertheless
 Akka is built on top of the \acf{JVM}, making it the most interesting implementation
@@ -580,3 +589,7 @@ Alcaudon philosophy is similar to the serverless architecture. The goal is to
 provide abstractions around unbounded datasets so programmers just take care of
 defining their computations and dependencies. Alcaudon will provide a simple
 interface so the details to know about the system are minimized.
+
+% Local Variables:
+% ispell-local-dictionary: "american"
+% End:
