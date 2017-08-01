@@ -25,7 +25,7 @@ silos without performing any use of it is a poor investment.
 \begin{figure}[!h]
 \begin{center}
 \includegraphics[width=0.8\textwidth]{ciscodata.png}
-\caption{Actual Data Stored in Data Centers\cite{ciscosurvey}}
+\caption{Actual Data Stored in Data Centers~\cite{ciscosurvey}}
 \label{fig:ciscodata}
 \end{center}
 \end{figure}
@@ -33,8 +33,8 @@ silos without performing any use of it is a poor investment.
 Processing those amounts of data using traditionals RDBMS is not practical, as
 they are not designed to work with that large load of data. In the last years
 there have been many ongoing efforts on providing tools to process and analyze
-large volumes of data. Some examples could be MapReduce\cite{mapreduce},
-Spark\cite{spark} and many others. Before those frameworks appeared, there were
+large volumes of data. Some examples could be MapReduce~\cite{mapreduce},
+Spark~\cite{spark} and many others. Before those frameworks appeared, there were
 some systems capable of processing large amounts of data, like the
 supercomputers or HPC. One of the main drawbacks of HPC is accessibility to
 those high end computers. Acquiring a new \FIXME{por qué en
@@ -111,15 +111,17 @@ computing resources dynamically as more servers are added to the pool.
 \section{Distributed systems}
 \label{subsection:distsys}
 
-Distributed systems can be defined as a set of computer programs, executing on
-one or more computers, and coordinating actions by exchanging \textit{messages}
-\cite{GuideReliable}. Those computers are usually located in a \textit{computer
-  network}, a collection of computers interconnected by hardware that supports
-message passing and implement routing protocols. But if this definition is taken
-to the extreme, a modern multi-core processor can be characterized as a
-distributed system, with many components exchanging information in a network and
-coordinating actions to get work done. To some extent, it is possible to see
-distributed systems as a super set of concurrent systems.
+Distributed systems can be defined as a set of computer programs,
+executing on one or more computers, and coordinating actions by
+exchanging \textit{messages}~\cite{GuideReliable}. Those computers are
+usually located in a \textit{computer network}, a collection of
+computers interconnected by hardware that supports message passing and
+implement routing protocols. But if this definition is taken to the
+extreme, a modern multi-core processor can be characterized as a
+distributed system, with many components exchanging information in a
+network and coordinating actions to get work done. To some extent, it
+is possible to see distributed systems as a super set of concurrent
+systems.
 
 A more common example of a distributed system is a user requesting a web page to
 a server with his smartphone. This example is a typical \textit{client-server}
@@ -183,7 +185,7 @@ the following properties:
 \caption{Performance advantage of a cluster built with large SMP server nodes
   (128-core SMP) over a cluster with the same number of processor cores built
   with low-end server nodes (four-core SMP), for clusters of varying
-  size.\cite{Datacenter}}
+  size~\cite{Datacenter}}[\FIXME{pon un caption breve aquí para el LOF}]
 \label{fig:highend}
 \end{center}
 \end{figure}
@@ -205,13 +207,13 @@ As it can be seen the topic is wide, so for this documents only
   systems is quite different. Knowledge about global state among all the nodes
   in the system is likely to be outdated. A naive solution to this problem is
   using synchronization based on wall clocks. However, the notion of
-  synchronized clocks among nodes is impractical. Protocols like NTP\cite{ntp}
+  synchronized clocks among nodes is impractical. Protocols like \ac{NTP}~\cite{ntp}
   can have skews up to 1000 seconds, an unacceptable time in some cases. Google
   makes heavy use of hardware-assisted time synchronization using GPS clocks and
   atomic clocks to ensure global consistency for their database
-  Spanner\cite{180268} that can drift up to 100ms. Given the exposed facts, the
+  Spanner~\cite{180268} that can drift up to 100ms. Given the exposed facts, the
   only assumption that can be taken about distributed operations is that they are partially
-  ordered. A formal definition for partial order is \cite{book:lattices}:
+  ordered. A formal definition for partial order is ~\cite{book:lattices}:
   \begin{definition}{(Partial order)}
     Let $P$ be a set. An order (or partial order) on $P$ is a binary relation
     $\leq$ on $P$ such that, for all $x$, $y$, $z \in P$,
@@ -223,7 +225,7 @@ As it can be seen the topic is wide, so for this documents only
   \end{definition}
   Given the exposed facts, message order in distributed systems is partial.
   However, there are algorithms that focuses on maintaining a global total order
-  of operations\cite{vclocks}. In environments where the message flow is unbounded
+  of operations~\cite{vclocks}. In environments where the message flow is unbounded
   the notion of completeness is weak. There is no guarantee about when all the
   messages up to a moment $T_n$ have been received or processed. To deal with
   this, Alcaudon uses watermark heuristics. A watermark heuristic defines that up
@@ -233,7 +235,7 @@ As it can be seen the topic is wide, so for this documents only
   Since Alcaudon aims to be a fault-tolerant system, guarantees about persistent
   state must be enforced. To design a resilient system, persistent state
   snapshots should be taken. There are distributed algorithms to deal with this
-  problem such as Chandy-Lamport algorithm\cite{lampsnapshot}. In general, those algorithms are focused
+  problem such as Chandy-Lamport algorithm~\cite{lampsnapshot}. In general, those algorithms are focused
   on taking a global state snapshot that given the constraints presented in the
   previous section is a hard problem to solve. In Alcaudon this obstacle is
   solved by taking snapshots by computation. There is no need of a global
@@ -248,7 +250,7 @@ As it can be seen the topic is wide, so for this documents only
   cluster membership image is static, thew will be seen as accessible. The other
   approach is to use dynamic membership. It consists on having initial knowledge
   about a subset of the available nodes and later on, via gossiping
-  protocols\cite{gossip} new nodes can \textit{join} the cluster. This mechanism
+  protocols~\cite{gossip} new nodes can \textit{join} the cluster. This mechanism
   is also able to handle when nodes become \textit{unavailable}. For Alcaudon
   the latter membership category is more suitable. Since one of the goals is to
   provide elasticity, in this case the system will be able to be scaled in the
@@ -259,7 +261,7 @@ As it can be seen the topic is wide, so for this documents only
 
 One of the problems when building distributed systems is sharing state among
 different participants. In order to provide a global vision of shared state,
-replication\cite{book:replication} algorithms have been developed during the last
+replication~\cite{book:replication} algorithms have been developed during the last
 years. Nevertheless, these algorithms have certain limitations in terms of
 performance and scalability due to serialization. Eric Brewer postulated the
 conjecture that it is impossible for a distributed system to provide
@@ -275,7 +277,7 @@ they can be defined as:
   the event of network failures.
 \end{itemize}
 
-This conjecture was proved\cite{capproof} later and it is known nowadays as the CAP
+This conjecture was proved~\cite{capproof} later and it is known nowadays as the CAP
 theorem(\ref{fig:cap}). This theorem establishes a trade-off between consistency (total order
 of operations) and partition-tolerance.
 
@@ -293,7 +295,7 @@ other replicas. This operation is sent asynchronously to the rest of replicas.
 Every replica eventually applies the updates, without any guarantee about the
 order in which these updates are applied. This approach establishes that data is
 available even during network partitions. One of the problems of eventual
-consistent systems is conflicting updates. Systems such Dynamo\cite{dynamo}
+consistent systems is conflicting updates. Systems such Dynamo~\cite{dynamo}
 allows to choose if clients should resolve conflicts or use simple approaches as
 `last write wins'.
 
@@ -303,7 +305,7 @@ are executed immediately. This property allows \acs{CRDT}s to be scalable and
 fault-tolerant. In order to guarantee convergence in \acs{CRDT}s, data types
 should follow the next properties:
 
-A join semilattice\cite{book:lattices} is a partial order $\leq_{v}$ equipped with a
+A join semilattice~\cite{book:lattices} is a partial order $\leq_{v}$ equipped with a
 least upper bound (LUB) $\sqcup_v$, defined as follows:
 
 \begin{definition}{(Least Upper Bound (LUB))}
@@ -333,7 +335,7 @@ replication \acs{CRDT}s could be used in order to implement different Alcaudon s
 Building distributed systems is not an easy task. In this subsection, different
 failure scenarios that can happen in a distributed environment will be presented.
 
-As proposed by \cite{GuideReliable}, it is possible to classify system error
+As proposed by ~\cite{GuideReliable}, it is possible to classify system error
 causes as follows:
 \begin{itemize}
 \item \textit{Hardware failures}: These kind of failures are inevitable, since
@@ -350,13 +352,13 @@ causes as follows:
   communication is the norm. Regular developers are used to sequential
   computations, and getting familiarized to work within this environment is hard
   and can lead to bogus implementations. Luckily the use of formal verification
-  is growing in the field, using tools such as TLA+\cite{tla} by Lamport. The
+  is growing in the field, using tools such as TLA+~\cite{tla} by Lamport. The
   usage of these techniques helps to tackle the inherent complexity with strong
   foundations.
 \item \textit{Lack of failure detectors}: Most distributed systems try to detect
   failure just by using timeouts. This measure is quite straightforward to
   implement and reason about. The main drawback is that these techniques are
-  raw. Vogels \cite{vogels} proposes a refinement over plain timeouts for
+  raw. Vogels ~\cite{vogels} proposes a refinement over plain timeouts for
   failure detection, using more meta-information about the environment where
   the distributed system is running; reasoning about operating system metrics,
   networking metrics and disseminated probes, failure detection can improve.
@@ -372,7 +374,7 @@ causes as follows:
 As a final note about other problems, there are costs associated with
 distributed programming; network latency, fault-tolerance mechanisms and
 consensus can have impact in the throughput achieved by a system. In
-\cite{189908} a metric named Configuration that Outperforms a Single Thread
+~\cite{189908} a metric named Configuration that Outperforms a Single Thread
 (COST), is proposed. It measures the number of cores needed to outperform a
 single threaded implementation. In these experiments, there are many distributed
 processing frameworks that don't perform properly when compared to single node
@@ -390,7 +392,7 @@ computation model that is well suited: the actor model.
 
 The actor model provides a high level abstraction to deal with concurrent and
 distributed systems. The theoretical model was developed by Carl Hewitt in
-the seventies, but it was popularized by Erlang programming language\cite{erlang}
+the seventies, but it was popularized by Erlang programming language~\cite{erlang}
 developed by Ericsson.
 
 It can be characterized as follows:
@@ -418,11 +420,12 @@ state machines that fit perfectly with protocol design.
 There are many implementations available\FIXME{tag extraño en la referencia}~\cite{wikiactor}, but the more popular
 and stable versions are the Erlang programming language and Akka. Both versions
 have similar features, in fact, Akka is highly inspired by Erlang. Nevertheless
-Akka is built on top of the \acf{JVM}, making it the most interesting implementation
+Akka is built on top of the \ac{JVM}, making it the most interesting implementation
 available due to the vast ecosystem accessible around the \acs{JVM}.
 
 Akka has some extensions to the actor model that make it quite interesting to
 build distributed systems.
+%
 \begin{itemize}
 \item Actor supervision: One interesting approach of actor based design is how
   to handle failures. Each actor has a supervisor that handles its life-cycle,
@@ -484,7 +487,7 @@ how to place those computations represented as a \acs{DAG}, given a set of compu
 nodes. This problem is known as the flexible Job-shop scheduling problem and it
 has been widely studied during the last 60 years. One graphical example for $3$
 jobs to be scheduled along $3$ machines can be seen in Figure~\ref{fig:jssp}.
-As defined in\cite{jobshop2}:
+As defined in~\cite{jobshop2}:
 
 \begin{definition}
 In the flow shop scheduling problem we have a set of $n$ jobs that must be
@@ -513,13 +516,13 @@ considered objective function.
 \begin{figure}
 \begin{center}
 \includegraphics[width=0.6\textwidth]{jssp.png}
-\caption{ A Gantt-Chart representation of a solution for a $3m \times 3j$ job scheduling problem\cite{geneticbook}}
+\caption{ A Gantt-Chart representation of a solution for a $3m \times 3j$ job scheduling problem~\cite{geneticbook}}
 \label{fig:jssp}
 \end{center}
 \end{figure}
 
 Computing an optimal solution for this problem is a well known NP-hard
-problem\cite{nphard}. Given this fact, all the proposed algorithms to solve this
+problem~\cite{nphard}. Given this fact, all the proposed algorithms to solve this
 problem are approximation algorithms. Some of the techniques used are listed
 below:
 
@@ -532,7 +535,7 @@ below:
 \end{itemize}
 
 Alcaudon will use an state-of-the-art scheduling framework,
-Firmament\cite{firmament}, in order to solve this problem.
+Firmament~\cite{firmament}, in order to solve this problem.
 
 \section{Library design}
 
@@ -548,14 +551,16 @@ structures, etc.
 Using those ideas, software engineering can be seen as the bridge between
 hardware and computer science. It builds abstractions based on both worlds such
 as operating systems, that hides the details of specific hardware and exposes an
-uniform interface. And the list goes on. The main goal of abstractions is to
+uniform interface. And the list goes on.
+
+The main goal of abstractions is to
 provide ways to reason about different problems with a limited scope.
 As it has been exposed, providing tools that hide all the complexities is key to
 build more complex systems. One of the main goals of the field since the late
-60s has been to build reusable software\cite{reuse}. There have been many
+60s has been to build reusable software~\cite{reuse}. There have been many
 advances in code reuse, from libraries and frameworks that are used to build
-software on top them, to \acf{SaaS}. SaaS exposes public \acf{HTTP}
-\acf{API} as the entry point to their functionality. This category of software reuse
+software on top them, to \acf{SaaS}. SaaS exposes public \ac{HTTP}
+\ac{API} as the entry point to their functionality. This category of software reuse
 can be the end of the spectrum, since the client just has knowledge about
 the exposed interface and does not know anything about the underlying parts of the
 system.
@@ -563,7 +568,7 @@ system.
 \begin{figure}[!h]
 \begin{center}
 \includegraphics[width=0.8\textwidth]{serverless.png}
-\caption{Serverless architecture example\cite{awsserverless}}
+\caption{Serverless architecture example~\cite{awsserverless}}
 \label{fig:serverless}
 \end{center}
 \end{figure}

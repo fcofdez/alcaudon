@@ -6,7 +6,7 @@ chapter. Agile methodologies have been used to drive Alcaudon's development.
 
 Agile methodologies help organizing software development life cycle. They are
 focused on iterative development and adaptability. The term was coined during
-the early 2000s in the \textit{Agile Manifesto}\cite{manifesto}. The manifesto
+the early 2000s in the \textit{Agile Manifesto}~\cite{manifesto}. The manifesto
 has this set of principles:
 
 \begin{itemize}
@@ -20,7 +20,7 @@ has this set of principles:
 \begin{figure}
   \centering
   \includegraphics[width=0.8\textwidth]{agile.jpg}
-  \caption{Waterfall vs Agile Methodologies\cite{waterfall}}
+  \caption{Waterfall vs Agile Methodologies~\cite{waterfall}}
   \label{fig:waterfall}
 \end{figure}
 
@@ -36,12 +36,12 @@ Agile methodologies have become popular during the last 10 years, therefore ther
 are many agile frameworks that follow the previously enumerated principles. The
 most popular ones are:
 \begin{itemize}
-\item SCRUM\cite{scrum}: Framework that allows teams to develop complex
+\item SCRUM~\cite{scrum}: Framework that allows teams to develop complex
   adaptive software delivering value as soon as possible.
-\item eXtreme Programming\cite{xp}: Lightweight methodology for small-medium
+\item eXtreme Programming~\cite{xp}: Lightweight methodology for small-medium
   sized software development teams in scenarios where requirements change often
   or are vague.
-\item Kanban\cite{kanban}: Inspired by the work of Toyota during the 1940s to improve
+\item Kanban~\cite{kanban}: Inspired by the work of Toyota during the 1940s to improve
   factory resource utilization, this lightweight methodology also minimizes the processes
   around development. It is focused on having a set of features to be done and delivering
   them as soon as possible. It is a good fit for startup teams.
@@ -56,12 +56,12 @@ due to the team's small size and the expected requirement changes.
 \begin{figure}
   \centering
   \includegraphics[width=0.6\textwidth]{xp.png}
-  \caption{Extreme Programming feedback diagram\cite{xp}}
+  \caption{Extreme Programming feedback diagram~\cite{xp}}
   \label{fig:xp}
 \end{figure}
 
 This methodology proposes a feedback/release cycle as shown in Figure~\ref{fig:xp} and a set of
-practices\cite{xp}:
+practices~\cite{xp}:
 
 \begin{enumerate}
 \item \textit{The planning game}: The scope, priority and date of releases
@@ -73,7 +73,7 @@ practices\cite{xp}:
   and the technical team by the author.
 \item Small releases: Every release should be as small as possible providing the
   maximum business value. Alcaudon was released continuously, meaning that it
-  has adopted Continuous Deployment\cite{cd} techniques. With every commit
+  has adopted Continuous Deployment~\cite{cd} techniques. With every commit
   pushed to the master branch, Travis CI\footnote{https://travis-ci.org/}
   launched a continuous delivery pipeline that run tests, built and published
   an usable version of Alcaudon as docker containers and a snapshot version of
@@ -83,7 +83,7 @@ practices\cite{xp}:
 \item \textit{Metaphor}: A common language between different participants in the
   project should be used. This makes communication easier and therefore
   misunderstandings are reduced.
-\item Simple design: As defined by\cite{xp}, a simple design follows these rules:
+\item Simple design: As defined by~\cite{xp}, a simple design follows these rules:
   \begin{enumerate}
   \item All tests pass.
   \item There is no duplicated logic.
@@ -155,7 +155,7 @@ features.
   system.
 \item \textit{Deliverable}: After some investigation and tests two languages
   were chosen, Erlang and Scala. Both implement the actor model. Erlang has been
-  proven to be production ready, but according to TIOBE\cite{tiobe} its usage is
+  proven to be production ready, but according to TIOBE~\cite{tiobe} its usage is
   not ample. On the other hand, Scala seems to be quite popular among the data
   processing community. After some discussion with business stakeholders, Scala
   was chosen due to its inter-operability with Java and notoriety among
@@ -266,7 +266,7 @@ features.
   dataflow topology in the most optimal possible configuration.
 \item \textit{Deliverable}: Due to the time constraints, during this release it
   was decided to use available tools to solve the flexible job-shop scheduling
-  problem. In this case, a state-of-the-art flexible scheduler was used\cite{firmament}.
+  problem. In this case, a state-of-the-art flexible scheduler was used~\cite{firmament}.
 \end{itemize}
 
 \subsubsection{Release 14: Implement tools that allow monitoring the system}
@@ -297,7 +297,7 @@ OpenJDK\footnote{http://openjdk.java.net/} or
 Zing\footnote{https://www.azul.com/products/zing/virtual-machine/}. The
 available ecosystem of tools and libraries covers many domains. There are
 multiple implementations for the state-of-the-art data structures used in this
-project, such as cuckoo filters\cite{cuckoo}. Another reason to choose the \acs{JVM}
+project, such as cuckoo filters~\cite{cuckoo}. Another reason to choose the \acs{JVM}
 was the inter-operability between different languages such as Scala and Java.
 Scala has been chosen as the principal programming language. It is an hybrid
 language that allows programmers to use functional and object oriented
@@ -318,7 +318,7 @@ with git facilitated the set-up of the continuous deployment pipeline easier.
 
 \section{Tools}
 
-In this section the tools used to develop Alcuadon will be presented. 
+In this section the tools used to develop Alcuadon will be presented.
 
 \subsection{Hardware}
 
