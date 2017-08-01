@@ -60,7 +60,7 @@ to create a streaming data processing pipeline, or dataflow topology as it has
 been defined during all this document, users should provide their business
 logic. To achieve this goal, Alcaudon provides certain interfaces so users
 just need to care about their code. These interfaces are available as a library
-that can be found at at Sonatype OSSRH \footnote{http://central.sonatype.org/pages/ossrh-guide.html}.
+that can be found at onatype OSSRH \footnote{http://central.sonatype.org/pages/ossrh-guide.html}.
 
 \begin{figure}
   \centering
@@ -168,12 +168,12 @@ case class Record(key: String, rawRecord: RawRecord) {
 
 Timers are the other possible trigger for user defined code execution. In
 Alcaudon there are three types of timers:
-
+%
 \begin{itemize}
 \item \textit{Fixed timers}: This kind of timers are triggered once at a
   specific wall time.
 \item \textit{Recurrent fixed timers}: This timer resembles the previous timers
-  with the exception that it is executed recurrently, i.e. every five minutes.
+  with the exception that it is executed periodically, i.e. every five minutes.
 \item \textit{Watermark timers}: This timer tries to estimate the point in time
   where all the events up to certain window have been consumed by the system and
   execute then. The mechanism and algorithm used to implement them will be
@@ -206,7 +206,7 @@ These main entities that can be used in Alcaudon are:
     streams and publish to zero or more streams. Alcaudon guarantees the
     delivery of records along these streams.
   \item \textit{Sinks}: Sinks are a special kind of streams, providing a way to
-    publish data to external systems such as http endpoints or databases. They
+    publish data to external systems such as HTTP endpoints or databases. They
     are useful to project final results.
 \end{itemize}
 
@@ -275,7 +275,9 @@ computing nodes can have access to user business logic. The number of computing 
 can access concurrently to these user libraries depends on the deployment,
 reaching up to thousands in some cases. To avoid any scaling problems, libraries
 are stored into an object storage service. In this case, they are stored in
-Amazon S3\footnote{https://aws.amazon.com/s3/}. These services usually provide a
+Amazon S3\footnote{https://aws.amazon.com/s3/}.
+
+These services usually provide a
 way to avoid the need to first upload the data to a backend server in order to
 get access to credentials to later on upload data to an object storage services.
 This is achieved using pre-signed URLs, based on a temporary token generated
@@ -521,7 +523,9 @@ messages between actors. The translation between the logical address and the
 physical address is done transparently by akka. Once this detail is
 clarified, deployment process will be described. Cluster Coordinator, as
 described in previous subsections, schedules provided dataflow topologies among
-the available computing nodes. First, cluster coordinator sends a request to a
+the available computing nodes.
+
+First, cluster coordinator sends a request to a
 computing node asking to deploy certain computations and streams. When the computing
 node responds with an acknowledgment, the computation is deployed. The next
 step is to start a ComputationExecutor actor for each computation in the request
@@ -551,7 +555,10 @@ exactly once record processing semantics. In order to implement exactly once
 semantics guarantees Alcaudon process records and timers in an idempotent
 manner. The algorithm to provide these guarantees can be summarized as follows.
 
-When a new record arrives into a computation the next steps are performed:
+\noindent
+When a new record arrives into a computation the next steps are
+performed:
+%
 \begin{enumerate}
   \item Using duplication detection logic, records are checked to avoid duplicates.
   \item User defined code is run for the received record. This execution can
@@ -784,18 +791,21 @@ computations. Computations subscribe to one or more streams and publish to zero
 or more streams. As with computations, durability is a key part of streams,
 meaning that during failure scenarios data published into a stream should be
 recovered once the system is restarted. Streams are implemented as actors, and in
-order to make them durable akka persistence has been used. As explained before,
-with akka persistence it is possible to to store actor state. Alcaudon's streams
-work largely as an append-only log, where computations or sources publish records
-and they are delivered to subscribed computations. Each received record is
-stored into a durable storage, in this case Cassandra. Internally, this
-operation is done in batches, minimizing I/O overhead. This process is listed
-in~\ref{code:recordstorage}. As it can be observed, stream publishers are
-acknowledged when a record has been received. Again at least-once delivery
-semantics are used to avoid any data loss. Once a record has been received,
-pending records are sent to subscribers. A typical problem when implementing
-publisher-subscriber systems is how to deal with slow-consumers. This is known as
-flow control, and some patterns to solve this problem are listed below:
+order to make them durable akka persistence has been used.
+
+As explained before, with akka persistence it is possible to to store
+actor state. Alcaudon's streams work largely as an append-only log,
+where computations or sources publish records and they are delivered
+to subscribed computations. Each received record is stored into a
+durable storage, in this case Cassandra. Internally, this operation is
+done in batches, minimizing I/O overhead. This process is listed
+in~\ref{code:recordstorage}. As it can be observed, stream publishers
+are acknowledged when a record has been received. Again at least-once
+delivery semantics are used to avoid any data loss. Once a record has
+been received, pending records are sent to subscribers. A typical
+problem when implementing publisher-subscriber systems is how to deal
+with slow-consumers. This is known as flow control, and some patterns
+to solve this problem are listed below:
 
 \begin{itemize}
 \item \textit{Back-pressure}: Consumers signal producers that they are able to
@@ -1028,3 +1038,8 @@ resolvers +=
   "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 libraryDependencies += "com.github.fcofdez" % "alcaudon"
 \end{lstlisting}
+
+
+% Local Variables:
+% ispell-local-dictionary: "american"
+% End:

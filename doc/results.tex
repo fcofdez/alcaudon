@@ -13,7 +13,7 @@ These tests can guarantee correctness in terms of behavior, but they do not
 measure system correctness in terms of performance goals. Even though Alcaudon
 has been designed carefully, using the adequate data structures and taking
 care of performance, empiric results are needed. It is known that creating
-accurate benchmarks is complex\cite{benchbias}, there are many factors
+accurate benchmarks is complex~\cite{benchbias}, there are many factors
 that can lead to misleading results. Presented benchmarks are implemented using
 JMH\footnote{http://openjdk.java.net/projects/code-tools/jmh/} trying to be as
 accurate as possible.
@@ -23,19 +23,19 @@ accurate as possible.
 This benchmark measures the number of computations per second that Alcaundon can
 handle.
 
-TODO -> figure
+\FIXME{TODO -> figure}
 
 \subsection{Stream benchmark}
 
 This benchmark measures the number of records that a stream can handle.
 
-TODO -> figure
+\FIXME{TODO -> figure}
 
 \subsection{Record router benchmark}
 
 This benchmark measures the number of records that a router can route.
 
-TODO -> figure
+\FIXME{TODO -> figure}
 
 \section{Accomplished objectives}
 
@@ -47,7 +47,7 @@ implement, leveraging the all the complexities around fault-tolerant distributed
 models to Alcaudon.
 
 Regarding specific objectives, these have been accomplished as well:
-
+%
 \begin{itemize}
 \item Alcaudon provides an abstraction in order to create distributed
   computations; computation \acs{API} alongside the dataflow builder.
@@ -60,7 +60,7 @@ Regarding specific objectives, these have been accomplished as well:
   coordination-free distributed data types in order to replicate knowledge about
   time event evolution inside the system.
 \item Dataflow \acs{DAG}s are scheduled into available compute nodes using an
-  state-of-the-art flexible cluster scheduler\cite{firmament}. Different scheduling
+  state-of-the-art flexible cluster scheduler~\cite{firmament}. Different scheduling
   policies can be configured depending on the needs, where the default choice is
   biased towards co-location.
 \item Several sources and sinks are provided by default such as Twitter streaming
@@ -103,5 +103,5 @@ that could be done to the platform is presented.
   could be improved and it would be interesting to test different machine
   learning algorithms in order to predict watermarks. Another interesting
   approach to the problem that watermarks solve is to use virtual tables as
-  Apache Kafka Streaming does\cite{kafkastreams}.
+  Apache Kafka Streaming does~\cite{kafkastreams}.
 \end{itemize}
