@@ -586,14 +586,14 @@
   Fdo.: \hfil Fdo.: \hfil Fdo.: \par
 }
 
-\addto\captionsspanish{\renewcommand{\appendixname}{Anexo}}
+%% \addto\captionsspanish{\renewcommand{\appendixname}{Anexo}}
 
 \newcommand{\appendixtitle} {
   \cleardoublepage
 %  \thispagestyle{empty}%
   \vspace*{5cm}%
   \begin{center}%
-    \sffamily\scshape\Large\scalebox{3}{ANEXOS}%
+    \sffamily\scshape\Large\scalebox{3}{APPENDIX}%
   \end{center}%
 }%
 

@@ -28,7 +28,7 @@ a cost associated with this architecture: monitoring these services. Companies
 like Netflix have thousands of services running~\cite{netflix}, and some of those
 services can produce over 40.000 metrics per second. Analyzing metrics data is
 key to being able to detect anomalies, degradation in services and without doubt
-the only way to run big distributed systems.
+the only way to run large distributed systems.
 
 But it does not end here, as there are many more examples where data analytics
 is fundamental. Scientific experiments, i.e. CERN (generates terabytes of data, per
@@ -63,7 +63,7 @@ paradigmatic example is Lambda Architecture~\cite{lambda}. It consists of
 two data processing systems running in parallel. One of the systems, known as
 streaming system, will provide approximate results in nearly real time. To
 obtain more precise results, a classic batch systems run over the same data-set.
-Soon, these systems showed many problems; running two processing pipelines in
+Soon, these systems showed many problems. Running two processing pipelines in
 parallel is translated into many operational issues as well as more costs~\cite{kappa}.
 
 In general, batch processing systems don't perform well on stream data-sets.
@@ -87,7 +87,7 @@ that are able to deal with stream data.
 
 To overcome the limitations imposed by batch systems on streaming data, a few
 alternatives appeared. Google developed MillWheel~\cite{millwheel} and Google
-DataFlow~\cite{dataflow}. Those systems were designed with the previously exposed
+DataFlow~\cite{dataflow}. Those systems were designed with the previously presented
 problems in mind. The main differentiator was how unordered data was treated. To
 facilitate working with unordered events, the next concepts were introduced~\cite{dataflow}:
 \textit{
@@ -100,9 +100,11 @@ facilitate working with unordered events, the next concepts were introduced~\cit
 This project will be focused on developing a data processing system using the
 same principles that Google Dataflow and MillWheel are based on.
 
-\FIXME{Pon una descripción breve (un par de frases) del contenido del
-  resto de capítulos}
-
+During the next chapters a description of the specific objectives of this
+project, an exposition of the state of the art and the methodology used to
+develop this project will be presented. Once these topics are introduced, a
+detailed characterization of Alcaudon architecture is explained as well as the
+accomplished results.
 
 % Local Variables:
 % ispell-local-dictionary: "american"

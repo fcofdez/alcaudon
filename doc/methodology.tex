@@ -7,7 +7,7 @@ chapter. Agile methodologies have been used to drive Alcaudon's development.
 Agile methodologies help organizing software development life cycle. They are
 focused on iterative development and adaptability. The term was coined during
 the early 2000s in the \textit{Agile Manifesto}~\cite{manifesto}. The manifesto
-has this set of principles:
+has the following set of principles:
 
 \begin{itemize}
 \item Individuals and interactions over processes and tools
@@ -28,8 +28,8 @@ The main goal of these methodologies is to improve communications between all
 the stakeholders in a project. This focus on continuous communications reduces
 risks and provides value since the very beginning of the project. One of the
 outcomes of this iterative open process is a reduction in the costs of the
-changes. This differs totally from rigid methodologies such as waterfall where
-the customer is taken apart from the project until the very end, skyrocketing
+changes. This differs entirely from rigid methodologies such as waterfall, where
+the customer is taken away from the project until the very end, skyrocketing
 the costs of change as shown in Figure~\ref{fig:waterfall}.
 
 Agile methodologies have become popular during the last 10 years, therefore there
@@ -81,7 +81,7 @@ practices~\cite{xp}:
   bring value as soon as possible. Moreover, it reduces risks, thus contributing
   to build a more efficient and robust system.
 \item \textit{Metaphor}: A common language between different participants in the
-  project should be used. This makes communication easier and therefore
+  project should be used. This facilitates communication and therefore
   misunderstandings are reduced.
 \item Simple design: As defined by~\cite{xp}, a simple design follows these rules:
   \begin{enumerate}
@@ -94,10 +94,10 @@ practices~\cite{xp}:
   changes are minimized.
 \item Testing: In \acs{XP} there is a strong bias towards writing tests for all the
   created features, both unit and functional tests. This practice creates
-  a stronger confidence in programmers when they need to change their code.
+  a stronger confidence for programmers when they need to change their code.
   Alcaudon has been tested broadly, using unit, integration and property based
   testing. Having a good testing coverage has helped to keep developing the
-  system with confidence in its correctness, since this project can not be
+  system with assurance in its correctness, since this project cannot be
   easily tested manually.
 \item Refactoring: Given the previous principle of \textit{simple design},
   continuous design refinement via refactoring is a key concept in \acs{XP}.
@@ -107,7 +107,7 @@ practices~\cite{xp}:
   modules. Following this principle has been crucial to improve the system's
   architecture.
 \item Pair programming: In this methodology there is a preference towards programming
-  in pairs. Different points of view can improve the final design and spot
+  in pairs. Different points of view can improve the final design and detect
   possible failures that otherwise would have taken longer to detect. This
   principle does not apply to Alcaudon since it is an individual project.
 \item Continuous Integration: Code should be integrated and tested every few
@@ -213,8 +213,7 @@ features.
 
 \subsubsection{Release 8: Generic serialization library development}
 \begin{itemize}
-\item \textit{Agreed goal}: Develop generic serialization library for Algebraic
-  Data Types.
+\item \textit{Agreed goal}: Develop a generic serialization library for \acf{ADT}.
 \item \textit{Deliverable}: Data travels around Alcaudon as an array of bytes.
   There are many serialization formats to transform high level entities to
   binary data. However, for simplicity, a generic serialization library has been
@@ -235,7 +234,7 @@ features.
 
 \subsubsection{Release 10: Library manager implementation}
 \begin{itemize}
-\item \textit{Agreed goal}: Implement a subsystem that enables dynamic load of
+\item \textit{Agreed goal}: Implement a subsystem that enables dynamic loading of
   arbitrary user code into remote Alcaudon workers.
 \item \textit{Deliverable}: A module to load arbitrary user code was developed.
   It is backed by a cloud object storage\footnote{https://aws.amazon.com/s3/},
@@ -273,7 +272,7 @@ features.
 \begin{itemize}
 \item \textit{Agreed goal}: Implement tools or adopt external tools that allow
   observing the behavior of the system.
-\item \textit{Deliverable}: After some investigation it was agreed to used both
+\item \textit{Deliverable}: After some investigation it was agreed to use both
   an external system to facilitate observability, Prometheus, and implement some
   tools to track how the system is performing.
 \end{itemize}
@@ -281,11 +280,42 @@ features.
 \subsubsection{Release 15: implement some sources and sinks}
 \begin{itemize}
 \item \textit{Agreed goal}: Provide some default implementations of sources and
-  sinks, such as TCP sockets or Twitter streaming api.
+  sinks, such as TCP sockets or Twitter streaming \acs{API}.
 \item \textit{Deliverable}: During this release the agreed goals were implemented. Given
   that the system needed some improvements, this latest release was used also to refactor
   some modules of the system to give them more reliability.
 \end{itemize}
+
+\subsubsection{Release dates}
+
+Each release date could be found in table~\ref{tab:releasedates}.
+
+\begin{table}[!h]
+  \centering
+\caption{Release dates}
+\label{tab:releasedates}
+\begin{tabular}{l|r}
+\hline
+Release & Date\\
+\hline
+1 & 2017-02-15\\
+2 & 2017-02-27\\
+3 & 2017-03-10\\
+4 & 2017-03-17\\
+5 & 2017-03-23\\
+6 & 2017-04-06\\
+7 & 2017-04-20\\
+8 & 2017-04-25\\
+9 & 2017-05-08\\
+10 & 2017-05-25\\
+11 & 2017-06-15\\
+12 & 2017-06-26\\
+13 & 2017-07-05\\
+14 & 2017-07-24\\
+15 & 2017-08-11\\
+\hline
+\end{tabular}
+\end{table}
 
 \section{Development technologies}
 
@@ -299,7 +329,9 @@ available ecosystem of tools and libraries covers many domains. There are
 multiple implementations for the state-of-the-art data structures used in this
 project, such as cuckoo filters~\cite{cuckoo}. Another reason to choose the \acs{JVM}
 was the inter-operability between different languages such as Scala and Java.
-Scala has been chosen as the principal programming language. It is an hybrid
+%
+
+Scala has been chosen as the principal programming language. It is a hybrid
 language that allows programmers to use functional and object oriented
 programming paradigms. The compelling aspect of this design is that it allows
 the combination of the best of both worlds. It provides tools to work with
@@ -308,13 +340,52 @@ tools such as traits.
 
 In the database space, \textit{Cassandra} has been chosen as the principal data store due
 to its design with high availability and scalability in mind. This choice
-provide good grounds to guarantee data durability within the system. For storing
+provided solid grounds to guarantee data durability within the system. For storing
 time series data, \textit{Prometheus} has been chosen due to its high scalability and
 performance querying historic data.
 
-Another tool used in the development Alcaudon has been \textit{TravisCI}, a
+Another tool used in the development of Alcaudon has been \textit{TravisCI}, a
 cloud continuous integration service. Using a service that is fully integrated
 with git facilitated the set-up of the continuous deployment pipeline easier.
+
+\section{Costs}
+
+In this section Alcaudon development costs will be presented.
+
+\subsection{Development costs}
+Alcaudon has been developed in 6 months, from February to August of 2017. During
+this period, the author combined the development and research of this project
+with a full time engineering job, therefore the presented costs are an estimate.
+Taking into account the high specialization that is needed in order to build
+distributed systems, engineering costs for this project are elevated. According
+to Indeed\footnote{https://www.indeed.com/salaries/Cloud-Engineer-Salaries,-US}
+the average cost for a Cloud Engineer is \EUR{120000} per year. Taking into
+account that the development has been done as part-time during 6 months, about
+\EUR{50000} in engineering costs could be estimated.
+Other costs that should be considered are the services used in order to test
+Alcaudon. Amazon Web Services has been used to deploy test versions during the
+whole life cycle of the project. Considering the dependencies that Alcaudon
+needs, it is unfeasible to run tests in a single machine. This provider offers
+multiple services, however just object storage and computing services have been
+used. Object storage costs are insignificant. Servers are charged hourly and
+hourly price depends on the server specifications. In order to test Alcaudon,
+about 100 hours of servers have been used, incurring in over \EUR{50}.
+
+In table~\ref{tab:costs} a summary for all the costs can be found.
+
+\begin{table}[hp]
+\centering
+\begin{tabular}{|l|c|r|}
+\hline
+\textbf{Resource} & \textbf{Quantity} & \textbf{Cost} \\ \hline
+\begin{tabular}[c]{@{}l@{}}Distributed systems developer\end{tabular}  & 1 & \EUR{50000} \\ \hline
+\begin{tabular}[c]{@{}l@{}}Dell XPS 13\end{tabular} & 1 & \EUR{1500} \\ \hline
+\begin{tabular}[c]{@{}l@{}}AWS EC2 instance hour\end{tabular} & 100 hours & \EUR{50} \\ \hline \hline
+\begin{tabular}[c]{@{}l@{}}Total:\end{tabular} &  & \EUR{51550} \\ \hline
+\end{tabular}
+\caption{Cost summary}
+\label{tab:costs}
+\end{table}
 
 \section{Tools}
 

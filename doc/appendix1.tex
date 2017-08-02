@@ -1,0 +1,97 @@
+\chapter{Alcaudon configuration}
+
+\begin{lstlisting}
+akka {
+  loglevel = "INFO"
+  stdout-loglevel = "INFO"
+
+  persistence {
+    journal.plugin = "cassandra-journal"
+    snapshot-store.plugin = "cassandra-snapshot-store"
+  }
+
+  actor {
+
+  provider = "akka.cluster.ClusterActorRefProvider"
+
+    deployment {
+      computation-dispatcher {
+        fork-join-executor {
+          parallelism-min = 8
+          parallelism-factor = 3.0
+          parallelism-max = 64
+        }
+        throughput = 50
+      }
+    }
+
+    serializers {
+      kryo = "com.romix.akka.serialization.kryo.KryoSerializer"
+      gwatermark = "org.alcaudon.runtime.GWatermarkSerializer"
+    }
+
+
+    serialization-bindings {
+      "org.alcaudon.core.RawStreamRecord" = kryo
+      "org.alcaudon.core.AlcaudonStream$Subscribe" = kryo
+      "org.alcaudon.core.AlcaudonStream$ACK" = kryo
+      "org.alcaudon.core.StreamState" = kryo
+      "org.alcaudon.core.State$SetValue" = kryo
+      "org.alcaudon.core.State$SetTimer" = kryo
+      "org.alcaudon.core.State$Transaction" = kryo
+      "org.alcaudon.runtime.ComputationReifier$ComputationState" = kryo
+      "org.alcaudon.runtime.GWatermark" = gwatermark
+    }
+
+    kryo  {
+      type = "graph"
+      idstrategy = "automatic"
+      buffer-size = 4096
+      max-buffer-size = -1
+      use-manifests = true
+      use-unsafe = false
+      post-serialization-transformations = "off"
+      implicit-registration-logging = true
+      kryo-trace = false
+      resolve-subclasses = true
+    }
+  }
+
+  extensions = ["com.romix.akka.serialization.kryo.KryoSerializationExtension$"]
+
+}
+
+alcaudon {
+  computation {
+    timeout = 600s
+    max-failures = 12
+    cuckoo-filter-records = 100000
+    snapshot-interval = 10000
+    computing-slots = 8
+    parallelism = 4
+  }
+
+  streams {
+    flow-control {
+      backoff-time = 10s
+      overwhelmed-retry-time = 10s
+      overwhelmed-delay = 100
+    }
+    snapshot-interval = 10000
+  }
+
+  scheduling-policy = "CoCo"
+  consistency-constraint = "HIGH"
+
+
+  blob {
+    directory = "/tmp/alcaudon"
+    download-timeout = 1h
+    s3 {
+      access-key = "access-key"
+      secret-key = "access-secret"
+      region = "us-east-1"
+    }
+  }
+}
+\end{lstlisting}

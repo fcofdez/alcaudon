@@ -36,8 +36,7 @@ large volumes of data. Some examples could be MapReduce~\cite{mapreduce},
 Spark~\cite{spark} and many others. Before those frameworks appeared, there were
 some systems capable of processing large amounts of data, like the
 supercomputers or HPC. One of the main drawbacks of HPC is accessibility to
-those high end computers. Acquiring a new \FIXME{por qué en
-  mayúscula?} Supercomputer in the event of a peak
+those high end computers. Acquiring a new supercomputer in the event of a peak
 on data production is not feasible. For companies, making an investment in a
 super computer is a big risk that in some cases will not be reverted as profit.
 Another interesting point to make is that Supercomputers perform well many
@@ -64,36 +63,29 @@ systems described previously are classified as batch systems, as they
 are oriented to process historical datasets and not \textit{real time
   data}. There have been some adaptations to these systems, using
 approaches like micro-batching where data is processed in smaller
-batches, however the latency is still big. These new needs for data
+batches, however the latency is still considerable. These new needs for data
 processing have lead to the design and development of systems
 specialized in unbounded data processing. These systems try to reduce
-the time between the event generation and its processing. \FIXME
-{deberías evitar referencias a Alcaudon en este capítulo. Estás
-  contando lo que hay para usarlo como argumento para la necesidad del
-  nuevo proyecto. Un estado del arte debe tener valor en si mismo
-  aunque no escribieras nada más} Alcaudon fits in this category of
-data processing systems, as one of its aims is being able to process
-unbounded data sets with low latency.
-
+the time between the event generation and its processing. 
 \subsection{Cloud Computing}
 
 Cloud computing might be seen as a recent development. However, during the 1990s
 researchers at Xerox PARC started to develop ideas around what they named
 \textit{ubiquitous computing}. The idea was to have computing devices
 interconnected and exchanging data about almost everything. This idea was ahead
-of his time because there were just a few networks around. And devices such as
+of his time because there were just a few networks around. Additionally, devices such as
 cameras and microphones were still quite big, etc. Even though if this definition is
-translated to 2017 seems to fit quite perfectly on how devices behave nowadays.
+translated to 2017, it seems to fit quite perfectly on how devices behave nowadays.
 Cars, fridges, watches, smartphones and anything that can have a network
 interface is connected to the internet. Huge amounts of data are being published
-and stored into the what is now known as \textit{the cloud}. There is not a
+and stored into what is now known as \textit{the cloud}. There is not a
 clear definition for what \textit{cloud computing} is. For the purposes of this
 text, cloud computing could be defined as a pool of shared computing and storage
 resources that can be provisioned and released on demand. Given the huge amounts
 of data that users store into the \textit{cloud}, companies need to outsource
 computing and storing capacity, since building datacenters is a huge investment.
-In the last decade, computing infrastructure offering has changed radically.
 
+In the last decade, computing infrastructure offering has changed radically.
 Companies such as Amazon Web Services are able to offer servers, storage and
 services on demand at scale, from 1 server to 1 million servers. Having the
 ability to start and stop servers on demand has democratized the ability to
@@ -103,9 +95,6 @@ it can take advantage of the elasticity provided by cloud computing services,
 and start using more servers to cope with the load. This is one of the reasons why
 data processing systems should be designed to scale out as there are more
 computing needs.
-Alcaudon, as an elastic data processing system, will be able to adapt to
-different loads as the computing needs increase. It will be able to use more
-computing resources dynamically as more servers are added to the pool.
 
 \section{Distributed systems}
 \label{subsection:distsys}
@@ -125,7 +114,7 @@ systems.
 A more common example of a distributed system is a user requesting a web page to
 a server with his smartphone. This example is a typical \textit{client-server}
 model. This \textit{simple} action involves the interaction of various services
-such as DNS servers, load balancers, HTTP proxies and servers. All these
+such as DNS servers, load balancers, \acf{HTTP} proxies and servers. All these
 services use a network as a mean to interchange messages as shown in figure
 ~\ref{fig:client-server}.
 
@@ -141,7 +130,7 @@ As it has been previously discussed, distributed systems are very
 common nowadays. They are present in fields like database systems,
 internet of things, data processing and many more. There are some
 reasons that make more convenient to work with distributed systems,
-but the main reason is ability to scale. As defined
+but the main one is ability to scale. As defined
 in~\cite{cloudadmin}:
 %
 \begin{quote}
@@ -166,7 +155,7 @@ the following properties:
   \textit{partitioning} as illustrated in Figure ~\ref{fig:partitioning}.
 \item \textit{Elasticity}: Since the systems are designed to work in
   coordination with other processes, it is possible to add more resources to
-  handle increasing workloads. But there is an upper limit imposed by the
+  handle increasing workloads. Nevertheless, there is an upper limit imposed by the
   coordination model used.
 \item \textit{Parallelism}: This is a natural outcome of having multiple resources, they
   can get work done in parallel.
@@ -181,10 +170,10 @@ the following properties:
 \begin{figure}[!h]
 \begin{center}
 \includegraphics[width=1\textwidth]{scalingcost.png}
-\caption{Performance advantage of a cluster built with large SMP server nodes
+\caption[Clustered commodity hardware compared with single-node high-end hardware performance]{Performance advantage of a cluster built with large SMP server nodes
   (128-core SMP) over a cluster with the same number of processor cores built
   with low-end server nodes (four-core SMP), for clusters of varying
-  size~\cite{Datacenter}}[\FIXME{pon un caption breve aquí para el LOF}]
+  size~\cite{Datacenter}}
 \label{fig:highend}
 \end{center}
 \end{figure}
@@ -210,7 +199,7 @@ As it can be seen the topic is wide, so for this documents only
   can have skews up to 1000 seconds, an unacceptable time in some cases. Google
   makes heavy use of hardware-assisted time synchronization using GPS clocks and
   atomic clocks to ensure global consistency for their database
-  Spanner~\cite{180268} that can drift up to 100ms. Given the exposed facts, the
+  Spanner~\cite{180268} that can drift up to 100ms. Given the introduced facts, the
   only assumption that can be taken about distributed operations is that they are partially
   ordered. A formal definition for partial order is ~\cite{book:lattices}:
   \begin{definition}{(Partial order)}
@@ -222,14 +211,11 @@ As it can be seen the topic is wide, so for this documents only
     \item $x \leq y$ and $y \leq z$ imply $x \leq z$
     \end{enumerate}
   \end{definition}
-  Given the exposed facts, message order in distributed systems is partial.
+  Given the presented facts, message order in distributed systems is partial.
   However, there are algorithms that focuses on maintaining a global total order
   of operations~\cite{vclocks}. In environments where the message flow is unbounded
   the notion of completeness is weak. There is no guarantee about when all the
-  messages up to a moment $T_n$ have been received or processed. To deal with
-  this, Alcaudon uses watermark heuristics. A watermark heuristic defines that up
-  to the instant $T_i$ there are high chances that all messages up to that point
-  have been received.
+  messages up to a moment $T_n$ have been received or processed. 
 \item \textit{Distributed snapshots}:
   Since Alcaudon aims to be a fault-tolerant system, guarantees about persistent
   state must be enforced. To design a resilient system, persistent state
@@ -246,14 +232,11 @@ As it can be seen the topic is wide, so for this documents only
   Static membership has a fixed list of cluster members that do not change along
   the life of the cluster. With this static membership there is a chance that at
   some point in time, some members of the cluster will not be available. Since
-  cluster membership image is static, thew will be seen as accessible. The other
+  cluster membership image is static, they will be seen as accessible. The other
   approach is to use dynamic membership. It consists on having initial knowledge
   about a subset of the available nodes and later on, via gossiping
   protocols~\cite{gossip} new nodes can \textit{join} the cluster. This mechanism
-  is also able to handle when nodes become \textit{unavailable}. For Alcaudon
-  the latter membership category is more suitable. Since one of the goals is to
-  provide elasticity, in this case the system will be able to be scaled in the
-  need of more computing power.
+  is also able to handle when nodes become \textit{unavailable}.
 \end{itemize}
 
 \subsection{CRDT}
@@ -276,7 +259,7 @@ they can be defined as:
   the event of network failures.
 \end{itemize}
 
-This conjecture was proved~\cite{capproof} later and it is known nowadays as the CAP
+This conjecture was later proved~\cite{capproof} and it is known nowadays as the CAP
 theorem(\ref{fig:cap}). This theorem establishes a trade-off between consistency (total order
 of operations) and partition-tolerance.
 
@@ -287,14 +270,14 @@ of operations) and partition-tolerance.
   \label{fig:cap}
 \end{figure}
 
-There are systems where total order of operations is not mandatory, these systems
+There are systems where total order of operations is not mandatory; these systems
 choose to be partition tolerant. They are known as \textit{eventual consistent}
 systems. A replica executes an operation without synchronizing its new state with
 other replicas. This operation is sent asynchronously to the rest of replicas.
 Every replica eventually applies the updates, without any guarantee about the
 order in which these updates are applied. This approach establishes that data is
 available even during network partitions. One of the problems of eventual
-consistent systems is conflicting updates. Systems such Dynamo~\cite{dynamo}
+consistent systems is conflicting updates. Systems such as Dynamo~\cite{dynamo}
 allows to choose if clients should resolve conflicts or use simple approaches as
 `last write wins'.
 
@@ -325,9 +308,10 @@ A \acs{CRDT} whose payload takes its values in a semilattice and where
 \textbf{merge}$(x,y) = x \sqcup_v y$, converges towards the LUB of the initial
 and updated values.
 
-Given the described properties, \acs{CRDT}s are a good fit for highly scalable systems
-such as Alcaudon aims to be. For contexts such as cluster membership or non-centralized
-replication \acs{CRDT}s could be used in order to implement different Alcaudon sub-systems.
+Given the described properties, \acs{CRDT}s are a good fit for highly scalable
+systems that do not need strong ordering guarantees. For contexts such as
+cluster membership or non-centralized replication \acs{CRDT}s could be a good
+fit also.
 
 \subsection{Distributed system reliability}
 
@@ -349,8 +333,8 @@ causes as follows:
 \item \textit{Complexity}: Developing software in distributed systems is
   complex. The notion of global state or order is fuzzy. Asynchronous
   communication is the norm. Regular developers are used to sequential
-  computations, and getting familiarized to work within this environment is hard
-  and can lead to bogus implementations. Luckily the use of formal verification
+  computations, and getting familiarized to work within this environment is difficult
+  and can lead to incorrect implementations. Luckily the use of formal verification
   is growing in the field, using tools such as TLA+~\cite{tla} by Lamport. The
   usage of these techniques helps to tackle the inherent complexity with strong
   foundations.
@@ -361,10 +345,10 @@ causes as follows:
   failure detection, using more meta-information about the environment where
   the distributed system is running; reasoning about operating system metrics,
   networking metrics and disseminated probes, failure detection can improve.
-\item \textit{Hostile environments}: There has been enumerated some reliability
-  threats, which distributed systems need to deal with. Those threats are in
+\item \textit{Hostile environments}: Some reliability threats have been
+  enumerated, which distributed systems need to deal with. Those threats are in
   \textit{control}, meaning that the developers of the system should anticipate
-  them. Designing the systems so they are ready to deal with the exposed
+  them, designing the systems so they are ready to deal with the presented
   problems. However those systems run in shared networks where security threats
   are a reality. It is a wide field and it is becoming more and more important
   to take all the possible measures to avoid security vulnerabilities.
@@ -380,10 +364,6 @@ processing frameworks that don't perform properly when compared to single node
 implementations. As a conclusion, there are scenarios where the costs associated
 with distributed computing are higher than the gains.
 
-Alcaudon's goal is to provide users a simple but powerful interface that enables
-them to parallelize and distribute computations for unbounded datasets without all
-the described problems.
-
 \subsection{Actor Model}
 
 To tackle all the complexity described in previous sections there is a
@@ -391,7 +371,7 @@ computation model that is well suited: the actor model.
 
 The actor model provides a high level abstraction to deal with concurrent and
 distributed systems. The theoretical model was developed by Carl Hewitt in
-the seventies, but it was popularized by Erlang programming language~\cite{erlang}
+the seventies, but it was popularized by the Erlang programming language~\cite{erlang},
 developed by Ericsson.
 
 It can be characterized as follows:
@@ -416,27 +396,26 @@ that creating protocols comes naturally in this model. The ability to change
 their behavior depending on the incoming messages makes easy to model finite
 state machines that fit perfectly with protocol design.
 
-There are many implementations available\FIXME{tag extraño en la referencia}~\cite{wikiactor}, but the more popular
+There are many implementations available~\cite{wikiactor}, but the more popular
 and stable versions are the Erlang programming language and Akka. Both versions
 have similar features, in fact, Akka is highly inspired by Erlang. Nevertheless
 Akka is built on top of the \ac{JVM}, making it the most interesting implementation
 available due to the vast ecosystem accessible around the \acs{JVM}.
 
 Akka has some extensions to the actor model that make it quite interesting to
-build distributed systems.
+build distributed systems:
 %
 \begin{itemize}
 \item Actor supervision: One interesting approach of actor based design is how
   to handle failures. Each actor has a supervisor that handles its life-cycle,
-  exceptions included. With this supervision schema it is easier to isolate failure
+  exceptions included. With this supervision schema is easier to isolate failure
   scenarios into specific actors instead of affecting the whole system. Each
   supervisor can define a strategy to apply when a child actor fails, i.e.
   restarting the actor or stopping it. This is highly beneficial because error
   handling logic is separated from business logic. These patterns resemble how
   ships are built, where the hull is compartmentalized into different watertight
   bulkheads. Therefore, if the hull is broken, the failure is limited to that
-  bulkhead without compromising the ship stability. Alcaudon will benefit from
-  this pattern to achieve fault-tolerant computations. One actor supervision
+  bulkhead without compromising the ship stability. One actor supervision
   tree can be found in figure~\ref{fig:supervision}.
 \item Logical addresses: Each actor has a virtual address based on the actor
   system and its hierarchy. This helps providing location transparency, as
@@ -445,14 +424,12 @@ build distributed systems.
 \item Clustering: Support for distributed actors is provided, combined with
   logical addresses facilitates writing distributed applications.
 \item Persistence: Akka supports actor state persistence. It is implemented as
-  an append-only log. That technique is commonly used as transaction log in
+  an append-only log. This technique is commonly used as transaction log in
   traditional databases, each change is appended to the transaction log. In case
   of a failure, those events are applied again to the in memory database
   buffers. To avoid long recovery times, snapshots from memory are taken
   regularly so the recovery process just needs to re-apply changes from that
-  point. Akka persistence is implemented as described. This feature fits very
-  well to mantain Alcaudon persistent state of computations, since computations
-  can be defined as actors.
+  point. Akka persistence is implemented as described.
 \end{itemize}
 
 \begin{figure}[!h]
@@ -463,9 +440,9 @@ build distributed systems.
 \end{center}
 \end{figure}
 
-In conclusion, the actor model is a good computational model to base Alcaudon
-on. It has properties that allows tackling all the presented difficulties around
-writing distributed systems properly.
+In conclusion, the actor model is a good computational model in order to
+implement highly scalable systems. It has properties that allows tackling all
+the presented difficulties around writing distributed systems properly.
 
 \section{Job scheduling}
 
@@ -533,9 +510,6 @@ below:
 \item Genetic algorithms
 \end{itemize}
 
-Alcaudon will use an state-of-the-art scheduling framework,
-Firmament~\cite{firmament}, in order to solve this problem.
-
 \section{Library design}
 
 Humans have been using abstraction since the very beginnings of their existence.
@@ -554,7 +528,7 @@ uniform interface. And the list goes on.
 
 The main goal of abstractions is to
 provide ways to reason about different problems with a limited scope.
-As it has been exposed, providing tools that hide all the complexities is key to
+As it has been presented, providing tools that hide all the complexities is key to
 build more complex systems. One of the main goals of the field since the late
 60s has been to build reusable software~\cite{reuse}. There have been many
 advances in code reuse, from libraries and frameworks that are used to build
@@ -588,11 +562,6 @@ robust programs.
     throws IOException
   }
 \end{lstlisting}
-
-Alcaudon philosophy is similar to the serverless architecture. The goal is to
-provide abstractions around unbounded datasets so programmers just take care of
-defining their computations and dependencies. Alcaudon will provide a simple
-interface so the details to know about the system are minimized.
 
 % Local Variables:
 % ispell-local-dictionary: "american"

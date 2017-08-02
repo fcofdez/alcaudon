@@ -1,22 +1,22 @@
 \chapter{Results}
 
 In this chapter, attained results during the development of this project will be
-presented. First, a series of benchmarks have been used in order to
-exercise key Alcaudon modules and measure how the system behaves. To conclude,
-a summary of accomplished objectives is presented.
+presented. First, a series of benchmarks have been used in order to exercise key
+Alcaudon modules and measure how the system behaves. Then, a possible real
+application for Alcaudon will be stated. To conclude, a summary of accomplished
+objectives is presented.
 
 \section{Benchmarks}
 
 Alcaudon has been tested thoroughly, both using traditional testing techniques
 as well as more state-of-the-art techniques such as property based testing.
 These tests can guarantee correctness in terms of behavior, but they do not
-measure system correctness in terms of performance goals. Even though Alcaudon
+measure system precision in terms of performance goals. Even though Alcaudon
 has been designed carefully, using the adequate data structures and taking
 care of performance, empiric results are needed. It is known that creating
-accurate benchmarks is complex~\cite{benchbias}, there are many factors
+accurate benchmarks is complex~\cite{benchbias}, as there are many factors
 that can lead to misleading results. Presented benchmarks are implemented using
-JMH\footnote{http://openjdk.java.net/projects/code-tools/jmh/} trying to be as
-accurate as possible.
+JMH\footnote{http://openjdk.java.net/projects/code-tools/jmh/}.
 
 \subsection{Computation execution benchmark}
 
@@ -36,6 +36,118 @@ This benchmark measures the number of records that a stream can handle.
 This benchmark measures the number of records that a router can route.
 
 \FIXME{TODO -> figure}
+
+\section{Alcaudon application}
+
+Once Alcaudon has been described in detail, its full potential can be unveiled
+in a real world scenario. For this example, a public
+public\footnote{http://www.nyc.gov/html/tlc} data set of the New York City Taxi
+and Limousine Commission (TLC) will be used. This data set contains records
+about taxi trips in New York from different years. The goal of this example is
+to use this data set as a real unbounded data source, where taxi customers take
+taxis for a ride from point A to point B and this information is delivered into
+Alcaudon. With this information it is possible to build an Alcaudon dataflow
+topology in order to detect spikes in rides to certain parts of the city, for
+example during a concert. For companies like Uber, where prices fluctuate
+depending on demand, processing this information in \textit{real time} is
+fundamental. This example will build an Alcaudon dataflow topology in order to
+aggregate rides per zone and emit results in constant time windows. These
+aggregated results will be published into ElasticSearch to be visualized later
+on as shown in figure~\ref{fig:rides}. Business stakeholders can use these
+dashboards in order to take decisions with the latest information available.
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[width=0.8\textwidth]{nyrides.jpg}
+\caption{Example dashboard}
+\label{fig:rides}
+\end{center}
+\end{figure}
+
+Since this is a synthetic example, a custom source has been defined in order to
+emit ride events using their original timestamps. Ride information contains
+different fields, but for the purposes of this example, a simple representation
+has been created, listed in~\ref{code:ride}. In order to aggregate location
+information, the map is divided into cells, where each ride belongs to one of
+these cells. This subdivision in cells is used in order to define a key per
+record as it can be found in listing~\ref{code:keyExtractorNY}.
+
+The main goal of this example is to publish updated data about the number of
+passengers taking rides in different places of the city, to later on visualize
+this data in a dashboard. First of all, rides that are not taking place in New
+York are filtered out~(\ref{code:computationFilterRide}) and published into a new
+stream. These filtered rides are consumed by
+RidePassengerCountComputation~\ref{code:computationRide} that it is responsible
+for keeping the number of passengers per cell and update them when new rides
+arrive into the system. A timer is set-up, when this timer is triggered, the
+information stored up to that point, in this case the number of ride passengers
+per cell, is published into a Sink. In addition to counting the number of
+passengers, this computation publishes into a different sink when the number of
+passengers arriving into a specific cell is bigger than a setting. This is
+useful when alerts for different events are needed. Dataflow topology definition
+can be found in listing~\ref{code:rideDataflow}. This example shows the
+potential of unbounded data-set processing, and the strengths of Alcaudon in
+particular.
+
+\begin{lstlisting}[language=scala, frame=trBL, label=code:ride, float=ht, caption = {Ride \acs{ADT}}]
+case class Ride(id: Long, time: DateTime, location: Point, passengerCount: Int)
+\end{lstlisting}
+
+\begin{lstlisting}[language=scala, frame=trBL, label=code:computationFilterRide, float=ht, caption = {Computation to filter out non New York rides}]
+class FilterRideComputation extends Computation {
+  def processRecord(record: Record): Unit = {
+    val ride: Ride = deserialize(record.value)
+    if (ride.isInNYC())
+      produceRecord(nycRides, record)
+  }
+
+  def processTimer(timeStamp: Timer): Unit = {}
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=scala, frame=trBL, label=code:keyExtractorNY, float=ht, caption = {Key extractor function}]
+class RideKeyExtractor extends KeyExtractor {
+  def extractKey(msg: Array[Byte]): String = {
+    val ride: Ride = deserialize(msg)
+    Utils.locationToCell(ride.location)
+  }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=scala, frame=trBL, label=code:computationRide, float=ht, caption = {Ride \acs{ADT}}]
+class RidePassengerCountComputation extends Computation {
+  def processRecord(record: Record): Unit = {
+    val ride: Ride = deserialize(record.value)
+    val count: Int = get(record.key) + ride.passengerCount
+    if (count > settings.alertPassengers)
+      produceRecord(alertSink, RawRecord(serialize(record.key), record.timestamp))
+    set(count + ride.passengerCount)
+    setTimer(FixedRecurrentTimer(cell, 5.minutes))
+  }
+
+  def processTimer(timeStamp: Timer): Unit = {
+    val location = Utils.cellToLocation(timer.tag)
+    val totalPassengerCount = get(timer.tag)
+    produceRecord(elasticSink, RawRecord(serialize((location, totalPassengerCount)), record.timestamp))
+  }
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=scala, frame=trBL, label=code:rideDataflow, float=ht, caption = {Ride dataflow creation}]
+val dataflow = DataflowBuilder("ridesCounter")
+  .withSource("taxiRides", TaxiRides())
+  .withComputation("filterNYRides",
+    FilterRideComputation,
+    OutputStreams("nycRides"),
+    AlcaudonInputStream("taxiRides")
+  .withComputation("passengerCount",
+    RidePassengerCountComputation,
+    OutputStreams("elasticSink", "alertSink"),
+    AlcaudonInputStream("nycRides", new RideKeyExtractor())
+  .withSink("elasticSink", ElasticSearchSink)
+  .withSink("alertSink", HTTPSink(settings.alertEndpoint))
+  .build()
+\end{lstlisting}
 
 \section{Accomplished objectives}
 
@@ -69,7 +181,7 @@ Regarding specific objectives, these have been accomplished as well:
 \item Alcaudon provides an elastic distributed implementation where compute
   nodes can join the cluster in the events of burst of load. The system has been
   designed in order to be resilient and fault-tolerant. The actor model has
-  helped a lot in terms of resilience due to is supervision mechanism that
+  facilitated the development in terms of resilience due to is supervision mechanism that
   allows to isolate failure.
 \item Alcaudon provides different metrics about the state of the system. It has been
   integrated with industry proven technologies in the space of monitoring such as
@@ -84,7 +196,7 @@ Regarding specific objectives, these have been accomplished as well:
 \section{Future work}
 
 Given that Alcaudon has been designed in a modular way and it has many automatic
-tests, including new features should effortless. In this section some future work
+tests, including new features should be effortless. In this section some future work
 that could be done to the platform is presented.
 
 \begin{itemize}

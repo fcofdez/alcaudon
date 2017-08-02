@@ -2,7 +2,7 @@
 \label{chap:objectives}
 
 \drop{I}{n} this chapter, the global objectives that have motivated the project
-are described. As well as the more specific goals that want to be achieved.
+are described, as well as the more specific goals that want to be achieved.
 
 \section{General Objectives}
 
@@ -49,7 +49,7 @@ times.
 
 \subsection{Implement a cluster scheduler}
 
-Users of Alcaudon provide a directed acyclic graph of computations. Those
+Users of Alcaudon provide a \acf{DAG} of computations. Those
 tasks should be placed into the cluster available resources. Cluster scheduling
 usually leads to a NP-hard problem. The system will implement a scheduler based
 on heuristics to set the tasks into the computing nodes.
@@ -57,7 +57,7 @@ on heuristics to set the tasks into the computing nodes.
 
 \subsection{Allow extensibility of sources and sinks}
 Some implementations for unbounded data sources, like TCP sockets, scala collections
-and twitter will be available. But users will be able to extend Alcaudon to add
+and twitter will be available. However, users will be able to extend Alcaudon to add
 custom Sources and Sinks.
 
 \subsection{Design and implement an elastic, fault-tolerant and scalable distributed architecture}
