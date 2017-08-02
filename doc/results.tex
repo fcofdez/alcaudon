@@ -33,58 +33,179 @@ handle.
 # Timeout: 10 min per iteration
 # Threads: 1 thread, will synchronize iterations
 # Benchmark mode: Throughput, ops/time
-# Benchmark: alcaudon.runtime.ComputationBenchmark.throughput
-# Parameters: ()
+# Benchmark: org.alcaudon.runtime.ComputationBenchmark.throughput
 
 # Fork: 1 of 1
-# Warmup Iteration   1: 304290.738 ops/s
-# Warmup Iteration   2: 406603.426 ops/s
-# Warmup Iteration   3: 424566.904 ops/s
-# Warmup Iteration   4: 393909.004 ops/s
-# Warmup Iteration   5: 420357.736 ops/s
-# Warmup Iteration   6: 418396.639 ops/s
-# Warmup Iteration   7: 425612.571 ops/s
-# Warmup Iteration   8: 433468.506 ops/s
-# Warmup Iteration   9: 429394.117 ops/s
-# Warmup Iteration  10: 425943.665 ops/s
-# Warmup Iteration  11: 405535.186 ops/s
-# Warmup Iteration  12: 406161.894 ops/s
-# Warmup Iteration  13: 396957.111 ops/s
-# Warmup Iteration  14: 392834.419 ops/s
-# Warmup Iteration  15: 431874.137 ops/s
-Iteration   1: 433900.345 ops/s
-Iteration   2: 427790.060 ops/s
-Iteration   3: 437249.610 ops/s
-Iteration   4: 428768.226 ops/s
-Iteration   5: 436149.244 ops/s
-Iteration   6: 438408.490 ops/s
-Iteration   7: 442496.930 ops/s
-Iteration   8: 435310.117 ops/s
-Iteration   9: 442832.944 ops/s
-Iteration  10: 437619.578 ops/s
-Iteration  11: 432333.808 ops/s
-Iteration  12: 440724.279 ops/s
-Iteration  13: 441683.173 ops/s
-Iteration  14: 446571.086 ops/s
-Iteration  15: 405613.864 ops/s
+# Warmup Iteration   1: 2838.544 ops/s
+# Warmup Iteration   2: 12645.095 ops/s
+# Warmup Iteration   3: 13336.237 ops/s
+# Warmup Iteration   4: 15380.058 ops/s
+# Warmup Iteration   5: 16003.125 ops/s
+# Warmup Iteration   6: 15388.756 ops/s
+# Warmup Iteration   7: 14816.361 ops/s
+# Warmup Iteration   8: 14820.269 ops/s
+# Warmup Iteration   9: 14826.327 ops/s
+# Warmup Iteration  10: 15995.409 ops/s
+# Warmup Iteration  11: 17395.065 ops/s
+# Warmup Iteration  12: 17396.909 ops/s
+# Warmup Iteration  13: 16674.274 ops/s
+# Warmup Iteration  14: 16668.055 ops/s
+# Warmup Iteration  15: 16668.801 ops/s
+Iteration   1: 16006.082 ops/s
+Iteration   2: 16021.392 ops/s
+Iteration   3: 16002.350 ops/s
+Iteration   4: 16673.828 ops/s
+Iteration   5: 16002.128 ops/s
+Iteration   6: 13795.418 ops/s
+Iteration   7: 14293.416 ops/s
+Iteration   8: 12902.619 ops/s
+Iteration   9: 14826.131 ops/s
+Iteration  10: 14279.800 ops/s
+Iteration  11: 14834.078 ops/s
+Iteration  12: 13347.936 ops/s
+Iteration  13: 14818.898 ops/s
+Iteration  14: 14811.602 ops/s
+Iteration  15: 14286.494 ops/s
 
-Result alcaudon.runtime.ComputationBenchmark.throughput:
-  435163.450 +-(99.9%) 103656.896 ops/s [Average]
-  (min, avg, max) = (405613.864, 435163.450, 446571.086), stdev = 96960.725
-  CI (99.9%): [424797.555, 445529.346] (assumes normal distribution)
+
+Result "org.alcaudon.runtime.ComputationBenchmark.throughput":
+  14860.145 ±(99.9%) 1171.277 ops/s [Average]
+  (min, avg, max) = (12902.619, 14860.145, 16673.828), stdev = 1095.613
+  CI (99.9%): [13688.868, 16031.422] (assumes normal distribution)
 \end{lstlisting}
 
 \subsection{Stream benchmark}
 
-This benchmark measures the number of records that a stream can handle.
+This benchmark measures the number of records that a stream can handle using
+the network stack.
 
-\FIXME{TODO -> figure}
+\begin{lstlisting}
+# JMH version: 1.19
+# VM version: JDK 1.8.0_131, VM 25.131-b11
+# VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
+# VM options: <none>
+# Warmup: 15 iterations, 1 s each
+# Measurement: 15 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: org.alcaudon.runtime.StreamBenchmark.throughput
+
+# Fork: 1 of 1
+# Warmup Iteration   1: 9321.185 ops/s
+# Warmup Iteration   2: 31098.503 ops/s
+# Warmup Iteration   3: 56383.813 ops/s
+# Warmup Iteration   4: 89775.005 ops/s
+# Warmup Iteration   5: 92496.201 ops/s
+# Warmup Iteration   6: 66532.817 ops/s
+# Warmup Iteration   7: 56076.426 ops/s
+# Warmup Iteration   8: 63003.972 ops/s
+# Warmup Iteration   9: 59410.283 ops/s
+# Warmup Iteration  10: 58177.190 ops/s
+# Warmup Iteration  11: 59273.481 ops/s
+# Warmup Iteration  12: 61445.394 ops/s
+# Warmup Iteration  13: 52879.995 ops/s
+# Warmup Iteration  14: 57380.524 ops/s
+# Warmup Iteration  15: 46046.720 ops/s
+Iteration   1: 69487.193 ops/s
+Iteration   2: 28153.126 ops/s
+Iteration   3: 65117.851 ops/s
+Iteration   4: 51256.389 ops/s
+Iteration   5: 44682.554 ops/s
+Iteration   6: 43606.471 ops/s
+Iteration   7: 31458.501 ops/s
+Iteration   8: 66222.260 ops/s
+Iteration   9: 61828.791 ops/s
+Iteration  10: 24873.576 ops/s
+Iteration  11: 58282.826 ops/s
+Iteration  12: 61180.519 ops/s
+Iteration  13: 12427.225 ops/s
+Iteration  14: 55291.714 ops/s
+Iteration  15: 38296.842 ops/s
+
+Result "org.alcaudon.runtime.StreamBenchmark.throughput":
+  47477.722 +-(99.9%) 18537.348 ops/s [Average]
+  (min, avg, max) = (12427.225, 47477.722, 69487.193), stdev = 17339.847
+  CI (99.9%): [28940.375, 66015.070] (assumes normal distribution)
+\end{lstlisting}
 
 \subsection{Record router benchmark}
 
 This benchmark measures the number of records that a router can route.
 
-\FIXME{TODO -> figure}
+\begin{lstlisting}
+# JMH version: 1.19
+# VM version: JDK 1.8.0_131, VM 25.131-b11
+# VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
+# VM options: <none>
+# Warmup: 15 iterations, single-shot each
+# Measurement: 15 iterations, single-shot each
+# Timeout: 10 min per iteration
+# Threads: 1 thread
+# Benchmark mode: Single shot invocation time
+# Benchmark: org.alcaudon.KeyRouterBenchmark.timePerRoute
+
+# Fork: 1 of 1
+# Warmup Iteration   1: 381472.618 us/op
+# Warmup Iteration   2: 150042.661 us/op
+# Warmup Iteration   3: 176778.359 us/op
+# Warmup Iteration   4: 106955.031 us/op
+# Warmup Iteration   5: 99704.939 us/op
+# Warmup Iteration   6: 57248.973 us/op
+# Warmup Iteration   7: 37281.762 us/op
+# Warmup Iteration   8: 85989.580 us/op
+# Warmup Iteration   9: 23317.259 us/op
+# Warmup Iteration  10: 33628.435 us/op
+# Warmup Iteration  11: 23899.475 us/op
+# Warmup Iteration  12: 22373.551 us/op
+# Warmup Iteration  13: 22630.460 us/op
+# Warmup Iteration  14: 22016.820 us/op
+# Warmup Iteration  15: 21163.906 us/op
+Iteration   1: 23386.227 us/op
+Iteration   2: 26890.087 us/op
+Iteration   3: 27592.136 us/op
+Iteration   4: 25660.356 us/op
+Iteration   5: 26705.218 us/op
+Iteration   6: 49419.625 us/op
+Iteration   7: 54298.073 us/op
+Iteration   8: 116075.003 us/op
+Iteration   9: 28676.928 us/op
+Iteration  10: 19761.540 us/op
+Iteration  11: 19466.265 us/op
+Iteration  12: 23165.587 us/op
+Iteration  13: 18574.349 us/op
+Iteration  14: 21910.841 us/op
+Iteration  15: 20325.704 us/op
+
+
+Result "org.alcaudon.KeyRouterBenchmark.timePerRoute":
+  N = 15
+  mean =  33460.529 +-(99.9%) 26862.874 us/op
+
+  Histogram, us/op:
+    [ 10000.000,  20000.000) = 3
+    [ 20000.000,  30000.000) = 9
+    [ 30000.000,  40000.000) = 0
+    [ 40000.000,  50000.000) = 1
+    [ 50000.000,  60000.000) = 1
+    [ 60000.000,  70000.000) = 0
+    [ 70000.000,  80000.000) = 0
+    [ 80000.000,  90000.000) = 0
+    [ 90000.000, 100000.000) = 0
+    [100000.000, 110000.000) = 0
+
+  Percentiles, us/op:
+      p(0.0000) =  18574.349 us/op
+     p(50.0000) =  25660.356 us/op
+     p(90.0000) =  79008.845 us/op
+     p(95.0000) = 116075.003 us/op
+     p(99.0000) = 116075.003 us/op
+     p(99.9000) = 116075.003 us/op
+     p(99.9900) = 116075.003 us/op
+     p(99.9990) = 116075.003 us/op
+     p(99.9999) = 116075.003 us/op
+    p(100.0000) = 116075.003 us/op
+\end{lstlisting}
 
 \section{Alcaudon application}
 
