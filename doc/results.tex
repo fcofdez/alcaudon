@@ -23,7 +23,56 @@ JMH\footnote{http://openjdk.java.net/projects/code-tools/jmh/}.
 This benchmark measures the number of computations per second that Alcaundon can
 handle.
 
-\FIXME{TODO -> figure}
+\begin{lstlisting}
+# JMH version: 1.19
+# VM version: JDK 1.8.0_131, VM 25.131-b11
+# VM invoker: /usr/lib/jvm/java-8-oracle/jre/bin/java
+# VM options: <none>
+# Warmup: 15 iterations, 1 s each
+# Measurement: 15 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Throughput, ops/time
+# Benchmark: alcaudon.runtime.ComputationBenchmark.throughput
+# Parameters: ()
+
+# Fork: 1 of 1
+# Warmup Iteration   1: 304290.738 ops/s
+# Warmup Iteration   2: 406603.426 ops/s
+# Warmup Iteration   3: 424566.904 ops/s
+# Warmup Iteration   4: 393909.004 ops/s
+# Warmup Iteration   5: 420357.736 ops/s
+# Warmup Iteration   6: 418396.639 ops/s
+# Warmup Iteration   7: 425612.571 ops/s
+# Warmup Iteration   8: 433468.506 ops/s
+# Warmup Iteration   9: 429394.117 ops/s
+# Warmup Iteration  10: 425943.665 ops/s
+# Warmup Iteration  11: 405535.186 ops/s
+# Warmup Iteration  12: 406161.894 ops/s
+# Warmup Iteration  13: 396957.111 ops/s
+# Warmup Iteration  14: 392834.419 ops/s
+# Warmup Iteration  15: 431874.137 ops/s
+Iteration   1: 433900.345 ops/s
+Iteration   2: 427790.060 ops/s
+Iteration   3: 437249.610 ops/s
+Iteration   4: 428768.226 ops/s
+Iteration   5: 436149.244 ops/s
+Iteration   6: 438408.490 ops/s
+Iteration   7: 442496.930 ops/s
+Iteration   8: 435310.117 ops/s
+Iteration   9: 442832.944 ops/s
+Iteration  10: 437619.578 ops/s
+Iteration  11: 432333.808 ops/s
+Iteration  12: 440724.279 ops/s
+Iteration  13: 441683.173 ops/s
+Iteration  14: 446571.086 ops/s
+Iteration  15: 405613.864 ops/s
+
+Result alcaudon.runtime.ComputationBenchmark.throughput:
+  435163.450 +-(99.9%) 103656.896 ops/s [Average]
+  (min, avg, max) = (405613.864, 435163.450, 446571.086), stdev = 96960.725
+  CI (99.9%): [424797.555, 445529.346] (assumes normal distribution)
+\end{lstlisting}
 
 \subsection{Stream benchmark}
 
@@ -40,7 +89,7 @@ This benchmark measures the number of records that a router can route.
 \section{Alcaudon application}
 
 Once Alcaudon has been described in detail, its full potential can be unveiled
-in a real world scenario. For this example, a public
+in a real world scenario. For this example, a
 public\footnote{http://www.nyc.gov/html/tlc} data set of the New York City Taxi
 and Limousine Commission (TLC) will be used. This data set contains records
 about taxi trips in New York from different years. The goal of this example is
@@ -77,8 +126,8 @@ passengers taking rides in different places of the city, to later on visualize
 this data in a dashboard. First of all, rides that are not taking place in New
 York are filtered out~(\ref{code:computationFilterRide}) and published into a new
 stream. These filtered rides are consumed by
-RidePassengerCountComputation~\ref{code:computationRide} that it is responsible
-for keeping the number of passengers per cell and update them when new rides
+RidePassengerCountComputation~\ref{code:computationRide} that is responsible
+for keeping track of the number of passengers per cell and updating them when new rides
 arrive into the system. A timer is set-up, when this timer is triggered, the
 information stored up to that point, in this case the number of ride passengers
 per cell, is published into a Sink. In addition to counting the number of
