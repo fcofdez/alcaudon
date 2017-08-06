@@ -103,10 +103,13 @@ class AlcaudonStream(name: String)
 
     case CheckOverwhelmedSubscribers =>
       val overwhelmedConsumers = state.subscribers.filter(
-        _.isOverwhelmed(lastSequenceNr, overwhelmDelayedMessages))
+        _.isOverwhelmed(state.latestRecordSeq, overwhelmDelayedMessages))
+
+      log.info("Overwhelmed {}", overwhelmedConsumers)
       context.become(receiveCommandWithControlFlow(overwhelmedConsumers.toSet))
 
     case SignalOverwhelmedSubscribers =>
+      log.info("Signaling overwhelmed subscribers {}", overwhelmedSubscribers)
       for {
         subscriber <- overwhelmedSubscribers
         record <- state.getRecord(subscriber.actor)

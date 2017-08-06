@@ -14,7 +14,7 @@ class AlcaudonStreamSpec
       Map(
         "alcaudon.streams.snapshot-interval" -> 4,
         "alcaudon.streams.backoff-time" -> "2s",
-        "alcaudon.streams.overwhelmed-delay" -> 5,
+        "alcaudon.streams.flow-control.overwhelmed-delay" -> 5,
         "akka.persistence.journal.plugin" -> "inmemory-journal",
         "akka.persistence.snapshot-store.plugin" -> "inmemory-snapshot-store")))
     with WordSpecLike
@@ -147,8 +147,6 @@ class AlcaudonStreamSpec
         val record = secondConsumer.expectMsgType[StreamRecord]
         record.id should be(0L)
       }
-      Thread.sleep(3000)
-
       secondConsumer.expectNoMsg(5.seconds)
     }
 
@@ -174,7 +172,6 @@ class AlcaudonStreamSpec
         val record = secondConsumer.expectMsgType[StreamRecord]
         record.id should be(0L)
       }
-      Thread.sleep(3000)
 
       secondConsumer.expectNoMsg(6.seconds)
 
