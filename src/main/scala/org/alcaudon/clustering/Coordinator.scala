@@ -18,11 +18,16 @@ object Coordinator {
     case class PendingDataflowPipeline(uuid: String, objectStorageURL: URL)
     case class CreateDataflowPipeline(uuid: String, graph: DataflowGraph)
     case class DataflowPipelineCreated(uuid: String)
+    case class ComputationNode(actorRef: ActorRef,
+                               computationSlots: Int,
+                               runningSlots: Int = 0) {
+      def available: Boolean = computationSlots - runningSlots > 0
+    }
   }
 
 }
 
-class CoordinatorFrontend extends Actor with ActorLogging with ActorConfig {
+class CoordinatorRecepcionist extends Actor with ActorLogging with ActorConfig {
   import Coordinator.Protocol._
   val awsCredentials =
     new BasicAWSCredentials(config.blob.s3.accessKey, config.blob.s3.secretKey)
@@ -55,9 +60,10 @@ class Coordinator extends PersistentActor with ActorLogging with ActorConfig {
 
   def receiveCommand = receiveWithMembers(Set.empty)
 
-  def receiveWithMembers(members: Set[ActorRef]): Receive = {
+  def receiveWithMembers(members: Set[ComputationNode]): Receive = {
     case register: RegisterComputationNode =>
-      context.become(receiveWithMembers(members + sender()))
+      val computationNode = ComputationNode(sender(), register.computationSlots)
+      context.become(receiveWithMembers(members + computationNode))
       sender() ! ComputationNodeRegistered
     case request: CreateDataflowPipeline =>
       val origin = sender()
