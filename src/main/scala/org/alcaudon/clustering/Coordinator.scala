@@ -21,6 +21,7 @@ object Coordinator {
     case class ComputationNode(actorRef: ActorRef,
                                computationSlots: Int,
                                runningSlots: Int = 0) {
+      def availableSlots: Int = computationSlots - runningSlots
       def available: Boolean = computationSlots - runningSlots > 0
     }
   }
@@ -66,6 +67,7 @@ class Coordinator extends PersistentActor with ActorLogging with ActorConfig {
       context.become(receiveWithMembers(members + computationNode))
       sender() ! ComputationNodeRegistered
     case request: CreateDataflowPipeline =>
+      val availableMembers = members.filter(_.available)
       val origin = sender()
       persist(request) { req =>
         origin ! DataflowPipelineCreated(req.uuid)
