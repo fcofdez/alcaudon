@@ -66,9 +66,9 @@ class AlcaudonStream(name: String)
   override def persistenceId: String = name
 
   val receiveRecover: Receive = {
-    case msg: RawStreamRecord => state.update(msg)
+    case msg: RawStreamRecord        => state.update(msg)
     case Subscribe(actor, extractor) => state.addSubscriber(actor, extractor)
-    case ack: ACK => state.ack(ack.actor, ack.offset)
+    case ack: ACK                    => state.ack(ack.actor, ack.offset)
     case SnapshotOffer(metadata, snapshot: StreamState) =>
       log.info("Restoring snapshot for actor {} - {}", name, metadata)
       state = snapshot

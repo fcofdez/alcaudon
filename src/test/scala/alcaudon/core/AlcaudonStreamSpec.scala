@@ -3,20 +3,28 @@ package org.alcaudon.core
 import akka.actor.ActorRef
 import akka.testkit.{ImplicitSender, TestKit, TestProbe}
 import org.alcaudon.core.AlcaudonStream._
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecLike}
+import org.scalatest.{
+  BeforeAndAfterAll,
+  BeforeAndAfterEach,
+  Matchers,
+  WordSpecLike
+}
 
 import scala.util.Random
 import scala.concurrent.duration._
 
 class AlcaudonStreamSpec
-    extends TestKit(TestActorSystem(
-      "AlcaudonStreamSpec",
-      Map(
-        "alcaudon.streams.snapshot-interval" -> 4,
-        "alcaudon.streams.backoff-time" -> "2s",
-        "alcaudon.streams.flow-control.overwhelmed-delay" -> 5,
-        "akka.persistence.journal.plugin" -> "inmemory-journal",
-        "akka.persistence.snapshot-store.plugin" -> "inmemory-snapshot-store")))
+    extends TestKit(
+      TestActorSystem(
+        "AlcaudonStreamSpec",
+        Map(
+          "alcaudon.streams.snapshot-interval" -> 4,
+          "alcaudon.streams.backoff-time" -> "2s",
+          "alcaudon.streams.flow-control.overwhelmed-delay" -> 5,
+          "akka.persistence.journal.plugin" -> "inmemory-journal",
+          "akka.persistence.snapshot-store.plugin" -> "inmemory-snapshot-store"
+        )
+      ))
     with WordSpecLike
     with Matchers
     with BeforeAndAfterAll
@@ -135,7 +143,7 @@ class AlcaudonStreamSpec
       expectMsg(SuccessfulSubscription(streamName, 0L))
 
       stream.tell(Subscribe(secondConsumer.testActor, keyExtractor),
-        secondConsumer.testActor)
+                  secondConsumer.testActor)
       secondConsumer.expectMsg(SuccessfulSubscription(streamName, 0L))
       (0L to 9L).foreach { i =>
         val record = RawRecord(s"value-${i}".getBytes(), 1L)
@@ -160,7 +168,7 @@ class AlcaudonStreamSpec
       expectMsg(SuccessfulSubscription(streamName, 0L))
 
       stream.tell(Subscribe(secondConsumer.testActor, keyExtractor),
-        secondConsumer.testActor)
+                  secondConsumer.testActor)
       secondConsumer.expectMsg(SuccessfulSubscription(streamName, 0L))
       (0L to 9L).foreach { i =>
         val record = RawRecord(s"value-${i}".getBytes(), 1L)
@@ -200,6 +208,5 @@ class AlcaudonStreamSpec
       size should be > 0
     }
   }
-
 
 }

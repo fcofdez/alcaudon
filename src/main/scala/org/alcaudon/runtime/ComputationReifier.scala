@@ -177,12 +177,11 @@ class ComputationReifier(computation: Computation)
 
     case ComputationFailed(reason, record) =>
       state.incrementFailedExecutions()
-      log.warning(
-        "Computation {} failed {} times for record {} with reason {}",
-        computation.id,
-        state.failedExecutions,
-        record,
-        reason)
+      log.warning("Computation {} failed {} times for record {} with reason {}",
+                  computation.id,
+                  state.failedExecutions,
+                  record,
+                  reason)
       context.become(receiveCommand)
 
     case ComputationTimedOut =>
