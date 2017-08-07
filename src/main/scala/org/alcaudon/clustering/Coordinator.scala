@@ -4,6 +4,7 @@ import java.net.URL
 import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.cluster.Cluster
 import akka.persistence.PersistentActor
 import com.amazonaws.auth.BasicAWSCredentials
 import org.alcaudon.core.{ActorConfig, DataflowGraph}

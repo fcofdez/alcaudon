@@ -53,7 +53,9 @@ resolvers += Resolver.jcenterRepo
 
 libraryDependencies += "com.github.dnvriend" %% "akka-persistence-inmemory" % "2.4.18.1"
 
-fork := true
+//fork := true
+
+mainClass in (Compile, run) := Some("org.alcaudon.runtime.Main")
 
 lazy val root = (project in file(".")).settings(commonSettings)
 lazy val benchmarks = (project in file("benchmarks")).dependsOn(root).settings(commonSettings)

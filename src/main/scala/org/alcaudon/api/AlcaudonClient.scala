@@ -25,8 +25,10 @@ class AlcaudonClient extends Actor with ActorLogging with ActorConfig {
 
   def receiveCoordinatorNode: Receive = {
     case state: CurrentClusterState =>
-      val coordinator = state.members.filter(member =>
-        member.status == MemberStatus.Up && member.hasRole("coordinator")).map(getCoordinatorNodePath)
+      val coordinator = state.members
+        .filter(member =>
+          member.status == MemberStatus.Up && member.hasRole("coordinator"))
+        .map(getCoordinatorNodePath)
       if (coordinator.size == 1)
         context.become(receiveWithCoordinator(coordinator.head))
     case MemberUp(member) =>
@@ -38,6 +40,7 @@ class AlcaudonClient extends Actor with ActorLogging with ActorConfig {
 
   def receiveWithCoordinator(coordinator: ActorSelection): Receive = {
     case request: RegisterDataflowJob =>
+      coordinator ! request
 
   }
 
