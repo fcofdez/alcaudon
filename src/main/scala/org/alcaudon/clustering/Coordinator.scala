@@ -3,8 +3,9 @@ package org.alcaudon.clustering
 import java.net.URL
 import java.util.UUID
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.cluster.Cluster
+import akka.actor.{Actor, ActorLogging, ActorRef, Address, Props}
+import akka.cluster.{Cluster, MemberStatus}
+import akka.cluster.ClusterEvent._
 import akka.persistence.PersistentActor
 import com.amazonaws.auth.BasicAWSCredentials
 import org.alcaudon.core.{ActorConfig, DataflowGraph}
@@ -19,9 +20,10 @@ object Coordinator {
     case class PendingDataflowPipeline(uuid: String, objectStorageURL: URL)
     case class CreateDataflowPipeline(uuid: String, graph: DataflowGraph)
     case class DataflowPipelineCreated(uuid: String)
-    case class ComputationNode(actorRef: ActorRef,
-                               computationSlots: Int,
-                               runningSlots: Int = 0) {
+    case class NodeLeft(address: Address)
+    case class ComputationNodeInformation(actorRef: ActorRef,
+                                          computationSlots: Int,
+                                          runningSlots: Int = 0) {
       def availableSlots: Int = computationSlots - runningSlots
       def available: Boolean = computationSlots - runningSlots > 0
     }
@@ -29,49 +31,74 @@ object Coordinator {
 
 }
 
-class CoordinatorRecepcionist extends Actor with ActorLogging with ActorConfig {
+class ClusterStatusListener extends Actor with ActorLogging {
+
+  import Coordinator.Protocol._
+
+  Cluster(context.system).subscribe(self, classOf[ClusterDomainEvent])
+
+  def receive = {
+    case MemberUp(member) => log.info(s"$member UP.")
+    case MemberExited(member) =>
+      log.info(s"$member EXITED.")
+    case MemberRemoved(m, previousState) =>
+      if (previousState == MemberStatus.Exiting) {
+        log.info(s"Member $m gracefully exited, REMOVED.")
+      } else {
+        log.info(s"$m downed after unreachable, REMOVED.")
+      }
+      context.parent ! NodeLeft(m.address)
+    case UnreachableMember(m)   => log.info(s"$m UNREACHABLE")
+    case ReachableMember(m)     => log.info(s"$m REACHABLE")
+    case s: CurrentClusterState => log.info(s"cluster state: $s")
+  }
+
+  override def postStop(): Unit = {
+    Cluster(context.system).unsubscribe(self)
+    super.postStop()
+  }
+}
+
+class CoordinatorRecepcionist
+    extends PersistentActor
+    with ActorLogging
+    with ActorConfig {
   import Coordinator.Protocol._
   val awsCredentials =
     new BasicAWSCredentials(config.blob.s3.accessKey, config.blob.s3.secretKey)
   implicit val awsInfo =
     AWSInformation(config.blob.s3.region, awsCredentials)
 
-  val coordinator = context.actorOf(Props[Coordinator], "coordinator-backend")
+  val clusterListener = context.actorOf(Props[ClusterStatusListener])
 
-  def receive = receiveMembers(Set.empty)
-
-  def receiveMembers(computationNodes: Set[ActorRef]): Receive = {
-    case register: RegisterComputationNode =>
-      coordinator forward register
-    case RequestDataflowPipelineCreation =>
-      val uuid = UUID.randomUUID().toString
-      val url = ObjectStorageUtils.sign(config.blob.bucket, s"$uuid.jar")
-      sender() ! PendingDataflowPipeline(uuid, url)
-    case request: CreateDataflowPipeline =>
-      coordinator forward request
-  }
-}
-
-class Coordinator extends PersistentActor with ActorLogging with ActorConfig {
-  import Coordinator.Protocol._
   override def persistenceId: String = "coordinator"
 
   override def receiveRecover: Receive = {
     case 1 =>
   }
 
-  def receiveCommand = receiveWithMembers(Set.empty)
+  def receiveCommand = receiveMembers(Set.empty)
 
-  def receiveWithMembers(members: Set[ComputationNode]): Receive = {
+  def receiveMembers(
+      computationNodes: Set[ComputationNodeInformation]): Receive = {
+    case NodeLeft(address) =>
+      log.info("Member left from the cluster")
+      val currentComputationNodes =
+        computationNodes.filterNot(_.actorRef.path.address == address)
+      context.become(receiveMembers(currentComputationNodes))
     case register: RegisterComputationNode =>
-      val computationNode = ComputationNode(sender(), register.computationSlots)
-      context.become(receiveWithMembers(members + computationNode))
+      log.info("Registering ComputationNode {} - {}",
+               register,
+               sender().path.address)
+      val computationNode =
+        ComputationNodeInformation(sender(), register.computationSlots)
+      context.become(receiveMembers(computationNodes + computationNode))
       sender() ! ComputationNodeRegistered
+
+    case RequestDataflowPipelineCreation =>
+      val uuid = UUID.randomUUID().toString
+      val url = ObjectStorageUtils.sign(config.blob.bucket, s"$uuid.jar")
+      sender() ! PendingDataflowPipeline(uuid, url)
     case request: CreateDataflowPipeline =>
-      val availableMembers = members.filter(_.available)
-      val origin = sender()
-      persist(request) { req =>
-        origin ! DataflowPipelineCreated(req.uuid)
-      }
   }
 }
