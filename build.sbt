@@ -55,6 +55,18 @@ libraryDependencies += "com.github.dnvriend" %% "akka-persistence-inmemory" % "2
 
 fork := true
 
+credentials ++= (
+  for {
+    username <- Option(System.getenv().get("SONATYPE_USERNAME"))
+    password <- Option(System.getenv().get("SONATYPE_PASSWORD"))
+  } yield Credentials(
+    "Sonatype Nexus Repository Manager",
+    "oss.sonatype.org",
+    username,
+    password
+  )
+).toSeq
+
 mainClass in (run) := Some("org.alcaudon.runtime.Main")
 
 lazy val root = (project in file(".")).settings(commonSettings)
