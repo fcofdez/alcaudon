@@ -7,7 +7,7 @@ syntax = "proto3";
 
 package firmament;
 
-import "base/task_desc.proto";
+import "task_desc.proto";
 
 message JobDescriptor {
   enum JobState {
