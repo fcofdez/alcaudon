@@ -3,7 +3,7 @@ package org.alcaudon.runtime
 import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
 import com.typesafe.config.ConfigFactory
-import org.alcaudon.clustering.{ComputationNode, CoordinatorRecepcionist}
+import org.alcaudon.clustering.{ComputationNodeRecepcionist, CoordinatorRecepcionist}
 
 object Main extends App {
   val seedConfig = ConfigFactory.load("seed")
@@ -18,7 +18,7 @@ object Main extends App {
     }
   } else if (role.contains("computation")) {
     cluster.registerOnMemberUp {
-      system.actorOf(Props[ComputationNode])
+      system.actorOf(Props(new ComputationNodeRecepcionist("asd")), name = "computation-node")
     }
   }
 }

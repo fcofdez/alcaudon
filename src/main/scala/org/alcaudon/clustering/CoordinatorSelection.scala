@@ -2,7 +2,7 @@ package org.alcaudon.clustering
 
 import akka.actor.{Actor, ActorSelection, RootActorPath}
 import akka.cluster.{Cluster, Member, MemberStatus}
-import akka.cluster.ClusterEvent.{CurrentClusterState, MemberUp}
+import akka.cluster.ClusterEvent.{ClusterDomainEvent, CurrentClusterState, MemberUp}
 
 object CoordinatorSelection {
   case object UnknownCoordinator
@@ -13,8 +13,10 @@ trait CoordinatorSelection { this: Actor =>
 
   val cluster = Cluster(context.system)
 
-  override def preStart(): Unit = cluster.subscribe(self, classOf[MemberUp])
+  override def preStart(): Unit = cluster.subscribe(self, classOf[ClusterDomainEvent])
   override def postStop(): Unit = cluster.unsubscribe(self)
+
+  def afterRegisterHook(coordinator: ActorSelection): Unit = {}
 
   def receive = receiveCoordinatorNode
 
@@ -26,11 +28,17 @@ trait CoordinatorSelection { this: Actor =>
         .filter(member =>
           member.status == MemberStatus.Up && member.hasRole("coordinator"))
         .map(getCoordinatorNodePath)
-      if (coordinator.size == 1)
+      if (coordinator.size == 1) {
+        afterRegisterHook(coordinator.head)
         context.become(receiveRequests(coordinator.head))
+      }
     case MemberUp(member) =>
-      if (member.hasRole("coordinator"))
-        context.become(receiveRequests(getCoordinatorNodePath(member)))
+      if (member.hasRole("coordinator")) {
+        val coordinator = getCoordinatorNodePath(member)
+        afterRegisterHook(coordinator)
+        context.become(receiveRequests(coordinator))
+      }
+
     case _ =>
       sender() ! UnknownCoordinator
   }
