@@ -14,19 +14,29 @@ import org.alcaudon.runtime.ObjectStorageUtils
 
 object Coordinator {
   object Protocol {
+    // Requests
     case class RegisterComputationNode(computationSlots: Int)
-    case object ComputationNodeRegistered
+    case class GetDataflowPipelineStatus(uuid: String)
+    case class StopDataflowPipeline(uuid: String)
     case object RequestDataflowPipelineCreation
-    case class PendingDataflowPipeline(uuid: String, objectStorageURL: URL)
     case class CreateDataflowPipeline(uuid: String, graph: DataflowGraph)
+
+    // Responses
+    case object ComputationNodeRegistered
+    case class PendingDataflowPipeline(uuid: String, objectStorageURL: URL)
     case class DataflowPipelineCreated(uuid: String)
+    case class DataflowPipelineStatus(uuid: String, status: String)
+    case class DataflowPipelineStopped(uuid: String)
+
     case class NodeLeft(address: Address)
-    case class ComputationNodeInformation(actorRef: ActorRef,
-                                          computationSlots: Int,
-                                          runningSlots: Int = 0) {
-      def availableSlots: Int = computationSlots - runningSlots
-      def available: Boolean = computationSlots - runningSlots > 0
-    }
+  }
+
+  // State
+  case class ComputationNodeInformation(actorRef: ActorRef,
+                                        computationSlots: Int,
+                                        runningSlots: Int = 0) {
+    def availableSlots: Int = computationSlots - runningSlots
+    def available: Boolean = computationSlots - runningSlots > 0
   }
 
 }
@@ -63,7 +73,10 @@ class CoordinatorRecepcionist
     extends PersistentActor
     with ActorLogging
     with ActorConfig {
-  import Coordinator.Protocol._
+
+  import Coordinator._
+  import Protocol._
+
   val awsCredentials =
     new BasicAWSCredentials(config.blob.s3.accessKey, config.blob.s3.secretKey)
   implicit val awsInfo =
@@ -99,6 +112,14 @@ class CoordinatorRecepcionist
       val uuid = UUID.randomUUID().toString
       val url = ObjectStorageUtils.sign(config.blob.bucket, s"$uuid.jar")
       sender() ! PendingDataflowPipeline(uuid, url)
+
     case request: CreateDataflowPipeline =>
+      sender() ! DataflowPipelineCreated
+
+    case GetDataflowPipelineStatus(uuid) =>
+      sender() ! DataflowPipelineStatus(uuid, "running")
+
+    case StopDataflowPipeline(uuid) =>
+      sender() ! DataflowPipelineStopped(uuid)
   }
 }

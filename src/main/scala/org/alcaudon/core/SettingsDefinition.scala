@@ -29,6 +29,12 @@ class SettingsDefinition(config: com.typesafe.config.Config) {
   }
 
 
+  object clustering {
+    final lazy val connectionTimeout = getDuration("alcaudon.clustering.connection-timeout")
+    final lazy val maxRetries = config.getInt("alcaudon.clustering.max-retries")
+  }
+
+
   object computation {
     final lazy val bloomFilterRecords = config.getInt("alcaudon.computation.bloom-filter-records")
     final lazy val maxFailures = config.getInt("alcaudon.computation.max-failures")

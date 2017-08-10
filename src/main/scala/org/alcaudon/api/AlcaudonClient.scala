@@ -1,51 +1,93 @@
 package org.alcaudon.api
 
-import akka.actor.{Actor, ActorLogging, ActorSelection, RootActorPath}
-import akka.cluster.ClusterEvent.{CurrentClusterState, MemberUp}
-import akka.cluster.{Cluster, Member, MemberStatus}
+import java.net.{HttpURLConnection, URL}
+import java.nio.file.{Files, Path}
+
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSelection, ReceiveTimeout, Status}
+import akka.pattern.pipe
+import org.alcaudon.clustering.CoordinatorSelection
 import org.alcaudon.core.{ActorConfig, DataflowGraph}
 
+import scala.concurrent.Future
+import scala.concurrent.duration._
+
 object AlcaudonClient {
-  case class RegisterDataflowJob(dataflow: DataflowGraph)
-  case object UnknownCoordinator
+  // Requests
+  case class RegisterDataflowPipeline(dataflow: DataflowGraph, jar: Path)
+
+  // Responses
+  sealed trait ObjectUploadStatus
+  case object SuccessfulUpload extends ObjectUploadStatus
+  case object FailedUpload extends ObjectUploadStatus
+  case class UploadResult(uuid: String, status: ObjectUploadStatus)
 }
 
-class AlcaudonClient extends Actor with ActorLogging with ActorConfig {
+class AlcaudonClient
+    extends Actor
+    with ActorLogging
+    with ActorConfig
+    with CoordinatorSelection {
 
   import AlcaudonClient._
+  import context.dispatcher
+  import org.alcaudon.clustering.Coordinator.Protocol._
 
-  val cluster = Cluster(context.system)
+  var requester: Option[ActorRef] = None
 
-  override def preStart(): Unit = cluster.subscribe(self, classOf[MemberUp])
-  override def postStop(): Unit = cluster.unsubscribe(self)
-
-  var coordinator: Option[ActorSelection] = None
-
-  def receive = receiveCoordinatorNode
-
-  def receiveCoordinatorNode: Receive = {
-    case state: CurrentClusterState =>
-      val coordinator = state.members
-        .filter(member =>
-          member.status == MemberStatus.Up && member.hasRole("coordinator"))
-        .map(getCoordinatorNodePath)
-      if (coordinator.size == 1)
-        context.become(receiveWithCoordinator(coordinator.head))
-    case MemberUp(member) =>
-      if (member.hasRole("coordinator"))
-        context.become(receiveWithCoordinator(getCoordinatorNodePath(member)))
-    case _ =>
-      sender() ! UnknownCoordinator
+  def uploadObject(url: URL, path: Path): Future[ObjectUploadStatus] = Future {
+    val connection = url.openConnection().asInstanceOf[HttpURLConnection]
+    connection.setDoOutput(true)
+    connection.setRequestMethod("PUT")
+    val out = connection.getOutputStream()
+    Files.copy(path, out)
+    out.close()
+    if (connection.getResponseCode > 299)
+      FailedUpload
+    else
+      SuccessfulUpload
   }
 
-  def receiveWithCoordinator(coordinator: ActorSelection): Receive = {
-    case request: RegisterDataflowJob =>
-      coordinator ! request
-
+  def waitingForPipelineCreation(
+      coordinator: ActorSelection,
+      registerDataflowJob: RegisterDataflowPipeline): Receive = {
+    case msg @ DataflowPipelineCreated(uuid) =>
+      log.info("DataflowPipeline with uuid {} created", uuid)
+      requester.map(_ ! msg)
+      context.become(receiveRequests(coordinator))
+    case ReceiveTimeout =>
+      log.error("Timeout while waiting for dataflow pipeline creation")
   }
 
-  def getCoordinatorNodePath(member: Member): ActorSelection =
-    context.actorSelection(
-      RootActorPath(member.address) / "user" / "coordinator")
+  def waitingForPipeline(
+      coordinator: ActorSelection,
+      registerDataflowJob: RegisterDataflowPipeline): Receive = {
+    case pending: PendingDataflowPipeline =>
+      val uploadResult =
+        uploadObject(pending.objectStorageURL, registerDataflowJob.jar)
+          .map(UploadResult(pending.uuid, _))
+      uploadResult pipeTo self
+      log.info("Uploading dataflow jar for {}", pending.uuid)
+    case UploadResult(uuid, SuccessfulUpload) =>
+      coordinator ! CreateDataflowPipeline(uuid, registerDataflowJob.dataflow)
+      context.setReceiveTimeout(10.seconds)
+      context.become(
+        waitingForPipelineCreation(coordinator, registerDataflowJob))
+    case UploadResult(_, FailedUpload) =>
+      log.error("Failed jar upload")
+    case Status.Failure(f) =>
+      log.error("Error during jar upload {}", f)
+      context.stop(self)
+  }
+
+  def receiveRequests(coordinator: ActorSelection): Receive = {
+    case request: RegisterDataflowPipeline =>
+      requester = Some(sender())
+      coordinator ! RequestDataflowPipelineCreation
+      context.become(waitingForPipeline(coordinator, request))
+    case request: GetDataflowPipelineStatus =>
+      coordinator.forward(request)
+    case request: StopDataflowPipeline =>
+      coordinator.forward(request)
+  }
 
 }
