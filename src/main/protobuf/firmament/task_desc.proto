@@ -7,11 +7,11 @@ syntax = "proto3";
 
 package firmament;
 
-import "base/label.proto";
-import "base/label_selector.proto";
-import "base/reference_desc.proto";
-import "base/resource_vector.proto";
-import "base/task_final_report.proto";
+import "label.proto";
+import "label_selector.proto";
+import "reference_desc.proto";
+import "resource_vector.proto";
+import "task_final_report.proto";
 
 message TaskDescriptor {
   enum TaskState {
