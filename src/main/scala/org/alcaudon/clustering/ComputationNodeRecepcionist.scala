@@ -1,12 +1,7 @@
 package org.alcaudon.clustering
 
-import akka.actor.{
-  Actor,
-  ActorLogging,
-  ActorSelection,
-  ReceiveTimeout,
-  Terminated
-}
+import akka.actor.{Actor, ActorLogging, ActorSelection, ReceiveTimeout, Terminated}
+import org.alcaudon.api.ComputationRepresentation
 import org.alcaudon.core.ActorConfig
 import org.alcaudon.runtime.ComputationManager
 
@@ -15,7 +10,7 @@ import scala.concurrent.duration._
 object ComputationNodeRecepcionist {
   object Protocol {
     // Requests
-    case class DeployComputation(id: String)
+    case class DeployComputation(id: String, computationRepresentation: ComputationRepresentation)
     case class DeployStream(id: String)
     case class DeploySource(id: String)
     case class DeploySink(id: String)
@@ -46,7 +41,6 @@ class ComputationNodeRecepcionist(id: String)
   import org.alcaudon.clustering.Coordinator.Protocol._
   import ComputationNodeRecepcionist.Protocol._
 
-
   val cores = Runtime.getRuntime().availableProcessors()
   val maxRetries = config.clustering.maxRetries
 
@@ -60,14 +54,14 @@ class ComputationNodeRecepcionist(id: String)
   }
 
   def receiveWork(coordinatorPath: ActorSelection): Receive = {
-    case DeployComputation(id) =>
-    case DeployStream(id) =>
-    case DeploySource(id) =>
-    case DeploySink(id) =>
-    case StopComputation(id) =>
-    case StopSource(id) =>
-    case StopSource(id) =>
-    case StopSink(id) =>
+    case msg: DeployComputation => manager.forward(msg)
+    case msg: DeployStream => manager.forward(msg)
+    case msg: DeploySource => manager.forward(msg)
+    case msg: DeploySink => manager.forward(msg)
+    case msg: StopComputation => manager.forward(msg)
+    case msg: StopSource => manager.forward(msg)
+    case msg: StopSource => manager.forward(msg)
+    case msg: StopSink => manager.forward(msg)
     case Terminated(`manager`) =>
   }
 
@@ -83,7 +77,6 @@ class ComputationNodeRecepcionist(id: String)
       context.stop(self)
     case ReceiveTimeout =>
       context.setReceiveTimeout(config.clustering.connectionTimeout)
-      val cores = Runtime.getRuntime().availableProcessors()
       coordinatorPath ! RegisterComputationNode(cores)
       context.become(pendingRegistration(coordinatorPath, retries + 1))
   }

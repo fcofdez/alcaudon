@@ -2,24 +2,32 @@ package org.alcaudon.runtime
 
 import java.net.{URL, URLClassLoader}
 
-import akka.actor.{Actor, ActorLogging, ActorRef}
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorRefFactory, Props}
 import org.alcaudon.core.DataflowJob
 import org.alcaudon.runtime.BlobServer.{BlobURL, GetBlob}
 
 import scala.collection.mutable.{Map => MMap}
 
 private[alcaudon] object LibraryManager {
+  def props(implicit ac: ActorRefFactory): Props = Props(new LibraryManager(ac.actorOf(Props[BlobServer])))
+
   // Queries
   case class RegisterDataflow(dataflow: DataflowJob)
+
   case class GetClassLoaderForDataflow(dataflowId: String)
+
   case class RemoveClassLoaderForDataflow(dataflowId: String)
 
   // Responses
   case class DataflowRegistered(dataflowId: String)
+
   case class ClassLoaderForDataflow(dataflowId: String,
                                     userClassLoader: ClassLoader)
+
   case class ClassLoaderForDataflowNotReady(dataflowId: String)
+
   case class ClassLoaderForDataflowRemoved(dataflowId: String)
+
   case class UnknownClassLoaderForDataflow(dataflowId: String)
 
   // Internal API
@@ -46,6 +54,7 @@ private[alcaudon] object LibraryManager {
       userClassLoader
     }
   }
+
 }
 
 /**
@@ -56,7 +65,7 @@ private[alcaudon] object LibraryManager {
   *
   */
 private[alcaudon] class LibraryManager(blobServer: ActorRef)
-    extends Actor
+  extends Actor
     with ActorLogging {
 
   import LibraryManager._
@@ -76,14 +85,14 @@ private[alcaudon] class LibraryManager(blobServer: ActorRef)
         (jarInfo.key -> dataflow.id)
       }
       cache += (dataflow.id -> LibraryEntry(dataflow.id,
-                                            dataflow.requiredJars.size))
+        dataflow.requiredJars.size))
       log.debug("Register dataflow {} - Pending jobs {}",
-                dataflow.id,
-                pending ++ pendingJobs)
+        dataflow.id,
+        pending ++ pendingJobs)
       context.become(receivePending(pending ++ pendingJobs))
       sender() ! DataflowRegistered(dataflow.id)
 
-    case blob @ BlobURL(key, file) =>
+    case blob@BlobURL(key, file) =>
       log.debug("BlobURL msg for key {}", key)
       for {
         dataflowId <- pending.get(key)
