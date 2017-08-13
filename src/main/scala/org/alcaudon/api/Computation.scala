@@ -65,13 +65,15 @@ trait Computation
     with StateAPI
     with SerializationAPI
     with RuntimeContext {
-  val id = UUID.randomUUID().toString
+  var id = UUID.randomUUID().toString
   val inputStreams: List[String] = List.empty
   val outputStreams: List[String] = List.empty
   private var subscribedStreams: Set[String] = Set.empty
 
   def processRecord(record: Record): Unit
   def processTimer(timer: Timer): Unit
+
+  def setId(externalId: String): Unit = id = externalId
 
   def setup(runtimeContext: AbstractRuntimeContext): Unit = {
     context = runtimeContext

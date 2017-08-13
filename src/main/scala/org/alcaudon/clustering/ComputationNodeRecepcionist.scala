@@ -1,6 +1,12 @@
 package org.alcaudon.clustering
 
-import akka.actor.{Actor, ActorLogging, ActorSelection, ReceiveTimeout, Terminated}
+import akka.actor.{
+  Actor,
+  ActorLogging,
+  ActorSelection,
+  ReceiveTimeout,
+  Terminated
+}
 import org.alcaudon.api.ComputationRepresentation
 import org.alcaudon.core.ActorConfig
 import org.alcaudon.runtime.ComputationManager
@@ -10,7 +16,10 @@ import scala.concurrent.duration._
 object ComputationNodeRecepcionist {
   object Protocol {
     // Requests
-    case class DeployComputation(id: String, computationRepresentation: ComputationRepresentation)
+    case class DeployComputation(
+        id: String,
+        dataflowId: String,
+        computationRepresentation: ComputationRepresentation)
     case class DeployStream(id: String)
     case class DeploySource(id: String)
     case class DeploySink(id: String)
@@ -28,6 +37,7 @@ object ComputationNodeRecepcionist {
     case class StreamStopped(id: String)
     case class SourceStopped(id: String)
     case class SinkStopped(id: String)
+    case class NonAvailableSlots(id: String)
 
   }
 }

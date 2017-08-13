@@ -2,7 +2,11 @@ package org.alcaudon.clustering
 
 import akka.actor.{Actor, ActorSelection, RootActorPath}
 import akka.cluster.{Cluster, Member, MemberStatus}
-import akka.cluster.ClusterEvent.{ClusterDomainEvent, CurrentClusterState, MemberUp}
+import akka.cluster.ClusterEvent.{
+  ClusterDomainEvent,
+  CurrentClusterState,
+  MemberUp
+}
 
 object CoordinatorSelection {
   case object UnknownCoordinator
@@ -13,7 +17,8 @@ trait CoordinatorSelection { this: Actor =>
 
   val cluster = Cluster(context.system)
 
-  override def preStart(): Unit = cluster.subscribe(self, classOf[ClusterDomainEvent])
+  override def preStart(): Unit =
+    cluster.subscribe(self, classOf[ClusterDomainEvent])
   override def postStop(): Unit = cluster.unsubscribe(self)
 
   def afterRegisterHook(coordinator: ActorSelection): Unit = {}

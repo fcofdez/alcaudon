@@ -7,6 +7,8 @@ import akka.persistence.{PersistentActor, SaveSnapshotSuccess, SnapshotOffer}
 import com.github.mgunlogson.cuckoofilter4j.CuckooFilter
 import com.google.common.hash.Funnels
 import org.alcaudon.api.Computation
+import org.alcaudon.clustering.DataflowTopologyListener
+import org.alcaudon.clustering.DataflowTopologyListener.DataflowNodeAddress
 import org.alcaudon.core.AlcaudonStream.ACK
 import org.alcaudon.core.State.{ProduceRecord, Transaction}
 import org.alcaudon.core.Timer.Timer
@@ -19,6 +21,9 @@ object ComputationReifier {
 
   def executorProps(computation: Computation): Props =
     Props(new ComputationExecutor(computation))
+
+  def props(computation: Computation, dataflowId: String): Props =
+    Props(new ComputationReifier(computation, dataflowId))
 
   case object GetState
   case object InjectFailure
@@ -62,7 +67,7 @@ object ComputationReifier {
 
 }
 
-class ComputationReifier(computation: Computation)
+class ComputationReifier(computation: Computation, dataflowId: String = "")
     extends PersistentActor
     with ActorLogging
     with ActorConfig
@@ -71,6 +76,10 @@ class ComputationReifier(computation: Computation)
   import ComputationReifier._
 
   override def persistenceId: String = computation.id
+
+  if (config.computation.distributed) {
+    context.actorOf(DataflowTopologyListener.props(dataflowId, computation.id))
+  }
 
   var state = ComputationState(
     Map.empty,
@@ -150,6 +159,7 @@ class ComputationReifier(computation: Computation)
       // this is a best effort
       }
 
+    case addr: DataflowNodeAddress =>
     case InjectFailure =>
       throw new Exception("injected failure")
 
