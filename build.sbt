@@ -1,6 +1,8 @@
 name := "alcaudon"
 
-version := "0.0.3"
+version := "0.0.4"
+
+organization := "com.github.fcofdez"
 
 lazy val commonSettings = Seq(
   scalaVersion := "2.12.1",
@@ -55,19 +57,15 @@ libraryDependencies += "com.github.dnvriend" %% "akka-persistence-inmemory" % "2
 
 fork := true
 
-credentials ++= (
-  for {
-    username <- Option(System.getenv().get("SONATYPE_USERNAME"))
-    password <- Option(System.getenv().get("SONATYPE_PASSWORD"))
-  } yield Credentials(
-    "Sonatype Nexus Repository Manager",
-    "oss.sonatype.org",
-    username,
-    password
-  )
-).toSeq
-
 mainClass in (run) := Some("org.alcaudon.runtime.Main")
 
 lazy val root = (project in file(".")).settings(commonSettings)
-lazy val benchmarks = (project in file("benchmarks")).dependsOn(root).settings(commonSettings)
+lazy val benchmarks =
+  (project in file("benchmarks")).dependsOn(root).settings(commonSettings)
+
+publishTo := Some(
+  if (isSnapshot.value)
+    Opts.resolver.sonatypeSnapshots
+  else
+    Opts.resolver.sonatypeStaging
+)
