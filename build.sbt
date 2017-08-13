@@ -39,7 +39,8 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.1.3" % Runtime,
   "com.google.guava" % "guava" % "22.0",
   "com.github.mgunlogson" % "cuckoofilter4j" % "1.0.2",
-  "com.google.protobuf" % "protobuf-java" % "3.3.1"
+  "com.google.protobuf" % "protobuf-java" % "3.3.1",
+  "com.workday" %% "prometheus-akka" % "0.7.0"
 )
 
 resolvers += Resolver.sonatypeRepo("releases")
@@ -53,7 +54,7 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 
 resolvers += Resolver.jcenterRepo
 
-libraryDependencies += "com.github.dnvriend" %% "akka-persistence-inmemory" % "2.4.18.1"
+libraryDependencies += "com.github.dnvriend" %% "akka-persistence-inmemory" % "2.4.18.1" % "test"
 
 fork := true
 
