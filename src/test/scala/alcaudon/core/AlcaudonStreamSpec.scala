@@ -49,7 +49,7 @@ class AlcaudonStreamSpec
     val rawStreamRecord = RawStreamRecord(offset, record)
     val streamRecord = StreamRecord(rawStreamRecord, Record("key", record))
     expectMsg(streamRecord)
-    stream ! ACK(testActor, streamName, offset)
+    stream ! ACK(testActor, offset)
   }
 
   "AlcaudonStream" should {

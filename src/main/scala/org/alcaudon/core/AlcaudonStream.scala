@@ -2,7 +2,13 @@ package org.alcaudon.core
 
 import akka.actor.{ActorLogging, ActorRef, Props}
 import akka.persistence._
+import org.alcaudon.api.DataflowBuilder.AlcaudonInputStream
+import org.alcaudon.clustering.DataflowTopologyListener
+import org.alcaudon.clustering.DataflowTopologyListener.DataflowNodeAddress
 import org.alcaudon.core.AlcaudonStream._
+
+import scala.concurrent.duration._
+import scala.util.{Failure, Success}
 
 case class StreamRecord(rawStreamRecord: RawStreamRecord, record: Record) {
   def id = rawStreamRecord.id
@@ -11,7 +17,6 @@ case class StreamRecord(rawStreamRecord: RawStreamRecord, record: Record) {
 case class RawStreamRecord(id: Long, rawRecord: RawRecord) {
   def value = rawRecord.value
 }
-case class StreamRecordOld(id: Long, record: Record)
 
 object KeyExtractor {
   def apply(fn: Array[Byte] => String): KeyExtractor =
@@ -23,7 +28,7 @@ trait KeyExtractor extends Serializable {
 }
 
 object AlcaudonStream {
-  case class ACK(actor: ActorRef, id: String, offset: Long)
+  case class ACK(actor: ActorRef, offset: Long)
   case class ReceiveACK(id: String)
   case class Subscribe(actor: ActorRef, extractor: KeyExtractor)
   case class SuccessfulSubscription(name: String, latestOffset: Long)
@@ -35,9 +40,17 @@ object AlcaudonStream {
   case object InjectFailure
 
   def props(name: String): Props = Props(new AlcaudonStream(name))
+  def props(name: String, dataflowId: String): Props =
+    Props(new AlcaudonStream(name, dataflowId))
+  def props(name: String,
+            dataflowId: String,
+            subscribers: Set[AlcaudonInputStream]): Props =
+    Props(new AlcaudonStream(name, dataflowId, subscribers))
 }
 
-class AlcaudonStream(name: String)
+class AlcaudonStream(name: String,
+                     dataflowId: String = "",
+                     subscribers: Set[AlcaudonInputStream] = Set.empty)
     extends PersistentActor
     with ActorLogging
     with ActorConfig {
@@ -55,6 +68,10 @@ class AlcaudonStream(name: String)
     self,
     SignalOverwhelmedSubscribers)
 
+  if (config.computation.distributed) {
+    context.actorOf(DataflowTopologyListener.props(dataflowId, name))
+  }
+
   var state = StreamState()
   val overwhelmDelayedMessages =
     config.streams.flowControl.overwhelmedDelay.toLong
@@ -66,9 +83,9 @@ class AlcaudonStream(name: String)
   override def persistenceId: String = name
 
   val receiveRecover: Receive = {
-    case msg: RawStreamRecord        => state.update(msg)
+    case msg: RawStreamRecord => state.update(msg)
     case Subscribe(actor, extractor) => state.addSubscriber(actor, extractor)
-    case ack: ACK                    => state.ack(ack.actor, ack.offset)
+    case ack: ACK => state.ack(ack.actor, ack.offset)
     case SnapshotOffer(metadata, snapshot: StreamState) =>
       log.info("Restoring snapshot for actor {} - {}", name, metadata)
       state = snapshot
@@ -94,6 +111,18 @@ class AlcaudonStream(name: String)
         signalSubscribers(overwhelmedSubscribers)
         if (shouldTakeSnapshot)
           saveSnapshot(state)
+      }
+
+    case DataflowNodeAddress(id, path) =>
+      subscribers.find(_.name == id).foreach { subscriber =>
+        val selection = context.actorSelection(path)
+        val actorRef = selection.resolveOne(2.seconds)
+        actorRef onComplete {
+          case Success(ref) =>
+            state.addSubscriber(ref, subscriber.keyExtractor)
+          case Failure(err) =>
+            log.error("Error getting subscriber {}", err)
+        }
       }
 
     case ack: ACK =>

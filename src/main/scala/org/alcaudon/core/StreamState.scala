@@ -5,7 +5,7 @@ import akka.actor.ActorRef
 import scala.collection.mutable.ArrayBuffer
 
 case class SubscriberInfo(actor: ActorRef,
-                          @transient keyExtractor: KeyExtractor,
+                          keyExtractor: KeyExtractor,
                           var _latestConsumedOffset: Long)
     extends Ordered[SubscriberInfo] {
 
@@ -71,7 +71,6 @@ case class StreamState(
   def getRecord(actor: ActorRef): Option[StreamRecord] = {
     subscribersInfo.get(actor) match {
       case Some(subscriberInfo) =>
-        // TODO try to allocate less objects //Think about observables
         val streamRecord = pendingRecords(
           (subscriberInfo.nextOffset - latestAckRecordSeq).toInt)
         val key =

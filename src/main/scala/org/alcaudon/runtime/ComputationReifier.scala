@@ -12,7 +12,7 @@ import org.alcaudon.clustering.DataflowTopologyListener.DataflowNodeAddress
 import org.alcaudon.core.AlcaudonStream.ACK
 import org.alcaudon.core.State.{ProduceRecord, Transaction}
 import org.alcaudon.core.Timer.Timer
-import org.alcaudon.core.{ActorConfig, Record}
+import org.alcaudon.core.{ActorConfig, Record, StreamRecord}
 import org.alcaudon.runtime.TimerExecutor.ExecuteTimer
 
 import scala.collection.mutable.Map
@@ -124,17 +124,26 @@ class ComputationReifier(computation: Computation, dataflowId: String = "")
   }
 
   def receiveCommand: Receive = {
-
-    case record: Record if record.timestamp < state.latestWatermark =>
+//    case record: Record if record.timestamp < state.latestWatermark =>
     // Ignore, maybe send a message back
 
     case record: Record if hasBeenProcessed(record) =>
-      sender() ! ACK(self, record.id, 0l)
+      sender() ! ACK(self, 0l)
+
+    case rec @ StreamRecord(_, record) if hasBeenProcessed(record) =>
+      sender() ! ACK(self, rec.id)
+
+    case rec @ StreamRecord(_, record) =>
+      clearPendingChanges()
+      executor ! record
+      context.become(working(sender(), record.id, rec.id))
+      if (state.processedRecords % snapShotInterval == 0 && state.processedRecords != 0)
+        saveSnapshot(state)
 
     case record: Record =>
       clearPendingChanges()
       executor ! record
-      context.become(working(sender(), record.id))
+      context.become(working(sender(), record.id, 0l))
       if (state.processedRecords % snapShotInterval == 0 && state.processedRecords != 0)
         saveSnapshot(state)
 
@@ -171,9 +180,14 @@ class ComputationReifier(computation: Computation, dataflowId: String = "")
       log.error("Received {} on waitingState", unknown)
   }
 
-  def working(origin: ActorRef, runningRecordId: String): Receive = {
+  def working(origin: ActorRef,
+              runningRecordId: String,
+              offset: Long = 0L): Receive = {
     case _: Record =>
       sender() ! ComputationAlreadyRunning
+
+    case _: StreamRecord =>
+    //ignore
 
     case executeTimer: ExecuteTimer =>
     //accumulate pending
@@ -208,7 +222,7 @@ class ComputationReifier(computation: Computation, dataflowId: String = "")
         cuckooFilter.put(runningRecordId)
         state.newProcessedRecord()
         clearPendingChanges()
-        origin ! ACK(self, runningRecordId, 0l)
+        origin ! ACK(self, offset)
       }
 
     case InjectFailure =>

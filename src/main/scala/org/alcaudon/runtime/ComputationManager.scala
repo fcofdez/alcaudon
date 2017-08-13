@@ -8,8 +8,10 @@ import akka.actor.{
   ReceiveTimeout,
   Terminated
 }
+import akka.pattern.{Backoff, BackoffSupervisor}
 import org.alcaudon.api.Computation
 import org.alcaudon.clustering.ComputationNodeRecepcionist
+import org.alcaudon.core.AlcaudonStream
 import org.alcaudon.runtime.ComputationManager.{
   ComputationCodeDeployed,
   ErrorDeployingComputation
@@ -54,10 +56,12 @@ class ComputationDeployer(libraryManager: ActorRef)
                          deployRequest: DeployComputation): Receive = {
     case ClassLoaderForDataflowNotReady(id) =>
       libraryManager ! GetClassLoaderForDataflow(id)
+
     case UnknownClassLoaderForDataflow(id) =>
       log.error("Unable to deploy computation {}", deployRequest)
       context.parent ! ErrorDeployingComputation(deployRequest.id)
       context.stop(self)
+
     case ClassLoaderForDataflow(id, classLoader) =>
       val className =
         deployRequest.computationRepresentation.computationClassName
@@ -72,6 +76,7 @@ class ComputationDeployer(libraryManager: ActorRef)
       requester ! deployResult
       context.parent ! deployResult
       context.stop(self)
+
     case ReceiveTimeout =>
       log.error("Unable to deploy computation {}", deployRequest.id)
       context.parent ! ErrorDeployingComputation(deployRequest.id)
@@ -100,36 +105,59 @@ class ComputationManager(maxSlots: Int) extends Actor with ActorLogging {
       deployer.forward(msg)
 
     case code: ComputationCodeDeployed =>
-      val reifier =
-        context.actorOf(Props(new ComputationReifier(code.computation)))
-      context.watch(reifier)
-      context.become(
-        receiveWork(state.copy(computations = state.computations)))
+      val computationReifier = createActorWithBackOff(
+        code.id,
+        ComputationReifier.props(code.computation, code.dataflowId))
+      val newComputations = state.computations + (code.id -> computationReifier)
+      context.become(receiveWork(state.copy(computations = newComputations)))
 
     case DeployStream(id) if !state.availableStreamSlots =>
       sender() ! NonAvailableSlots(id)
+
     case DeployStream(id) =>
+      val stream = createActorWithBackOff(id, AlcaudonStream.props(id))
+      val updatedStreams = state.streams + (id -> stream)
+      context.become(receiveWork(state.copy(streams = updatedStreams)))
+
+      context.watch(stream)
       log.info("Deploying stream for dataflow {}", id)
+
     case DeploySource(id) =>
       log.info("Deploying source for dataflow {}", id)
+
     case DeploySink(id) =>
       log.info("Deploying sink for dataflow {}", id)
+
     case StopComputation(id) =>
       log.info("Stopping computation for dataflow {}", id)
       state.computations.get(id).foreach(context.stop)
       sender() ! ComputationStopped(id)
+
     case StopSource(id) =>
       log.info("Stopping source for dataflow {}", id)
       state.sources.get(id).foreach(context.stop)
       sender() ! SourceStopped(id)
+
     case StopStream(id) =>
       log.info("Stopping stream for dataflow {}", id)
       state.streams.get(id).foreach(context.stop)
       sender() ! StreamStopped(id)
+
     case StopSink(id) =>
       log.info("Stopping sink for dataflow {}", id)
       state.sinks.get(id).foreach(context.stop)
       sender() ! SinkStopped
-    case Terminated(actor) =>
+  }
+
+  def createActorWithBackOff(id: String, props: Props): ActorRef = {
+    val supervisor = BackoffSupervisor.props(
+      Backoff.onFailure(
+        props,
+        childName = id,
+        minBackoff = 3.seconds,
+        maxBackoff = 30.seconds,
+        randomFactor = 0.2
+      ))
+    context.actorOf(supervisor)
   }
 }

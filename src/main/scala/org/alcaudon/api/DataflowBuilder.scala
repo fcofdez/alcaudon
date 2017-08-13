@@ -28,6 +28,7 @@ class DataflowBuilder(dataflowName: String) {
   private val id = UUID.randomUUID().toString
   val computations = Map[String, ComputationRepresentation]()
   val streams = Set[String]()
+  val streamInputs = Set[AlcaudonInputStream]()
   val sources = Map[String, Source]()
   val sinks = Map[String, String]()
   val graphBuilder = new DataflowGraphBuilder
@@ -37,6 +38,7 @@ class DataflowBuilder(dataflowName: String) {
                       outputStreams: List[String],
                       inputStreams: AlcaudonInputStream*): DataflowBuilder = {
 
+    streamInputs ++= inputStreams
     streams ++= inputStreams.map(_.name)
     streams ++= outputStreams
 
@@ -76,6 +78,7 @@ class DataflowBuilder(dataflowName: String) {
                   graphBuilder.internalGraph,
                   computations.toMap,
                   streams.toSet,
+                  streamInputs.toSet,
                   sources.toMap,
                   sinks.toMap,
                   graphBuilder.nodes.toMap)

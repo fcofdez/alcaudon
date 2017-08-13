@@ -1,6 +1,7 @@
 package org.alcaudon.core
 
 import org.alcaudon.api.ComputationRepresentation
+import org.alcaudon.api.DataflowBuilder.AlcaudonInputStream
 import org.alcaudon.api.DataflowGraphBuilder.DataflowNode
 import org.alcaudon.core.sources.Source
 
@@ -12,6 +13,7 @@ case class DataflowGraph(name: String,
                          topology: Graph[DataflowNode, DiEdge],
                          computations: Map[String, ComputationRepresentation],
                          streams: Set[String],
+                         inputStreams: Set[AlcaudonInputStream],
                          sources: Map[String, Source],
                          sinks: Map[String, String],
                          private val nodes: Map[String, DataflowNode]) {

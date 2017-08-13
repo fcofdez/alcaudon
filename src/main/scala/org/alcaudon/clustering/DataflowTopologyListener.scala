@@ -22,7 +22,6 @@ class DataflowTopologyListener(dataflowId: String, nodeId: String)
   import DataflowTopologyListener._
 
   val mediator = DistributedPubSub(context.system).mediator
-  mediator ! Subscribe(dataflowId, self)
 
   def receive = {
     case deps: DownstreamDependencies =>
