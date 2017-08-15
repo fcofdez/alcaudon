@@ -114,6 +114,9 @@ class CoordinatorRecepcionist
       sender() ! PendingDataflowPipeline(uuid, url)
 
     case request: CreateDataflowPipeline =>
+      val availableNodes = computationNodes.filter(_.available)
+      import firmament._
+      JobDesc.JobDescriptor.newBuilder()
       sender() ! DataflowPipelineCreated
 
     case GetDataflowPipelineStatus(uuid) =>

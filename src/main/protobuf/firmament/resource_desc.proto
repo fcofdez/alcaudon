@@ -7,10 +7,10 @@ syntax = "proto3";
 
 package firmament;
 
-import "base/coco_interference_scores.proto";
-import "base/label.proto";
-import "base/resource_vector.proto";
-import "base/whare_map_stats.proto";
+import "coco_interference_scores.proto";
+import "label.proto";
+import "resource_vector.proto";
+import "whare_map_stats.proto";
 
 message ResourceDescriptor {
   enum ResourceState {

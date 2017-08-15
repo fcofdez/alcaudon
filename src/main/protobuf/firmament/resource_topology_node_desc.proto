@@ -10,7 +10,7 @@ syntax = "proto3";
 
 package firmament;
 
-import "base/resource_desc.proto";
+import "resource_desc.proto";
 
 message ResourceTopologyNodeDescriptor {
   ResourceDescriptor resource_desc = 1;

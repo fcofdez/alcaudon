@@ -40,7 +40,8 @@ libraryDependencies ++= Seq(
   "com.google.guava" % "guava" % "22.0",
   "com.github.mgunlogson" % "cuckoofilter4j" % "1.0.2",
   "com.google.protobuf" % "protobuf-java" % "3.3.1",
-  "com.workday" %% "prometheus-akka" % "0.7.0"
+  "com.workday" %% "prometheus-akka" % "0.7.0",
+  "io.grpc" % "grpc-services" % "1.5.0"
 )
 
 resolvers += Resolver.sonatypeRepo("releases")
