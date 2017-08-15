@@ -4,18 +4,10 @@ import java.io.File
 import java.net.{HttpURLConnection, URL}
 import java.nio.file.{Files, Path}
 
-import akka.actor.{
-  Actor,
-  ActorLogging,
-  ActorRef,
-  ActorSelection,
-  ActorSystem,
-  Props,
-  ReceiveTimeout,
-  Status
-}
+import akka.actor._
 import akka.cluster.Cluster
 import akka.pattern.{ask, pipe}
+import akka.util.Timeout
 import com.typesafe.config.ConfigFactory
 import org.alcaudon.api.AlcaudonClient.RegisterDataflowPipeline
 import org.alcaudon.clustering.Coordinator.Protocol._
@@ -35,6 +27,7 @@ class AlcaudonClusterClient(seedNodes: String*) {
   val clientActor = system.actorOf(Props[AlcaudonClient])
 
   private def sendQuery[Q, R](query: Q): Try[R] = {
+    implicit val timeout = Timeout(5.seconds)
     val req = clientActor ? query
     val response = req.mapTo[R]
     val resp = Await.ready(response, 1.minute)
@@ -60,7 +53,7 @@ class AlcaudonClusterClient(seedNodes: String*) {
     sendQuery(StopDataflowPipeline(id))
 }
 
-object AlcaudonClient {
+private[this] object AlcaudonClient {
   // Requests
   case class RegisterDataflowPipeline(dataflow: DataflowGraph, jar: Path)
 
@@ -71,7 +64,7 @@ object AlcaudonClient {
   case class UploadResult(uuid: String, status: ObjectUploadStatus)
 }
 
-class AlcaudonClient
+private[this] class AlcaudonClient
     extends Actor
     with ActorLogging
     with ActorConfig
