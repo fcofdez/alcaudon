@@ -58,8 +58,8 @@ class ClusterStatusListener extends Actor with ActorLogging {
         log.info(s"$m downed after unreachable, REMOVED.")
       }
       context.parent ! NodeLeft(m.address)
-    case UnreachableMember(m) => log.info(s"$m UNREACHABLE")
-    case ReachableMember(m) => log.info(s"$m REACHABLE")
+    case UnreachableMember(m)   => log.info(s"$m UNREACHABLE")
+    case ReachableMember(m)     => log.info(s"$m REACHABLE")
     case s: CurrentClusterState => log.info(s"cluster state: $s")
   }
 
