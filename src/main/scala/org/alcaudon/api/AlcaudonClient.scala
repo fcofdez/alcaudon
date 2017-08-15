@@ -16,44 +16,10 @@ import org.alcaudon.core.{ActorConfig, DataflowGraph}
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
+import scala.reflect.ClassTag
 import scala.util.{Failure, Success, Try}
 
-class AlcaudonClusterClient(seedNodes: String*) {
-  val seedConfig = ConfigFactory.load("seed")
-
-  val system =
-    ActorSystem("alcaudon", seedConfig.withFallback(ConfigFactory.load()))
-  val cluster = Cluster(system)
-  val clientActor = system.actorOf(Props[AlcaudonClient])
-
-  private def sendQuery[Q, R](query: Q): Try[R] = {
-    implicit val timeout = Timeout(5.seconds)
-    val req = clientActor ? query
-    val response = req.mapTo[R]
-    val resp = Await.ready(response, 1.minute)
-    resp.value match {
-      case Some(Success(created)) => Success(created)
-      case Some(Failure(err))     => Failure(err)
-      case None                   => Failure(new Exception("Unable to communicate"))
-      case _                      => Failure(new Exception("Unable to communicate"))
-    }
-  }
-
-  def deployPipeline(name: String,
-                     dataflow: DataflowGraph,
-                     jar: String): Try[DataflowPipelineCreated] = {
-    val file = new File(jar)
-    sendQuery(RegisterDataflowPipeline(dataflow, file.toPath))
-  }
-
-  def getPipelineStatus(id: String): Try[DataflowPipelineStatus] =
-    sendQuery(GetDataflowPipelineStatus(id))
-
-  def stopPipeline(id: String): Try[DataflowPipelineStopped] =
-    sendQuery(StopDataflowPipeline(id))
-}
-
-private[this] object AlcaudonClient {
+object AlcaudonClient {
   // Requests
   case class RegisterDataflowPipeline(dataflow: DataflowGraph, jar: Path)
 
@@ -131,5 +97,39 @@ private[this] class AlcaudonClient
     case request: StopDataflowPipeline =>
       coordinator.forward(request)
   }
+}
 
+class AlcaudonClusterClient(seedNodes: String*) {
+  val seedConfig = ConfigFactory.load("seed")
+
+  val system =
+    ActorSystem("alcaudon", seedConfig.withFallback(ConfigFactory.load()))
+  val cluster = Cluster(system)
+  val clientActor = system.actorOf(Props[AlcaudonClient])
+
+  private def sendQuery[Q, R: ClassTag](query: Q): Try[R] = {
+    implicit val timeout = Timeout(5.seconds)
+    val req = clientActor ? query
+    val response = req.mapTo[R]
+    val resp = Await.ready(response, 1.minute)
+    resp.value match {
+      case Some(Success(created)) => Success(created)
+      case Some(Failure(err))     => Failure(err)
+      case None                   => Failure(new Exception("Unable to communicate"))
+      case _                      => Failure(new Exception("Unable to communicate"))
+    }
+  }
+
+  def deployPipeline(name: String,
+                     dataflow: DataflowGraph,
+                     jar: String): Try[DataflowPipelineCreated] = {
+    val file = new File(jar)
+    sendQuery(RegisterDataflowPipeline(dataflow, file.toPath))
+  }
+
+  def getPipelineStatus(id: String): Try[DataflowPipelineStatus] =
+    sendQuery(GetDataflowPipelineStatus(id))
+
+  def stopPipeline(id: String): Try[DataflowPipelineStopped] =
+    sendQuery(StopDataflowPipeline(id))
 }
