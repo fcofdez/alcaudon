@@ -4,6 +4,7 @@ mainClass in assembly := Some("org.alcaudon.runtime.Main")
 
 assemblyMergeStrategy in assembly := {
   case "META-INF/io.netty.versions.properties" => MergeStrategy.concat
+  case "META-INF/aop.xml" => MergeStrategy.first
   case x =>
     val oldStrategy = (assemblyMergeStrategy in assembly).value
     oldStrategy(x)
@@ -24,4 +25,12 @@ dockerfile in docker := {
     add(artifact, artifactTargetPath)
     entryPoint("java", s"-javaagent:$weaverPath", "-jar", artifactTargetPath)
   }
+}
+
+imageNames in docker := {
+  val imageName = ImageName(
+    namespace = Some("fcofdezc"),
+    repository = name.value,
+    tag = Some("v" + version.value))
+  Seq(imageName, imageName.copy(tag = Some("latest")))
 }

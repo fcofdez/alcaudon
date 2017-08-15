@@ -44,16 +44,14 @@ libraryDependencies ++= Seq(
 )
 
 resolvers += Resolver.sonatypeRepo("releases")
+resolvers += Resolver.jcenterRepo
 
 // Test
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
 libraryDependencies += "com.github.alexarchambault" %% "scalacheck-shapeless_1.13" % "1.1.3" % "test"
-libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.1"
-libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % akkaVersion
+libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.1" % "test"
+libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "test"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
-
-resolvers += Resolver.jcenterRepo
-
 libraryDependencies += "com.github.dnvriend" %% "akka-persistence-inmemory" % "2.4.18.1" % "test"
 
 fork := true

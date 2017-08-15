@@ -19,9 +19,9 @@ pgpReadOnly := true
 
 useGpg := true
 
-pgpPublicRing := file("~/.gnupg/pubring.gpg")
+pgpPublicRing := file("pubring.gpg")
 
-pgpSecretRing := file("~/.gnupg/secring.gpg")
+pgpSecretRing := file("secring.gpg")
 
 usePgpKeyHex("FDD1DC390A9EA6FD5D26B9FEB04976C54D31628E")
 
