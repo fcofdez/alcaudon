@@ -28,9 +28,8 @@ dockerfile in docker := {
 }
 
 imageNames in docker := {
-  val imageName = ImageName(
-    namespace = Some("fcofdezc"),
-    repository = name.value,
-    tag = Some("v" + version.value))
+  val imageName = ImageName(namespace = Some("fcofdezc"),
+                            repository = name.value,
+                            tag = Some("v" + version.value))
   Seq(imageName, imageName.copy(tag = Some("latest")))
 }

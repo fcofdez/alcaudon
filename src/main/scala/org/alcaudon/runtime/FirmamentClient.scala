@@ -5,7 +5,13 @@ import java.util.UUID
 import akka.actor.{Actor, ActorLogging}
 import com.google.protobuf.ByteString
 import firmament.FirmamentSchedulerOuterClass.TaskDescription
-import firmament.ReferenceDesc.ReferenceDescriptor.{ReferenceScope, ReferenceType}
+import firmament.ReferenceDesc.ReferenceDescriptor.{
+  ReferenceScope,
+  ReferenceType
+}
+import firmament.ResourceDesc.ResourceDescriptor
+import firmament.ResourceDesc.ResourceDescriptor.{ResourceState, ResourceType}
+import firmament.ResourceTopologyNodeDesc.ResourceTopologyNodeDescriptor
 import firmament.ResourceVectorOuterClass.ResourceVector
 import firmament.TaskDesc.TaskDescriptor
 import firmament.TaskDesc.TaskDescriptor.{TaskState, TaskType}
@@ -24,14 +30,17 @@ object FirmamentClient {
                              netRx: Long,
                              diskBw: Long,
                              dependencies: Set[String])
-  case class AddNode(hostname: String, cpus: Int, ram: Long)
+  case class AddNode(hostname: String, cpuCount: Long, ram: Long)
 
 }
 
 class FirmamentClient extends Actor with ActorLogging with ActorConfig {
 
   val channel =
-    ManagedChannelBuilder.forAddress("a", 1).usePlaintext(true).build()
+    ManagedChannelBuilder
+      .forAddress(config.firmament.address, config.firmament.port)
+      .usePlaintext(true)
+      .build()
 
   val client = FirmamentSchedulerGrpc.newBlockingStub(channel)
 
@@ -87,8 +96,28 @@ class FirmamentClient extends Actor with ActorLogging with ActorConfig {
 
   def receive = {
     case request: AddNode =>
+      val capacity = ResourceVector
+        .newBuilder()
+        .setCpuCores(request.cpuCount)
+        .setRamCap(request.ram)
+      val resource = ResourceDescriptor
+        .newBuilder()
+        .setUuid(id)
+        .setType(ResourceType.RESOURCE_MACHINE)
+        .setState(ResourceState.RESOURCE_IDLE)
+        .setFriendlyName(request.hostname)
+        .setResourceCapacity(capacity)
+      val topology =
+        ResourceTopologyNodeDescriptor.newBuilder().setResourceDesc(resource)
+      val response = client.nodeAdded(topology.build())
+      response.getType match {
+        case _ =>
+      }
     case request: ScheduleRequest =>
       val response = client.taskSubmitted(buildTaskDescription(request))
+      response.getType match {
+        case _ =>
+      }
   }
 
 }

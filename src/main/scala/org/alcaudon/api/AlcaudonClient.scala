@@ -114,9 +114,9 @@ class AlcaudonClusterClient(seedNodes: String*) {
     val resp = Await.ready(response, 1.minute)
     resp.value match {
       case Some(Success(created)) => Success(created)
-      case Some(Failure(err))     => Failure(err)
-      case None                   => Failure(new Exception("Unable to communicate"))
-      case _                      => Failure(new Exception("Unable to communicate"))
+      case Some(Failure(err)) => Failure(err)
+      case None => Failure(new Exception("Unable to communicate"))
+      case _ => Failure(new Exception("Unable to communicate"))
     }
   }
 

@@ -52,6 +52,11 @@ class SettingsDefinition(config: com.typesafe.config.Config) {
   final lazy val consistencyConstraint =
     config.getString("alcaudon.consistency-constraint")
 
+  object firmament {
+    final lazy val address = config.getString("alcaudon.firmament.address")
+    final lazy val port = config.getInt("alcaudon.firmament.port")
+  }
+
   object streams {
 
     object flowControl {
