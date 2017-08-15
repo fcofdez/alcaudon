@@ -17,13 +17,9 @@ pomIncludeRepository := (_ => false)
 
 pgpReadOnly := true
 
-useGpg := true
-
 pgpPublicRing := file("pubring.gpg")
 
 pgpSecretRing := file("secring.gpg")
-
-usePgpKeyHex("FDD1DC390A9EA6FD5D26B9FEB04976C54D31628E")
 
 pgpPassphrase := Some(
   Option(System.getenv().get("PGP_PASSPHRASE")).getOrElse("").toCharArray)

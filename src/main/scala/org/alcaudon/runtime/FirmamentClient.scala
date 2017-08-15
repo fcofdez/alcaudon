@@ -4,11 +4,8 @@ import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging}
 import com.google.protobuf.ByteString
-import firmament.FirmamentSchedulerOuterClass.TaskDescription
-import firmament.ReferenceDesc.ReferenceDescriptor.{
-  ReferenceScope,
-  ReferenceType
-}
+import firmament.FirmamentSchedulerOuterClass.{NodeReplyType, TaskDescription, TaskReplyType}
+import firmament.ReferenceDesc.ReferenceDescriptor.{ReferenceScope, ReferenceType}
 import firmament.ResourceDesc.ResourceDescriptor
 import firmament.ResourceDesc.ResourceDescriptor.{ResourceState, ResourceType}
 import firmament.ResourceTopologyNodeDesc.ResourceTopologyNodeDescriptor
@@ -23,6 +20,7 @@ import scala.util.Random
 
 object FirmamentClient {
 
+  // Requests
   case class ScheduleRequest(id: String,
                              cores: Float,
                              ramCap: Long,
@@ -30,7 +28,15 @@ object FirmamentClient {
                              netRx: Long,
                              diskBw: Long,
                              dependencies: Set[String])
+
   case class AddNode(hostname: String, cpuCount: Long, ram: Long)
+
+  // Responses
+  case class NodeAdded(hostmame: String)
+  case class NodeNotFound(hostname: String)
+
+  case class TaskAdded(id: String)
+  case class TaskNotFound(id: String)
 
 }
 
@@ -109,14 +115,30 @@ class FirmamentClient extends Actor with ActorLogging with ActorConfig {
         .setResourceCapacity(capacity)
       val topology =
         ResourceTopologyNodeDescriptor.newBuilder().setResourceDesc(resource)
+
       val response = client.nodeAdded(topology.build())
+
       response.getType match {
+        case NodeReplyType.NODE_ADDED_OK =>
+          sender() ! NodeAdded(request.hostname)
+        case NodeReplyType.NODE_ALREADY_EXISTS =>
+          sender() ! NodeAdded(request.hostname)
+        case NodeReplyType.NODE_NOT_FOUND =>
+          sender() ! NodeNotFound(request.hostname)
         case _ =>
+          sender() ! NodeNotFound(request.hostname)
       }
+
     case request: ScheduleRequest =>
       val response = client.taskSubmitted(buildTaskDescription(request))
+      
       response.getType match {
+        case TaskReplyType.TASK_SUBMITTED_OK =>
+          sender() ! TaskAdded(request.id)
+        case TaskReplyType.TASK_NOT_FOUND =>
+          sender() ! TaskNotFound(request.id)
         case _ =>
+          sender() ! TaskNotFound(request.id)
       }
   }
 
