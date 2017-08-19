@@ -4,22 +4,14 @@ import java.net.URL
 import java.util.UUID
 
 import akka.actor.{ActorLogging, ActorRef, Address, Props}
-import akka.persistence.{
-  PersistentActor,
-  SaveSnapshotFailure,
-  SaveSnapshotSuccess,
-  SnapshotOffer
-}
+import akka.persistence.{PersistentActor, SaveSnapshotFailure, SaveSnapshotSuccess, SnapshotOffer}
 import cats.instances.all._
 import cats.syntax.semigroup._
 import cats.Semigroup
 import com.amazonaws.auth.BasicAWSCredentials
-import org.alcaudon.api.DataflowNodeRepresentation.{
-  ComputationRepresentation,
-  DataflowNodeRepresentation,
-  StreamRepresentation
-}
+import org.alcaudon.api.DataflowNodeRepresentation.{ComputationRepresentation, DataflowNodeRepresentation, StreamRepresentation}
 import org.alcaudon.clustering.ComputationNodeRecepcionist.Protocol._
+import org.alcaudon.clustering.CoordinatorDataflowDeployer.{DataflowDeployed, DataflowDeploymentFailed}
 import org.alcaudon.core.{ActorConfig, ClusterStatusListener, DataflowGraph}
 import org.alcaudon.runtime.BlobLocation.AWSInformation
 import org.alcaudon.runtime.{FirmamentClient, ObjectStorageUtils}
@@ -48,17 +40,19 @@ object Coordinator {
   type DataflowID = String
   type DataflowNodeId = String
 
-  sealed trait SchedulingState
-  case object Scheduling extends SchedulingState
-  case object Running extends SchedulingState
-  case object Unknown extends SchedulingState
+  sealed trait DataflowNodeState
+  case object Deploying extends DataflowNodeState
+  case object Running extends DataflowNodeState
+  case object Scheduling extends DataflowNodeState
 
   implicit val scheduledEntitySemi: Semigroup[ScheduledEntity] =
     new Semigroup[ScheduledEntity] {
       def combine(x: ScheduledEntity, y: ScheduledEntity): ScheduledEntity = {
         (x.state, y.state) match {
+          case (Running, Running) => x
           case (Running, _) => x
-          case _ => y
+          case (_, Running) => y
+          case _            => x
         }
       }
     }
@@ -75,8 +69,7 @@ object Coordinator {
 
   // State
   case class CoordinatorState(
-      scheduledEntity: Map[ComputationNodeID, List[ScheduledEntity]] =
-        Map.empty,
+      scheduledEntity: Map[ComputationNodeID, List[ScheduledEntity]] = Map.empty,
       computationNodes: Map[ComputationNodeID, ComputationNodeInformation] =
         Map.empty,
       deployedDataflows: Map[DataflowID, DeployedDataflowMetaInformation] =
@@ -98,16 +91,39 @@ object Coordinator {
     def preScheduleDataflow(
         dataflowID: DataflowID,
         deploymentPlan: DeploymentPlan): CoordinatorState = {
-      val updateNodes = for {
+      val updatedNodes = for {
         (nodeId, size) <- deploymentPlan.deployInfo.mapValues(_.size)
         computationNode <- computationNodes.get(nodeId)
       } yield nodeId -> computationNode.updateRunningSlot(size)
       val updatedScheduledEntity = mergeMap(
         deploymentPlan.deployInfo.mapValues(_.map(_.scheduledEntity).toList),
         scheduledEntity)
-      DeployedDataflowMetaInformation(
+      val newDataflow = DeployedDataflowMetaInformation(
         dataflowID,
         deploymentPlan.deployInfo.values.flatten.map(_.scheduledEntity).toList)
+      copy(
+        scheduledEntity = updatedScheduledEntity,
+        computationNodes = updatedNodes,
+        deployedDataflows = deployedDataflows + (dataflowID -> newDataflow)
+      )
+    }
+
+    def removeDataflow(id: DataflowID): CoordinatorState = {
+      this
+    }
+
+    def setDataflowRunning(id: DataflowID): CoordinatorState = {
+      for {
+        dataflow <- deployedDataflows.get(id)
+        entity <- dataflow.deployedEntitiesIds
+      } {
+        val x = dataflow.deployedEntitiesIds
+          .groupBy(_.computationNodeID)
+          .mapValues(_.map(_.updateState(Running)))
+        val newEntities = mergeMap(scheduledEntity, x)
+
+        dataflow.deployedEntitiesIds
+      }
       this
     }
 
@@ -115,38 +131,51 @@ object Coordinator {
 
   sealed trait ScheduledEntity {
     val id: String
-    val actorRef: ActorRef
+    val computationNodeID: ComputationNodeID
     val representation: DataflowNodeRepresentation
-    val state: SchedulingState = Unknown
+    val state: DataflowNodeState
     def stopRequest: StopRequest
+    def updateState(state: DataflowNodeState): ScheduledEntity
   }
 
   case class ScheduledStream(id: String,
-                             actorRef: ActorRef,
-                             representation: StreamRepresentation)
+                             computationNodeID: ComputationNodeID,
+                             representation: StreamRepresentation,
+                             state: DataflowNodeState = Scheduling)
       extends ScheduledEntity {
-    override def stopRequest: StopRequest = StopStream(id)
+    def stopRequest: StopRequest = StopStream(id)
+    def updateState(state: DataflowNodeState): ScheduledEntity =
+      copy(state = state)
   }
 
   case class ScheduledComputation(id: String,
-                                  actorRef: ActorRef,
-                                  representation: ComputationRepresentation)
+                                  computationNodeID: ComputationNodeID,
+                                  representation: ComputationRepresentation,
+                                  state: DataflowNodeState = Scheduling)
       extends ScheduledEntity {
-    override def stopRequest: StopRequest = StopComputation(id)
+    def stopRequest: StopRequest = StopComputation(id)
+    def updateState(state: DataflowNodeState): ScheduledEntity =
+      copy(state = state)
   }
 
   case class ScheduledSource(id: String,
-                             actorRef: ActorRef,
-                             representation: DataflowNodeRepresentation)
+                             computationNodeID: ComputationNodeID,
+                             representation: DataflowNodeRepresentation,
+                             state: DataflowNodeState = Scheduling)
       extends ScheduledEntity {
     override def stopRequest: StopRequest = StopSource(id)
+    def updateState(state: DataflowNodeState): ScheduledEntity =
+      copy(state = state)
   }
 
   case class ScheduledSink(id: String,
-                           actorRef: ActorRef,
-                           representation: DataflowNodeRepresentation)
+                           computationNodeID: ComputationNodeID,
+                           representation: DataflowNodeRepresentation,
+                           state: DataflowNodeState = Scheduling)
       extends ScheduledEntity {
-    override def stopRequest: StopRequest = StopSink(id)
+    def stopRequest: StopRequest = StopSink(id)
+    def updateState(state: DataflowNodeState): ScheduledEntity =
+      copy(state = state)
   }
 
   case class ComputationNodeInformation(uuid: ComputationNodeID,
@@ -167,13 +196,12 @@ object Coordinator {
   case class DeployedDataflowMetaInformation(
       id: DataflowID,
       deployedEntitiesIds: List[ScheduledEntity],
-      state: SchedulingState = Unknown)
+      state: DataflowNodeState = Scheduling)
 
   case class DeployPlan(request: DeploymentRequest,
                         scheduledEntity: ScheduledEntity)
 
-  case class DeploymentPlan(
-      deployInfo: Map[ComputationNodeID, Seq[DeployPlan]])
+  case class DeploymentPlan(deployInfo: Map[ComputationNodeID, Seq[DeployPlan]])
 
 }
 
@@ -219,11 +247,11 @@ class CoordinatorRecepcionist
                 (nodeId, actorRef)) =>
             DeployPlan(
               DeployComputation(dataflow.id, computationId, computationRep),
-              ScheduledComputation(computationId, actorRef, computationRep))
+              ScheduledComputation(computationId, nodeId, computationRep))
           case ((streamId, streamRep: StreamRepresentation),
                 (nodeId, actorRef)) =>
             DeployPlan(DeployStream(dataflow.id, streamRep),
-                       ScheduledStream(streamId, actorRef, streamRep))
+                       ScheduledStream(streamId, nodeId, streamRep))
         }.toSeq
     }
 
@@ -261,16 +289,29 @@ class CoordinatorRecepcionist
       val uuid = getNewUUID
       val url = ObjectStorageUtils.sign(config.blob.bucket, s"$uuid.jar")
       sender() ! PendingDataflowPipeline(uuid, url)
+
     case request: CreateDataflowPipeline
         if state.dataflowExists(request.uuid) =>
+      sender() ! DataflowPipelineCreated
+
     case request: CreateDataflowPipeline =>
       log.info("Scheduling dataflow pipeline {}", request.uuid)
       val deploymentPlan =
         scheduleGraph(request.graph, state.computationNodes.values.toList)
       val newState = state.preScheduleDataflow(request.uuid, deploymentPlan)
+      val deployer = context.actorOf(
+        CoordinatorDataflowDeployer.props(request.uuid, state.computationNodes))
+      deployer.tell(deploymentPlan, sender())
       saveSnapshot(newState)
       context.become(receiveRequests(newState))
-      sender() ! DataflowPipelineCreated
+
+    case DataflowDeployed(id) =>
+      val newState = state.setDataflowRunning(id)
+      saveSnapshot(newState)
+      context.become(receiveRequests(newState))
+
+    case DataflowDeploymentFailed(id) =>
+
 
     case GetDataflowPipelineStatus(uuid) =>
       state.deployedDataflows.get(uuid) match {
