@@ -3,17 +3,24 @@ package org.alcaudon.clustering
 import java.net.URL
 import java.util.UUID
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Address, Props}
-import akka.cluster.ClusterEvent._
-import akka.cluster.{Cluster, MemberStatus}
+import akka.actor.{ActorLogging, ActorRef, Address, Props}
 import akka.persistence.{
   PersistentActor,
   SaveSnapshotFailure,
   SaveSnapshotSuccess,
   SnapshotOffer
 }
+import cats.instances.all._
+import cats.syntax.semigroup._
+import cats.Semigroup
 import com.amazonaws.auth.BasicAWSCredentials
-import org.alcaudon.core.{ActorConfig, DataflowGraph}
+import org.alcaudon.api.DataflowNodeRepresentation.{
+  ComputationRepresentation,
+  DataflowNodeRepresentation,
+  StreamRepresentation
+}
+import org.alcaudon.clustering.ComputationNodeRecepcionist.Protocol._
+import org.alcaudon.core.{ActorConfig, ClusterStatusListener, DataflowGraph}
 import org.alcaudon.runtime.BlobLocation.AWSInformation
 import org.alcaudon.runtime.{FirmamentClient, ObjectStorageUtils}
 
@@ -39,73 +46,135 @@ object Coordinator {
 
   type ComputationNodeID = String
   type DataflowID = String
-  type NodeId = String
+  type DataflowNodeId = String
 
   sealed trait SchedulingState
   case object Scheduling extends SchedulingState
   case object Running extends SchedulingState
   case object Unknown extends SchedulingState
 
+  implicit val scheduledEntitySemi: Semigroup[ScheduledEntity] =
+    new Semigroup[ScheduledEntity] {
+      def combine(x: ScheduledEntity, y: ScheduledEntity): ScheduledEntity = {
+        (x.state, y.state) match {
+          case (Running, _) => x
+          case _ => y
+        }
+      }
+    }
+
+  import cats.syntax.semigroup._
+
+  def optionCombine[A: Semigroup](a: A, opt: Option[A]): A =
+    opt.map(a |+| _).getOrElse(a)
+
+  def mergeMap[K, V: Semigroup](lhs: Map[K, V], rhs: Map[K, V]): Map[K, V] =
+    lhs.foldLeft(rhs) {
+      case (acc, (k, v)) => acc.updated(k, optionCombine(v, acc.get(k)))
+    }
+
   // State
   case class CoordinatorState(
-      scheduledEntity: Map[ComputationNodeID, ScheduledEntity] = Map.empty,
-      computationNodes: List[ComputationNodeInformation] = List.empty,
+      scheduledEntity: Map[ComputationNodeID, List[ScheduledEntity]] =
+        Map.empty,
+      computationNodes: Map[ComputationNodeID, ComputationNodeInformation] =
+        Map.empty,
       deployedDataflows: Map[DataflowID, DeployedDataflowMetaInformation] =
         Map.empty) {
+
+    def dataflowExists(dataflowID: DataflowID): Boolean =
+      deployedDataflows.get(dataflowID).isDefined
+
     def addNode(nodeInfo: ComputationNodeInformation): CoordinatorState =
-      copy(computationNodes = nodeInfo :: computationNodes)
+      copy(computationNodes = computationNodes + (nodeInfo.uuid -> nodeInfo))
+
+    def removeNode(address: Address): CoordinatorState = {
+      val currentNodes = computationNodes.filterNot {
+        case (id, node) => node.actorRef.path.address == address
+      }
+      copy(computationNodes = currentNodes)
+    }
+
+    def preScheduleDataflow(
+        dataflowID: DataflowID,
+        deploymentPlan: DeploymentPlan): CoordinatorState = {
+      val updateNodes = for {
+        (nodeId, size) <- deploymentPlan.deployInfo.mapValues(_.size)
+        computationNode <- computationNodes.get(nodeId)
+      } yield nodeId -> computationNode.updateRunningSlot(size)
+      val updatedScheduledEntity = mergeMap(
+        deploymentPlan.deployInfo.mapValues(_.map(_.scheduledEntity).toList),
+        scheduledEntity)
+      DeployedDataflowMetaInformation(
+        dataflowID,
+        deploymentPlan.deployInfo.values.flatten.map(_.scheduledEntity).toList)
+      this
+    }
 
   }
 
-  case class ScheduledEntity(id: NodeId,
+  sealed trait ScheduledEntity {
+    val id: String
+    val actorRef: ActorRef
+    val representation: DataflowNodeRepresentation
+    val state: SchedulingState = Unknown
+    def stopRequest: StopRequest
+  }
+
+  case class ScheduledStream(id: String,
                              actorRef: ActorRef,
-                             state: SchedulingState = Unknown)
+                             representation: StreamRepresentation)
+      extends ScheduledEntity {
+    override def stopRequest: StopRequest = StopStream(id)
+  }
+
+  case class ScheduledComputation(id: String,
+                                  actorRef: ActorRef,
+                                  representation: ComputationRepresentation)
+      extends ScheduledEntity {
+    override def stopRequest: StopRequest = StopComputation(id)
+  }
+
+  case class ScheduledSource(id: String,
+                             actorRef: ActorRef,
+                             representation: DataflowNodeRepresentation)
+      extends ScheduledEntity {
+    override def stopRequest: StopRequest = StopSource(id)
+  }
+
+  case class ScheduledSink(id: String,
+                           actorRef: ActorRef,
+                           representation: DataflowNodeRepresentation)
+      extends ScheduledEntity {
+    override def stopRequest: StopRequest = StopSink(id)
+  }
 
   case class ComputationNodeInformation(uuid: ComputationNodeID,
                                         actorRef: ActorRef,
                                         computationSlots: Int,
-                                        streamSlots: Int,
-                                        runningStreams: Int = 0,
                                         runningSlots: Int = 0) {
-    def availableSlots: Int = computationSlots - runningSlots
+
+    def availableSlotCount: Int = computationSlots - runningSlots
     def available: Boolean = computationSlots - runningSlots > 0
 
-    def availableComputationSlots: IndexedSeq[(ComputationNodeID, ActorRef)] =
-      (0 until availableSlots).map(_ => (uuid, actorRef))
+    def availableSlots: IndexedSeq[(ComputationNodeID, ActorRef)] =
+      (0 until availableSlotCount).map(_ => (uuid, actorRef))
+
+    def updateRunningSlot(count: Int): ComputationNodeInformation =
+      copy(runningSlots = runningSlots + count)
   }
 
   case class DeployedDataflowMetaInformation(
       id: DataflowID,
       deployedEntitiesIds: List[ScheduledEntity],
       state: SchedulingState = Unknown)
-}
 
-class ClusterStatusListener extends Actor with ActorLogging {
+  case class DeployPlan(request: DeploymentRequest,
+                        scheduledEntity: ScheduledEntity)
 
-  import Coordinator.Protocol._
+  case class DeploymentPlan(
+      deployInfo: Map[ComputationNodeID, Seq[DeployPlan]])
 
-  Cluster(context.system).subscribe(self, classOf[ClusterDomainEvent])
-
-  def receive = {
-    case MemberUp(member) => log.info(s"$member UP.")
-    case MemberExited(member) =>
-      log.info(s"$member EXITED.")
-    case MemberRemoved(m, previousState) =>
-      if (previousState == MemberStatus.Exiting) {
-        log.info(s"Member $m gracefully exited, REMOVED.")
-      } else {
-        log.info(s"$m downed after unreachable, REMOVED.")
-      }
-      context.parent ! NodeLeft(m.address)
-    case UnreachableMember(m)   => log.info(s"$m UNREACHABLE")
-    case ReachableMember(m)     => log.info(s"$m REACHABLE")
-    case s: CurrentClusterState => log.info(s"cluster state: $s")
-  }
-
-  override def postStop(): Unit = {
-    Cluster(context.system).unsubscribe(self)
-    super.postStop()
-  }
 }
 
 class CoordinatorRecepcionist
@@ -133,27 +202,46 @@ class CoordinatorRecepcionist
     case _ => // Using just snapshots
   }
 
-  def scheduleGraph(dataflow: DataflowGraph,
-                    computationNodes: List[ComputationNodeInformation]) = {
+  def scheduleGraph(
+      dataflow: DataflowGraph,
+      computationNodes: List[ComputationNodeInformation]): DeploymentPlan = {
+
     val availableNodes = computationNodes
       .filter(_.available)
-      .flatMap(_.availableComputationSlots)
-    val pairedComputations = dataflow.computations.zip(availableNodes)
+      .flatMap(_.availableSlots)
+
+    val computationDeploy = dataflow.nodeRepresentation
+      .zip(availableNodes)
+      .groupBy(_._2._1) map {
+      case (nodeId, pairedComputations) =>
+        nodeId -> pairedComputations.map {
+          case ((computationId, computationRep: ComputationRepresentation),
+                (nodeId, actorRef)) =>
+            DeployPlan(
+              DeployComputation(dataflow.id, computationId, computationRep),
+              ScheduledComputation(computationId, actorRef, computationRep))
+          case ((streamId, streamRep: StreamRepresentation),
+                (nodeId, actorRef)) =>
+            DeployPlan(DeployStream(dataflow.id, streamRep),
+                       ScheduledStream(streamId, actorRef, streamRep))
+        }.toSeq
+    }
+
+    DeploymentPlan(computationDeploy)
   }
 
   def getNewUUID = UUID.randomUUID().toString
 
-  def receiveCommand = receiveMembers(CoordinatorState())
+  def receiveCommand = receiveRequests(CoordinatorState())
 
-  def receiveMembers(state: CoordinatorState): Receive = {
+  def receiveRequests(state: CoordinatorState): Receive = {
 
     case NodeLeft(address) =>
       log.info("Member left from the cluster")
       // TODO replace deployed computations/streams in other nodes.
-      val currentComputationNodes =
-        state.computationNodes.filterNot(_.actorRef.path.address == address)
-      context.become(
-        receiveMembers(state.copy(computationNodes = currentComputationNodes)))
+      val newState = state.removeNode(address)
+      saveSnapshot(newState)
+      context.become(receiveRequests(newState))
 
     case register: RegisterComputationNode =>
       log.info("Registering ComputationNode {} - {}",
@@ -165,7 +253,7 @@ class CoordinatorRecepcionist
                                    register.computationSlots,
                                    register.computationSlots)
 
-      context.become(receiveMembers(state.addNode(computationNode)))
+      context.become(receiveRequests(state.addNode(computationNode)))
       sender() ! ComputationNodeRegistered
 
     case RequestDataflowPipelineCreation =>
@@ -173,13 +261,15 @@ class CoordinatorRecepcionist
       val uuid = getNewUUID
       val url = ObjectStorageUtils.sign(config.blob.bucket, s"$uuid.jar")
       sender() ! PendingDataflowPipeline(uuid, url)
-
+    case request: CreateDataflowPipeline
+        if state.dataflowExists(request.uuid) =>
     case request: CreateDataflowPipeline =>
       log.info("Scheduling dataflow pipeline {}", request.uuid)
-      val availableNodes = state.computationNodes
-        .filter(_.available)
-        .flatMap(_.availableComputationSlots)
-      saveSnapshot(state)
+      val deploymentPlan =
+        scheduleGraph(request.graph, state.computationNodes.values.toList)
+      val newState = state.preScheduleDataflow(request.uuid, deploymentPlan)
+      saveSnapshot(newState)
+      context.become(receiveRequests(newState))
       sender() ! DataflowPipelineCreated
 
     case GetDataflowPipelineStatus(uuid) =>

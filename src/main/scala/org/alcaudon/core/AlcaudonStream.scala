@@ -2,7 +2,6 @@ package org.alcaudon.core
 
 import akka.actor.{ActorLogging, ActorRef, Props}
 import akka.persistence._
-import org.alcaudon.api.DataflowBuilder.AlcaudonInputStream
 import org.alcaudon.clustering.DataflowTopologyListener
 import org.alcaudon.clustering.DataflowTopologyListener.DataflowNodeAddress
 import org.alcaudon.core.AlcaudonStream._
@@ -44,13 +43,13 @@ object AlcaudonStream {
     Props(new AlcaudonStream(name, dataflowId))
   def props(name: String,
             dataflowId: String,
-            subscribers: Set[AlcaudonInputStream]): Props =
+            subscribers: Map[String, KeyExtractor]): Props =
     Props(new AlcaudonStream(name, dataflowId, subscribers))
 }
 
 class AlcaudonStream(name: String,
                      dataflowId: String = "",
-                     subscribers: Set[AlcaudonInputStream] = Set.empty)
+                     subscribers: Map[String, KeyExtractor] = Map.empty)
     extends PersistentActor
     with ActorLogging
     with ActorConfig {
@@ -114,12 +113,12 @@ class AlcaudonStream(name: String,
       }
 
     case DataflowNodeAddress(id, path) =>
-      subscribers.find(_.name == id).foreach { subscriber =>
+      subscribers.get(id).foreach { keyExtractor =>
         val selection = context.actorSelection(path)
         val actorRef = selection.resolveOne(2.seconds)
         actorRef onComplete {
           case Success(ref) =>
-            state.addSubscriber(ref, subscriber.keyExtractor)
+            state.addSubscriber(ref, keyExtractor)
           case Failure(err) =>
             log.error("Error getting subscriber {}", err)
         }

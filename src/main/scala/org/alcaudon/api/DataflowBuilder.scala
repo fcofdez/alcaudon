@@ -1,10 +1,18 @@
 package org.alcaudon.api
 
 import java.util.UUID
+
 import org.alcaudon.core.sources.{Source, SourceFunc}
 import org.alcaudon.api.DataflowBuilder._
 import org.alcaudon.core.{DataflowGraph, KeyExtractor}
+import cats.implicits._
+import cats.Semigroup
+import org.alcaudon.api.DataflowNodeRepresentation.{
+  ComputationRepresentation,
+  StreamRepresentation
+}
 
+import scala.collection.immutable.{Map => IMap}
 import scala.collection.mutable.{Map, Set}
 
 object DataflowBuilder {
@@ -20,7 +28,9 @@ object DataflowBuilder {
       })
   }
 
-  case class AlcaudonInputStream(name: String, keyExtractor: KeyExtractor)
+  case class AlcaudonInputStream(name: String,
+                                 keyExtractor: KeyExtractor,
+                                 computationId: String = "")
   def OutputStreams(streams: String*): List[String] = streams.toList
 }
 
@@ -28,7 +38,7 @@ class DataflowBuilder(dataflowName: String) {
   private val id = UUID.randomUUID().toString
   val computations = Map[String, ComputationRepresentation]()
   val streams = Set[String]()
-  val streamInputs = Set[AlcaudonInputStream]()
+  val streamInputs = Map[String, StreamRepresentation]()
   val sources = Map[String, Source]()
   val sinks = Map[String, String]()
   val graphBuilder = new DataflowGraphBuilder
@@ -38,7 +48,17 @@ class DataflowBuilder(dataflowName: String) {
                       outputStreams: List[String],
                       inputStreams: AlcaudonInputStream*): DataflowBuilder = {
 
-    streamInputs ++= inputStreams
+    val uuid = UUID.randomUUID().toString
+    for {
+      inputStream <- inputStreams
+      stream <- streamInputs
+        .get(inputStream.name)
+        .orElse(Some(StreamRepresentation(inputStream.name)))
+    } {
+      stream.downstream += (uuid -> inputStream.keyExtractor)
+      streamInputs += (inputStream.name -> stream)
+    }
+
     streams ++= inputStreams.map(_.name)
     streams ++= outputStreams
 
@@ -54,7 +74,7 @@ class DataflowBuilder(dataflowName: String) {
       graphBuilder.addEdge(id, outputStream)
     }
 
-    computations += (id -> ComputationRepresentation(
+    computations += (uuid -> ComputationRepresentation(
       computation.getClass.getName,
       inputStreams.toList,
       outputStreams))
@@ -73,12 +93,21 @@ class DataflowBuilder(dataflowName: String) {
   }
 
   def build() = {
+    val nonConsumedStreams = streams.toSet -- streamInputs.keySet
+    val nonConsumedStreamsMap =
+      nonConsumedStreams
+        .map(name => name -> StreamRepresentation(name))
+        .toMap
+
+    val streamReps = Semigroup[IMap[String, StreamRepresentation]]
+      .combine(nonConsumedStreamsMap, streamInputs.toMap)
+
     DataflowGraph(dataflowName,
                   id,
                   graphBuilder.internalGraph,
                   computations.toMap,
                   streams.toSet,
-                  streamInputs.toSet,
+                  streamReps,
                   sources.toMap,
                   sinks.toMap,
                   graphBuilder.nodes.toMap)

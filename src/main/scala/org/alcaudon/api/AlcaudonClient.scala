@@ -3,6 +3,7 @@ package org.alcaudon.api
 import java.io.File
 import java.net.{HttpURLConnection, URL}
 import java.nio.file.{Files, Path}
+import scala.collection.JavaConverters._
 
 import akka.actor._
 import akka.cluster.Cluster
@@ -100,7 +101,12 @@ private[this] class AlcaudonClient
 }
 
 class AlcaudonClusterClient(seedNodes: String*) {
-  val seedConfig = ConfigFactory.load("seed")
+  val config = ConfigFactory.parseMap(
+    Map("akka.cluster.roles" -> List("client"),
+        "akka.cluster.seed-nodes" -> seedNodes
+          .map(addr => s"akka://alcaudon@$addr")
+          .toList).asJava)
+  val seedConfig = config.withFallback(ConfigFactory.load("seed"))
 
   val system =
     ActorSystem("alcaudon", seedConfig.withFallback(ConfigFactory.load()))

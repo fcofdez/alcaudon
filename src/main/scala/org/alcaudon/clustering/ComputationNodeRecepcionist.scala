@@ -7,7 +7,10 @@ import akka.actor.{
   ReceiveTimeout,
   Terminated
 }
-import org.alcaudon.api.ComputationRepresentation
+import org.alcaudon.api.DataflowNodeRepresentation.{
+  ComputationRepresentation,
+  StreamRepresentation
+}
 import org.alcaudon.core.ActorConfig
 import org.alcaudon.runtime.ComputationManager
 
@@ -16,17 +19,25 @@ import scala.concurrent.duration._
 object ComputationNodeRecepcionist {
   object Protocol {
     // Requests
+    sealed trait DeploymentRequest {
+      val id: String
+    }
     case class DeployComputation(
         id: String,
         dataflowId: String,
         computationRepresentation: ComputationRepresentation)
-    case class DeployStream(id: String)
-    case class DeploySource(id: String)
-    case class DeploySink(id: String)
-    case class StopComputation(id: String)
-    case class StopStream(id: String)
-    case class StopSource(id: String)
-    case class StopSink(id: String)
+        extends DeploymentRequest
+    case class DeployStream(dataflowId: String, rep: StreamRepresentation)
+        extends DeploymentRequest {
+      val id = rep.name
+    }
+    case class DeploySource(id: String) extends DeploymentRequest
+    case class DeploySink(id: String) extends DeploymentRequest
+    sealed trait StopRequest
+    case class StopComputation(id: String) extends StopRequest
+    case class StopStream(id: String) extends StopRequest
+    case class StopSource(id: String) extends StopRequest
+    case class StopSink(id: String) extends StopRequest
 
     // Responses
     case class ComputationDeployed(id: String)
@@ -48,8 +59,8 @@ class ComputationNodeRecepcionist(id: String)
     with ActorConfig
     with CoordinatorSelection {
 
-  import org.alcaudon.clustering.Coordinator.Protocol._
   import ComputationNodeRecepcionist.Protocol._
+  import org.alcaudon.clustering.Coordinator.Protocol._
 
   val cores = Runtime.getRuntime().availableProcessors()
   val maxRetries = config.clustering.maxRetries
@@ -70,7 +81,7 @@ class ComputationNodeRecepcionist(id: String)
     case msg: DeploySink => manager.forward(msg)
     case msg: StopComputation => manager.forward(msg)
     case msg: StopSource => manager.forward(msg)
-    case msg: StopSource => manager.forward(msg)
+    case msg: StopStream => manager.forward(msg)
     case msg: StopSink => manager.forward(msg)
     case Terminated(`manager`) =>
   }

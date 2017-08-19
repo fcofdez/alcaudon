@@ -111,11 +111,14 @@ class ComputationManager(maxSlots: Int) extends Actor with ActorLogging {
       val newComputations = state.computations + (code.id -> computationReifier)
       context.become(receiveWork(state.copy(computations = newComputations)))
 
-    case DeployStream(id) if !state.availableStreamSlots =>
-      sender() ! NonAvailableSlots(id)
+    case DeployStream(_, rep) if !state.availableStreamSlots =>
+      sender() ! NonAvailableSlots(rep.name)
 
-    case DeployStream(id) =>
-      val stream = createActorWithBackOff(id, AlcaudonStream.props(id))
+    case DeployStream(dataflowId, rep) =>
+      val id = rep.name
+      val stream = createActorWithBackOff(
+        id,
+        AlcaudonStream.props(id, dataflowId, rep.downstream.toMap))
       val updatedStreams = state.streams + (id -> stream)
       context.become(receiveWork(state.copy(streams = updatedStreams)))
 

@@ -70,7 +70,7 @@ class DataflowBuilderSpec
         .build()
 
       dataflow.sources.keys.toList should be (List("twitter"))
-      dataflow.computations.keys should be (Set("computationTest", "languageFilter", "sentimentAnalysis"))
+      dataflow.computations.size should be (3)
     }
   }
 }
