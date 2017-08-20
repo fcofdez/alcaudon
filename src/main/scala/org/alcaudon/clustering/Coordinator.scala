@@ -4,14 +4,25 @@ import java.net.URL
 import java.util.UUID
 
 import akka.actor.{ActorLogging, ActorRef, Address, Props}
-import akka.persistence.{PersistentActor, SaveSnapshotFailure, SaveSnapshotSuccess, SnapshotOffer}
-import cats.instances.all._
-import cats.syntax.semigroup._
+import akka.persistence.{
+  PersistentActor,
+  SaveSnapshotFailure,
+  SaveSnapshotSuccess,
+  SnapshotOffer
+}
 import cats.Semigroup
+import cats.instances.all._
 import com.amazonaws.auth.BasicAWSCredentials
-import org.alcaudon.api.DataflowNodeRepresentation.{ComputationRepresentation, DataflowNodeRepresentation, StreamRepresentation}
+import org.alcaudon.api.DataflowNodeRepresentation.{
+  ComputationRepresentation,
+  DataflowNodeRepresentation,
+  StreamRepresentation
+}
 import org.alcaudon.clustering.ComputationNodeRecepcionist.Protocol._
-import org.alcaudon.clustering.CoordinatorDataflowDeployer.{DataflowDeployed, DataflowDeploymentFailed}
+import org.alcaudon.clustering.CoordinatorDataflowDeployer.{
+  DataflowDeployed,
+  DataflowDeploymentFailed
+}
 import org.alcaudon.core.{ActorConfig, ClusterStatusListener, DataflowGraph}
 import org.alcaudon.runtime.BlobLocation.AWSInformation
 import org.alcaudon.runtime.{FirmamentClient, ObjectStorageUtils}
@@ -52,7 +63,7 @@ object Coordinator {
           case (Running, Running) => x
           case (Running, _) => x
           case (_, Running) => y
-          case _            => x
+          case _ => x
         }
       }
     }
@@ -69,7 +80,7 @@ object Coordinator {
 
   // State
   case class CoordinatorState(
-      scheduledEntity: Map[ComputationNodeID, List[ScheduledEntity]] = Map.empty,
+      scheduledEntity: Map[ComputationNodeID, Set[ScheduledEntity]] = Map.empty,
       computationNodes: Map[ComputationNodeID, ComputationNodeInformation] =
         Map.empty,
       deployedDataflows: Map[DataflowID, DeployedDataflowMetaInformation] =
@@ -82,6 +93,10 @@ object Coordinator {
       copy(computationNodes = computationNodes + (nodeInfo.uuid -> nodeInfo))
 
     def removeNode(address: Address): CoordinatorState = {
+      val node = computationNodes.find {
+        case (id, node) => node.actorRef.path.address == address
+      }
+
       val currentNodes = computationNodes.filterNot {
         case (id, node) => node.actorRef.path.address == address
       }
@@ -96,11 +111,11 @@ object Coordinator {
         computationNode <- computationNodes.get(nodeId)
       } yield nodeId -> computationNode.updateRunningSlot(size)
       val updatedScheduledEntity = mergeMap(
-        deploymentPlan.deployInfo.mapValues(_.map(_.scheduledEntity).toList),
+        deploymentPlan.deployInfo.mapValues(_.map(_.scheduledEntity).toSet),
         scheduledEntity)
       val newDataflow = DeployedDataflowMetaInformation(
         dataflowID,
-        deploymentPlan.deployInfo.values.flatten.map(_.scheduledEntity).toList)
+        deploymentPlan.deployInfo.values.flatten.map(_.scheduledEntity).toSet)
       copy(
         scheduledEntity = updatedScheduledEntity,
         computationNodes = updatedNodes,
@@ -109,22 +124,50 @@ object Coordinator {
     }
 
     def removeDataflow(id: DataflowID): CoordinatorState = {
-      this
+      val newState = for {
+        dataflow <- deployedDataflows.get(id)
+      } yield {
+        val byComputationNode =
+          dataflow.deployedEntities.groupBy(_.computationNodeID)
+        val updatedEntities = for {
+          (computationNodeId, toRemove) <- byComputationNode
+          deployedEntities <- scheduledEntity.get(computationNodeId)
+          computationNode <- computationNodes.get(computationNodeId)
+        } yield {
+          computationNode.updateRunningSlot(-deployedEntities.size)
+          computationNodeId -> deployedEntities.diff(toRemove)
+        }
+
+        val updatedNodes = for {
+          (computationNodeId, toRemove) <- byComputationNode
+          computationNode <- computationNodes.get(computationNodeId)
+        } yield {
+          computationNodeId -> computationNode.updateRunningSlot(
+            -toRemove.size)
+        }
+
+        copy(deployedDataflows = deployedDataflows - id,
+             scheduledEntity = updatedEntities,
+             computationNodes = updatedNodes)
+      }
+      newState.getOrElse(this)
     }
 
     def setDataflowRunning(id: DataflowID): CoordinatorState = {
-      for {
+      val newState = for {
         dataflow <- deployedDataflows.get(id)
-        entity <- dataflow.deployedEntitiesIds
-      } {
-        val x = dataflow.deployedEntitiesIds
+      } yield {
+        val runningEntities = dataflow.deployedEntities
           .groupBy(_.computationNodeID)
           .mapValues(_.map(_.updateState(Running)))
-        val newEntities = mergeMap(scheduledEntity, x)
-
-        dataflow.deployedEntitiesIds
+        val updatedEntities = mergeMap(scheduledEntity, runningEntities)
+        val runningDataflow = dataflow.copy(
+          deployedEntities = runningEntities.values.flatten.toSet,
+          state = Running)
+        copy(scheduledEntity = updatedEntities,
+             deployedDataflows = deployedDataflows + (id -> runningDataflow))
       }
-      this
+      newState.getOrElse(this)
     }
 
   }
@@ -132,14 +175,20 @@ object Coordinator {
   sealed trait ScheduledEntity {
     val id: String
     val computationNodeID: ComputationNodeID
+    val actorRef: ActorRef
     val representation: DataflowNodeRepresentation
     val state: DataflowNodeState
     def stopRequest: StopRequest
     def updateState(state: DataflowNodeState): ScheduledEntity
+    override def equals(obj: scala.Any): Boolean = obj match {
+      case that: ScheduledEntity => that.id == this.id
+      case _ => false
+    }
   }
 
   case class ScheduledStream(id: String,
                              computationNodeID: ComputationNodeID,
+                             actorRef: ActorRef,
                              representation: StreamRepresentation,
                              state: DataflowNodeState = Scheduling)
       extends ScheduledEntity {
@@ -150,6 +199,7 @@ object Coordinator {
 
   case class ScheduledComputation(id: String,
                                   computationNodeID: ComputationNodeID,
+                                  actorRef: ActorRef,
                                   representation: ComputationRepresentation,
                                   state: DataflowNodeState = Scheduling)
       extends ScheduledEntity {
@@ -160,6 +210,7 @@ object Coordinator {
 
   case class ScheduledSource(id: String,
                              computationNodeID: ComputationNodeID,
+                             actorRef: ActorRef,
                              representation: DataflowNodeRepresentation,
                              state: DataflowNodeState = Scheduling)
       extends ScheduledEntity {
@@ -170,6 +221,7 @@ object Coordinator {
 
   case class ScheduledSink(id: String,
                            computationNodeID: ComputationNodeID,
+                           actorRef: ActorRef,
                            representation: DataflowNodeRepresentation,
                            state: DataflowNodeState = Scheduling)
       extends ScheduledEntity {
@@ -195,13 +247,14 @@ object Coordinator {
 
   case class DeployedDataflowMetaInformation(
       id: DataflowID,
-      deployedEntitiesIds: List[ScheduledEntity],
+      deployedEntities: Set[ScheduledEntity],
       state: DataflowNodeState = Scheduling)
 
   case class DeployPlan(request: DeploymentRequest,
                         scheduledEntity: ScheduledEntity)
 
-  case class DeploymentPlan(deployInfo: Map[ComputationNodeID, Seq[DeployPlan]])
+  case class DeploymentPlan(
+      deployInfo: Map[ComputationNodeID, Seq[DeployPlan]])
 
 }
 
@@ -243,15 +296,9 @@ class CoordinatorRecepcionist
       .groupBy(_._2._1) map {
       case (nodeId, pairedComputations) =>
         nodeId -> pairedComputations.map {
-          case ((computationId, computationRep: ComputationRepresentation),
+          case ((dataflowNodeId, nodeRep: DataflowNodeRepresentation),
                 (nodeId, actorRef)) =>
-            DeployPlan(
-              DeployComputation(dataflow.id, computationId, computationRep),
-              ScheduledComputation(computationId, nodeId, computationRep))
-          case ((streamId, streamRep: StreamRepresentation),
-                (nodeId, actorRef)) =>
-            DeployPlan(DeployStream(dataflow.id, streamRep),
-                       ScheduledStream(streamId, nodeId, streamRep))
+            nodeRep.deployPlan(dataflow.id, dataflowNodeId, actorRef)
         }.toSeq
     }
 
@@ -300,7 +347,8 @@ class CoordinatorRecepcionist
         scheduleGraph(request.graph, state.computationNodes.values.toList)
       val newState = state.preScheduleDataflow(request.uuid, deploymentPlan)
       val deployer = context.actorOf(
-        CoordinatorDataflowDeployer.props(request.uuid, state.computationNodes))
+        CoordinatorDataflowDeployer.props(request.uuid,
+                                          state.computationNodes))
       deployer.tell(deploymentPlan, sender())
       saveSnapshot(newState)
       context.become(receiveRequests(newState))
@@ -311,8 +359,6 @@ class CoordinatorRecepcionist
       context.become(receiveRequests(newState))
 
     case DataflowDeploymentFailed(id) =>
-
-
     case GetDataflowPipelineStatus(uuid) =>
       state.deployedDataflows.get(uuid) match {
         case Some(metaInformation) =>
@@ -325,8 +371,15 @@ class CoordinatorRecepcionist
     case StopDataflowPipeline(uuid) =>
       state.deployedDataflows.get(uuid) match {
         case Some(metaInformation) =>
+          val newState = state.removeDataflow(uuid)
+          val entities = state.deployedDataflows
+            .get(uuid)
+            .map(_.deployedEntities)
+            .getOrElse(Set.empty)
+          entities.foreach(entity => entity.actorRef ! entity.stopRequest)
           sender() ! DataflowPipelineStopped(uuid)
-          saveSnapshot(state)
+          saveSnapshot(newState)
+          context.become(receiveRequests(newState))
         case None =>
           sender() ! UnknownDataflowPipeline(uuid)
       }

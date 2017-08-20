@@ -125,11 +125,20 @@ class ComputationManager(maxSlots: Int) extends Actor with ActorLogging {
       context.watch(stream)
       log.info("Deploying stream for dataflow {}", id)
 
-    case DeploySource(id) =>
+    case DeploySource(id, representation) =>
       log.info("Deploying source for dataflow {}", id)
 
-    case DeploySink(id) =>
-      log.info("Deploying sink for dataflow {}", id)
+    case DeploySink(dataflowId, representation) =>
+      val sink = createActorWithBackOff(
+        representation.id,
+        SinkReifier.props(representation.id,
+                          dataflowId,
+                          representation.sinkFn))
+      val updatedSinks = state.sinks + (representation.id -> sink)
+      context.become(receiveWork(state.copy(streams = updatedSinks)))
+
+      context.watch(sink)
+      log.info("Deploying sink for dataflow {}", representation.id)
 
     case StopComputation(id) =>
       log.info("Stopping computation for dataflow {}", id)

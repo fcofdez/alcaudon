@@ -9,6 +9,8 @@ import akka.actor.{
 }
 import org.alcaudon.api.DataflowNodeRepresentation.{
   ComputationRepresentation,
+  SinkRepresentation,
+  SourceRepresentation,
   StreamRepresentation
 }
 import org.alcaudon.core.ActorConfig
@@ -31,8 +33,10 @@ object ComputationNodeRecepcionist {
         extends DeploymentRequest {
       val id = rep.name
     }
-    case class DeploySource(id: String) extends DeploymentRequest
-    case class DeploySink(id: String) extends DeploymentRequest
+    case class DeploySource(id: String, sourceRep: SourceRepresentation)
+        extends DeploymentRequest
+    case class DeploySink(id: String, sinkRepresentation: SinkRepresentation)
+        extends DeploymentRequest
     sealed trait StopRequest
     case class StopComputation(id: String) extends StopRequest
     case class StopStream(id: String) extends StopRequest

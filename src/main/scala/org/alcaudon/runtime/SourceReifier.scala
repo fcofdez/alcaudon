@@ -2,7 +2,10 @@ package org.alcaudon.runtime
 
 import akka.actor.{Actor, ActorLogging, ActorRef}
 import org.alcaudon.clustering.DataflowTopologyListener
-import org.alcaudon.clustering.DataflowTopologyListener.DataflowNodeAddress
+import org.alcaudon.clustering.DataflowTopologyListener.{
+  DataflowNodeAddress,
+  DownstreamDependencies
+}
 import org.alcaudon.core.sources.{SourceCtx, SourceFunc}
 import org.alcaudon.core._
 
@@ -21,7 +24,8 @@ class SourceReifier(dataflowId: String,
   import context.dispatcher
 
   if (config.computation.distributed) {
-    context.actorOf(DataflowTopologyListener.props(dataflowId, name))
+    context.actorOf(DataflowTopologyListener.props(dataflowId, name)) ! DownstreamDependencies(
+      subscribers.keySet)
   }
 
   var subscriberRefs: Map[ActorRef, KeyExtractor] = Map.empty
