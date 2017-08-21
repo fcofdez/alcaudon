@@ -1,12 +1,7 @@
 package org.alcaudon.core
 
 import org.alcaudon.api.DataflowGraphBuilder.DataflowNode
-import org.alcaudon.api.DataflowNodeRepresentation.{
-  ComputationRepresentation,
-  DataflowNodeRepresentation,
-  StreamRepresentation
-}
-import org.alcaudon.core.sources.Source
+import org.alcaudon.api.DataflowNodeRepresentation._
 
 import scalax.collection.Graph
 import scalax.collection.GraphEdge._
@@ -17,12 +12,12 @@ case class DataflowGraph(name: String,
                          computations: Map[String, ComputationRepresentation],
                          streams: Set[String],
                          inputStreams: Map[String, StreamRepresentation],
-                         sources: Map[String, Source],
-                         sinks: Map[String, String],
+                         sources: Map[String, SourceRepresentation],
+                         sinks: Map[String, SinkRepresentation],
                          private val nodes: Map[String, DataflowNode]) {
 
   val nodeRepresentation
-    : Map[String, DataflowNodeRepresentation] = computations ++ inputStreams
+    : Map[String, DataflowNodeRepresentation] = computations ++ inputStreams ++ sources ++ sinks
   def sourceIds = sources.keys
   def sinkIds = sinks.keys
 }

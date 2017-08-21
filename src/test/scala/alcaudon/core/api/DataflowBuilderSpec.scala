@@ -5,6 +5,7 @@ import akka.testkit.{ImplicitSender, TestKit}
 import org.alcaudon.api.{Computation, DataflowBuilder}
 import org.alcaudon.core.Record
 import org.alcaudon.core.Timer.Timer
+import org.alcaudon.core.sinks.VoidSink
 import org.alcaudon.core.sources.TwitterSource
 import org.alcaudon.core.sources.TwitterSourceConfig.OAuth1
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecLike}
@@ -66,7 +67,7 @@ class DataflowBuilderSpec
           StubComputation,
           OutputStreams("sink"),
           AlcaudonInputStream("filteredTwitter")(dummyKeyExtractor))
-        .withSink("sink")
+        .withSink("sink", VoidSink)
         .build()
 
       dataflow.sources.keys.toList should be (List("twitter"))

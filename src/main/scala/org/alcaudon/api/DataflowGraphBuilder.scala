@@ -41,9 +41,9 @@ class DataflowGraphBuilder {
     addNode(DataflowNode(id, ComputationType))
   }
 
-  def addSink(node: DataflowNode): Boolean = {
-    sinks += node.id
-    addNode(node)
+  def addSink(id: String): Boolean = {
+    sinks += id
+    addNode(DataflowNode(id, SinkType))
   }
 
   def addEdge(src: String, dst: String): Boolean = {

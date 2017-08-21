@@ -9,6 +9,8 @@ import cats.implicits._
 import cats.Semigroup
 import org.alcaudon.api.DataflowNodeRepresentation.{
   ComputationRepresentation,
+  SinkRepresentation,
+  SourceRepresentation,
   StreamRepresentation
 }
 
@@ -39,8 +41,8 @@ class DataflowBuilder(dataflowName: String) {
   val computations = Map[String, ComputationRepresentation]()
   val streams = Set[String]()
   val streamInputs = Map[String, StreamRepresentation]()
-  val sources = Map[String, Source]()
-  val sinks = Map[String, String]()
+  val sources = Map[String, SourceRepresentation]()
+  val sinks = Map[String, SinkRepresentation]()
   val graphBuilder = new DataflowGraphBuilder
 
   def withComputation(id: String,
@@ -84,11 +86,13 @@ class DataflowBuilder(dataflowName: String) {
   def withSource(name: String, sourceFN: SourceFunc): DataflowBuilder = {
     graphBuilder.addSource(name)
     streams += name
-    sources += (name -> Source(name, sourceFN))
+    sources += (name -> SourceRepresentation(name, sourceFN))
     this
   }
 
-  def withSink(sink: String): DataflowBuilder = {
+  def withSink(sinkId: String, sink: Sink): DataflowBuilder = {
+    graphBuilder.addSink(sinkId)
+    sinks += (sinkId -> SinkRepresentation(sinkId, sink))
     this
   }
 
