@@ -1,7 +1,7 @@
 package org.alcaudon.runtime
 
-import akka.cluster.{Cluster, UniqueAddress}
 import akka.cluster.ddata._
+import akka.cluster.{Cluster, UniqueAddress}
 
 object GWatermark {
   val empty: GWatermark = new GWatermark()

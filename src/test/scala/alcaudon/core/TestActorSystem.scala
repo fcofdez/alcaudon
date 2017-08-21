@@ -1,12 +1,11 @@
 package org.alcaudon.core
 
 import akka.actor.ActorSystem
+import akka.persistence.PersistentActor
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, Matchers, WordSpecLike}
 
 import scala.collection.JavaConverters._
-
-import akka.persistence.PersistentActor
 
 
 object RestartableActor {

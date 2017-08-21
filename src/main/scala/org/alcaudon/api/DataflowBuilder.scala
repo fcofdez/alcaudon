@@ -2,17 +2,12 @@ package org.alcaudon.api
 
 import java.util.UUID
 
-import org.alcaudon.core.sources.{Source, SourceFunc}
-import org.alcaudon.api.DataflowBuilder._
-import org.alcaudon.core.{DataflowGraph, KeyExtractor}
-import cats.implicits._
 import cats.Semigroup
-import org.alcaudon.api.DataflowNodeRepresentation.{
-  ComputationRepresentation,
-  SinkRepresentation,
-  SourceRepresentation,
-  StreamRepresentation
-}
+import cats.implicits._
+import org.alcaudon.api.DataflowBuilder._
+import org.alcaudon.api.DataflowNodeRepresentation.{ComputationRepresentation, SinkRepresentation, SourceRepresentation, StreamRepresentation}
+import org.alcaudon.core.sources.SourceFunc
+import org.alcaudon.core.{DataflowGraph, KeyExtractor}
 
 import scala.collection.immutable.{Map => IMap}
 import scala.collection.mutable.{Map, Set}

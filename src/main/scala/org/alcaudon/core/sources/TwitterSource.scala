@@ -2,7 +2,6 @@ package org.alcaudon.core.sources
 
 import java.io.InputStream
 
-import org.alcaudon.core.RawRecord
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.twitter.hbc.ClientBuilder
 import com.twitter.hbc.common.DelimitedStreamReader
@@ -11,6 +10,7 @@ import com.twitter.hbc.core.endpoint.StatusesSampleEndpoint
 import com.twitter.hbc.core.processor.HosebirdMessageProcessor
 import com.twitter.hbc.httpclient.BasicClient
 import com.twitter.hbc.httpclient.auth.{OAuth1 => TwitterOAuth1}
+import org.alcaudon.core.RawRecord
 
 object TwitterSourceConfig {
 

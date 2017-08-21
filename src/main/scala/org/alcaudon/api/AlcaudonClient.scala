@@ -3,7 +3,6 @@ package org.alcaudon.api
 import java.io.File
 import java.net.{HttpURLConnection, URL}
 import java.nio.file.{Files, Path}
-import scala.collection.JavaConverters._
 
 import akka.actor._
 import akka.cluster.Cluster
@@ -15,6 +14,7 @@ import org.alcaudon.clustering.Coordinator.Protocol._
 import org.alcaudon.clustering.CoordinatorSelection
 import org.alcaudon.core.{ActorConfig, DataflowGraph}
 
+import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 import scala.reflect.ClassTag

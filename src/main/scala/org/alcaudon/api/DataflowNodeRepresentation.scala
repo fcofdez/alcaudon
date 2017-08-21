@@ -1,23 +1,14 @@
 package org.alcaudon.api
 
+import java.net.URI
+
 import akka.actor.ActorRef
 import cats.Semigroup
 import org.alcaudon.api.DataflowBuilder.AlcaudonInputStream
-import org.alcaudon.clustering.ComputationNodeRecepcionist.Protocol.{
-  DeployComputation,
-  DeploySink,
-  DeploySource,
-  DeployStream
-}
-import org.alcaudon.clustering.Coordinator.{
-  DeployPlan,
-  ScheduledComputation,
-  ScheduledSink,
-  ScheduledSource,
-  ScheduledStream
-}
-import org.alcaudon.core.KeyExtractor
+import org.alcaudon.clustering.ComputationNodeRecepcionist.Protocol.{DeployComputation, DeploySink, DeploySource, DeployStream}
+import org.alcaudon.clustering.Coordinator.{DeployPlan, ScheduledComputation, ScheduledSink, ScheduledSource, ScheduledStream}
 import org.alcaudon.core.sources.SourceFunc
+import org.alcaudon.core.{DataflowJob, KeyExtractor}
 
 import scala.collection.mutable.Map
 
@@ -25,17 +16,28 @@ object DataflowNodeRepresentation {
   sealed trait DataflowNodeRepresentation {
     def deployPlan(dataflowId: String,
                    nodeId: String,
-                   actorRef: ActorRef): DeployPlan
+                   computationNodeId: String,
+                   actorRef: ActorRef,
+                   jars: List[URI]): DeployPlan
   }
   case class ComputationRepresentation(computationClassName: String,
                                        inputStreams: List[AlcaudonInputStream],
-                                       outputStreams: List[String])
+                                       outputStreams: List[String],
+                                       dataflowJob: Option[DataflowJob] = None)
       extends DataflowNodeRepresentation {
     def deployPlan(dataflowId: String,
                    nodeId: String,
-                   actorRef: ActorRef): DeployPlan = {
-      DeployPlan(DeployComputation(dataflowId, nodeId, this),
-                 ScheduledComputation(nodeId, nodeId, actorRef, this))
+                   computationNodeId: String,
+                   actorRef: ActorRef,
+                   jars: List[URI]): DeployPlan = {
+      DeployPlan(
+        DeployComputation(nodeId, dataflowId, this),
+        ScheduledComputation(
+          nodeId,
+          computationNodeId,
+          actorRef,
+          this.copy(dataflowJob = Some(DataflowJob(dataflowId, jars))))
+      )
     }
   }
 
@@ -45,9 +47,11 @@ object DataflowNodeRepresentation {
       extends DataflowNodeRepresentation {
     def deployPlan(dataflowId: String,
                    nodeId: String,
-                   actorRef: ActorRef): DeployPlan = {
+                   computationNodeId: String,
+                   actorRef: ActorRef,
+                   jars: List[URI]): DeployPlan = {
       DeployPlan(DeployStream(dataflowId, this),
-                 ScheduledStream(nodeId, nodeId, actorRef, this))
+                 ScheduledStream(nodeId, computationNodeId, actorRef, this))
     }
   }
 
@@ -55,9 +59,11 @@ object DataflowNodeRepresentation {
       extends DataflowNodeRepresentation {
     def deployPlan(dataflowId: String,
                    nodeId: String,
-                   actorRef: ActorRef): DeployPlan = {
-      DeployPlan(DeploySource(dataflowId, this),
-                 ScheduledSource(nodeId, nodeId, actorRef, this))
+                   computationNodeId: String,
+                   actorRef: ActorRef,
+                   jars: List[URI]): DeployPlan = {
+      DeployPlan(DeploySource(nodeId, this),
+                 ScheduledSource(nodeId, computationNodeId, actorRef, this))
     }
   }
 
@@ -65,9 +71,11 @@ object DataflowNodeRepresentation {
       extends DataflowNodeRepresentation {
     def deployPlan(dataflowId: String,
                    nodeId: String,
-                   actorRef: ActorRef): DeployPlan = {
-      DeployPlan(DeploySink(dataflowId, this),
-                 ScheduledSink(nodeId, nodeId, actorRef, this))
+                   computationNodeId: String,
+                   actorRef: ActorRef,
+                   jars: List[URI]): DeployPlan = {
+      DeployPlan(DeploySink(nodeId, this),
+                 ScheduledSink(nodeId, computationNodeId, actorRef, this))
     }
   }
 

@@ -1,17 +1,12 @@
 package org.alcaudon.clustering
 
-import scala.concurrent.duration._
 import akka.actor.{Actor, ActorLogging, ActorRef, Props, ReceiveTimeout}
 import org.alcaudon.clustering.ComputationNodeRecepcionist.Protocol._
 import org.alcaudon.clustering.Coordinator.Protocol.DataflowPipelineCreated
-import org.alcaudon.clustering.Coordinator.{
-  ComputationNodeInformation,
-  DeploymentPlan
-}
-import org.alcaudon.clustering.CoordinatorDataflowDeployer.{
-  DataflowDeployed,
-  DataflowDeploymentFailed
-}
+import org.alcaudon.clustering.Coordinator.{ComputationNodeInformation, DeploymentPlan}
+import org.alcaudon.clustering.CoordinatorDataflowDeployer.{DataflowDeployed, DataflowDeploymentFailed}
+
+import scala.concurrent.duration._
 
 object CoordinatorDataflowDeployer {
   def props(

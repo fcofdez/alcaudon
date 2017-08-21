@@ -2,11 +2,7 @@ package org.alcaudon.clustering
 
 import akka.actor.{Actor, ActorLogging, ActorPath, Props}
 import akka.cluster.pubsub.DistributedPubSub
-import akka.cluster.pubsub.DistributedPubSubMediator.{
-  Publish,
-  Subscribe,
-  SubscribeAck
-}
+import akka.cluster.pubsub.DistributedPubSubMediator.{Publish, Subscribe, SubscribeAck}
 
 object DataflowTopologyListener {
   def props(dataflowId: String, nodeId: String): Props =

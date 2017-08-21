@@ -3,10 +3,7 @@ package org.alcaudon.runtime
 import akka.actor.{ActorSystem, Props}
 import akka.cluster.Cluster
 import com.typesafe.config.ConfigFactory
-import org.alcaudon.clustering.{
-  ComputationNodeRecepcionist,
-  CoordinatorRecepcionist
-}
+import org.alcaudon.clustering.{ComputationNodeRecepcionist, CoordinatorRecepcionist}
 
 object Main extends App {
   val seedConfig = ConfigFactory.load("seed")

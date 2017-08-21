@@ -1,12 +1,8 @@
 package org.alcaudon.clustering
 
 import akka.actor.{Actor, ActorSelection, RootActorPath}
+import akka.cluster.ClusterEvent.{ClusterDomainEvent, CurrentClusterState, MemberUp}
 import akka.cluster.{Cluster, Member, MemberStatus}
-import akka.cluster.ClusterEvent.{
-  ClusterDomainEvent,
-  CurrentClusterState,
-  MemberUp
-}
 
 object CoordinatorSelection {
   case object UnknownCoordinator

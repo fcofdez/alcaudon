@@ -1,21 +1,11 @@
 package org.alcaudon.runtime
 
-import akka.actor.{
-  Actor,
-  ActorLogging,
-  ActorRef,
-  Props,
-  ReceiveTimeout,
-  Terminated
-}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props, ReceiveTimeout}
 import akka.pattern.{Backoff, BackoffSupervisor}
 import org.alcaudon.api.Computation
 import org.alcaudon.clustering.ComputationNodeRecepcionist
 import org.alcaudon.core.AlcaudonStream
-import org.alcaudon.runtime.ComputationManager.{
-  ComputationCodeDeployed,
-  ErrorDeployingComputation
-}
+import org.alcaudon.runtime.ComputationManager.{ComputationCodeDeployed, ErrorDeployingComputation}
 import org.alcaudon.runtime.LibraryManager._
 
 import scala.concurrent.duration._
@@ -46,10 +36,22 @@ class ComputationDeployer(libraryManager: ActorRef)
   import ComputationNodeRecepcionist.Protocol._
 
   def receive = {
-    case request @ DeployComputation(_, dataflowId, _) =>
+    case request @ DeployComputation(_, dataflowId, representation) =>
+      representation.dataflowJob.foreach(libraryManager ! RegisterDataflow(_))
+      context.become(waitingForRegistration(sender(), request))
+      context.setReceiveTimeout(2.minutes)
+  }
+
+  def waitingForRegistration(requester: ActorRef,
+                             request: DeployComputation): Receive = {
+    case DataflowRegistered(dataflowId) =>
       libraryManager ! GetClassLoaderForDataflow(dataflowId)
       context.setReceiveTimeout(2.minutes)
       context.become(waitingForDataflow(sender(), request))
+    case ReceiveTimeout =>
+      log.error("Unable to deploy computation {}", request.id)
+      context.parent ! ErrorDeployingComputation(request.id)
+      context.stop(self)
   }
 
   def waitingForDataflow(requester: ActorRef,

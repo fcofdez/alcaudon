@@ -1,11 +1,6 @@
 package org.alcaudon.api
 
-import java.io.{
-  ByteArrayInputStream,
-  ByteArrayOutputStream,
-  DataInputStream,
-  DataOutputStream
-}
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, DataOutputStream}
 import java.util.UUID
 
 import org.alcaudon.api.serialization.TypeInfo

@@ -4,12 +4,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, ReceiveTimeout}
 import akka.cluster.Cluster
 import akka.cluster.ddata.DistributedData
 import akka.cluster.ddata.Replicator._
-import org.alcaudon.core.Timer.{
-  FixedTimer,
-  LowWatermark,
-  RecurrentFixedTimer,
-  Timer
-}
+import org.alcaudon.core.Timer.{FixedTimer, LowWatermark, RecurrentFixedTimer, Timer}
 
 import scala.concurrent.duration._
 import scala.util.Try

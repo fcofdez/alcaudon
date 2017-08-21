@@ -2,12 +2,9 @@ package org.alcaudon.runtime
 
 import akka.actor.{Actor, ActorLogging, ActorRef}
 import org.alcaudon.clustering.DataflowTopologyListener
-import org.alcaudon.clustering.DataflowTopologyListener.{
-  DataflowNodeAddress,
-  DownstreamDependencies
-}
-import org.alcaudon.core.sources.{SourceCtx, SourceFunc}
+import org.alcaudon.clustering.DataflowTopologyListener.{DataflowNodeAddress, DownstreamDependencies}
 import org.alcaudon.core._
+import org.alcaudon.core.sources.{SourceCtx, SourceFunc}
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}

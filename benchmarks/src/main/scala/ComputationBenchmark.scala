@@ -1,8 +1,8 @@
 package org.alcaudon
 
-import org.openjdk.jmh.annotations._
 import java.util.concurrent.TimeUnit
-import org.alcaudon.core.Record
+
+import org.openjdk.jmh.annotations._
 
 @State(Scope.Benchmark)
 @BenchmarkMode(Array(Mode.Throughput))

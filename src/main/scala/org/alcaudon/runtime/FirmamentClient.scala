@@ -4,15 +4,8 @@ import java.util.UUID
 
 import akka.actor.{Actor, ActorLogging}
 import com.google.protobuf.ByteString
-import firmament.FirmamentSchedulerOuterClass.{
-  NodeReplyType,
-  TaskDescription,
-  TaskReplyType
-}
-import firmament.ReferenceDesc.ReferenceDescriptor.{
-  ReferenceScope,
-  ReferenceType
-}
+import firmament.FirmamentSchedulerOuterClass.{NodeReplyType, TaskDescription, TaskReplyType}
+import firmament.ReferenceDesc.ReferenceDescriptor.{ReferenceScope, ReferenceType}
 import firmament.ResourceDesc.ResourceDescriptor
 import firmament.ResourceDesc.ResourceDescriptor.{ResourceState, ResourceType}
 import firmament.ResourceTopologyNodeDesc.ResourceTopologyNodeDescriptor

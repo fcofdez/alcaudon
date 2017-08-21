@@ -4,8 +4,8 @@ import java.io.{ByteArrayInputStream, DataInputStream}
 
 import akka.actor.Props
 import akka.testkit.{ImplicitSender, TestKit}
-import org.alcaudon.api.{Computation, SerializationAPI}
 import org.alcaudon.api.serialization.TypeInfo
+import org.alcaudon.api.{Computation, SerializationAPI}
 import org.alcaudon.core.AlcaudonStream._
 import org.alcaudon.core.RestartableActor.RestartableActor
 import org.alcaudon.core.State.ProduceRecord

@@ -1,18 +1,7 @@
 package org.alcaudon.clustering
 
-import akka.actor.{
-  Actor,
-  ActorLogging,
-  ActorSelection,
-  ReceiveTimeout,
-  Terminated
-}
-import org.alcaudon.api.DataflowNodeRepresentation.{
-  ComputationRepresentation,
-  SinkRepresentation,
-  SourceRepresentation,
-  StreamRepresentation
-}
+import akka.actor.{Actor, ActorLogging, ActorSelection, ReceiveTimeout, Terminated}
+import org.alcaudon.api.DataflowNodeRepresentation.{ComputationRepresentation, SinkRepresentation, SourceRepresentation, StreamRepresentation}
 import org.alcaudon.core.ActorConfig
 import org.alcaudon.runtime.ComputationManager
 

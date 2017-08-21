@@ -1,29 +1,17 @@
 package org.alcaudon.clustering
 
-import java.net.URL
+import java.net.{URI, URL}
 import java.util.UUID
 
 import akka.actor.{ActorLogging, ActorRef, Address, Props}
-import akka.persistence.{
-  PersistentActor,
-  SaveSnapshotFailure,
-  SaveSnapshotSuccess,
-  SnapshotOffer
-}
+import akka.persistence.{PersistentActor, SaveSnapshotFailure, SaveSnapshotSuccess, SnapshotOffer}
 import cats.Semigroup
 import cats.instances.all._
 import com.amazonaws.auth.BasicAWSCredentials
-import org.alcaudon.api.DataflowNodeRepresentation.{
-  ComputationRepresentation,
-  DataflowNodeRepresentation,
-  StreamRepresentation
-}
+import org.alcaudon.api.DataflowNodeRepresentation.{ComputationRepresentation, DataflowNodeRepresentation, StreamRepresentation}
 import org.alcaudon.clustering.ComputationNodeRecepcionist.Protocol._
-import org.alcaudon.clustering.CoordinatorDataflowDeployer.{
-  DataflowDeployed,
-  DataflowDeploymentFailed
-}
-import org.alcaudon.core.{ActorConfig, ClusterStatusListener, DataflowGraph}
+import org.alcaudon.clustering.CoordinatorDataflowDeployer.{DataflowDeployed, DataflowDeploymentFailed}
+import org.alcaudon.core.{ActorConfig, ClusterStatusListener, DataflowGraph, DataflowJob}
 import org.alcaudon.runtime.BlobLocation.AWSInformation
 import org.alcaudon.runtime.{FirmamentClient, ObjectStorageUtils}
 
@@ -93,10 +81,9 @@ object Coordinator {
       copy(computationNodes = computationNodes + (nodeInfo.uuid -> nodeInfo))
 
     def removeNode(address: Address): CoordinatorState = {
-      val node = computationNodes.find {
-        case (id, node) => node.actorRef.path.address == address
-      }
-
+//      val node = computationNodes.find {
+//        case (id, node) => node.actorRef.path.address == address
+//      }
       val currentNodes = computationNodes.filterNot {
         case (id, node) => node.actorRef.path.address == address
       }
@@ -254,7 +241,8 @@ object Coordinator {
                         scheduledEntity: ScheduledEntity)
 
   case class DeploymentPlan(
-      deployInfo: Map[ComputationNodeID, Seq[DeployPlan]])
+      deployInfo: Map[ComputationNodeID, Seq[DeployPlan]],
+      dataflowJob: Option[DataflowJob] = None)
 
 }
 
@@ -285,6 +273,7 @@ class CoordinatorRecepcionist
 
   def scheduleGraph(
       dataflow: DataflowGraph,
+      jars: List[URI],
       computationNodes: List[ComputationNodeInformation]): DeploymentPlan = {
 
     val availableNodes = computationNodes
@@ -298,7 +287,11 @@ class CoordinatorRecepcionist
         nodeId -> pairedComputations.map {
           case ((dataflowNodeId, nodeRep: DataflowNodeRepresentation),
                 (nodeId, actorRef)) =>
-            nodeRep.deployPlan(dataflow.id, dataflowNodeId, actorRef)
+            nodeRep.deployPlan(dataflow.id,
+                               dataflowNodeId,
+                               nodeId,
+                               actorRef,
+                               jars)
         }.toSeq
     }
 
@@ -343,13 +336,18 @@ class CoordinatorRecepcionist
 
     case request: CreateDataflowPipeline =>
       log.info("Scheduling dataflow pipeline {}", request.uuid)
+      val blobUrl = new URI(s"s3://${config.blob.bucket}/${request.uuid}.jar")
       val deploymentPlan =
-        scheduleGraph(request.graph, state.computationNodes.values.toList)
+        scheduleGraph(request.graph,
+                      List(blobUrl),
+                      state.computationNodes.values.toList)
       val newState = state.preScheduleDataflow(request.uuid, deploymentPlan)
+      val dataflowJob = DataflowJob(request.uuid, List(blobUrl))
       val deployer = context.actorOf(
         CoordinatorDataflowDeployer.props(request.uuid,
                                           state.computationNodes))
-      deployer.tell(deploymentPlan, sender())
+      deployer.tell(deploymentPlan.copy(dataflowJob = Some(dataflowJob)),
+                    sender())
       saveSnapshot(newState)
       context.become(receiveRequests(newState))
 
