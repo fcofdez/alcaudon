@@ -1,5 +1,7 @@
 name := "alcaudon"
 
+version := "0.0.12"
+
 organization := "com.github.fcofdez"
 
 lazy val commonSettings = Seq(
