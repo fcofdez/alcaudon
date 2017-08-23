@@ -19,7 +19,7 @@ class SinkReifier(dataflowId: String, id: String, sink: Sink)
 
   if (config.computation.distributed) {
     context.actorOf(DataflowTopologyListener.props(dataflowId, id)) ! DownstreamDependencies(
-      Set.empty)
+      Set.empty, self)
   }
 
   def receive = {

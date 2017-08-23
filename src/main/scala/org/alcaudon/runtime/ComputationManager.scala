@@ -1,11 +1,23 @@
 package org.alcaudon.runtime
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props, ReceiveTimeout}
+import akka.actor.{
+  Actor,
+  ActorLogging,
+  ActorRef,
+  Props,
+  ReceiveTimeout,
+  SupervisorStrategy
+}
 import akka.pattern.{Backoff, BackoffSupervisor}
+import akka.routing.ConsistentHashingPool
+import akka.routing.ConsistentHashingRouter.ConsistentHashMapping
 import org.alcaudon.api.Computation
 import org.alcaudon.clustering.ComputationNodeRecepcionist
-import org.alcaudon.core.AlcaudonStream
-import org.alcaudon.runtime.ComputationManager.{ComputationCodeDeployed, ErrorDeployingComputation}
+import org.alcaudon.core.{ActorConfig, AlcaudonStream, Record}
+import org.alcaudon.runtime.ComputationManager.{
+  ComputationCodeDeployed,
+  ErrorDeployingComputation
+}
 import org.alcaudon.runtime.LibraryManager._
 
 import scala.concurrent.duration._
@@ -13,7 +25,8 @@ import scala.concurrent.duration._
 object ComputationManager {
   case class ComputationCodeDeployed(id: String,
                                      dataflowId: String,
-                                     computation: Computation)
+                                     computation: Computation,
+                                     outputStreams: Set[String])
   case class ErrorDeployingComputation(id: String)
 
   case class ComputationNodeState(sources: Map[String, ActorRef] = Map.empty,
@@ -32,6 +45,7 @@ object ComputationManager {
 
 class ComputationDeployer(libraryManager: ActorRef)
     extends Actor
+    with ActorConfig
     with ActorLogging {
   import ComputationNodeRecepcionist.Protocol._
 
@@ -72,9 +86,11 @@ class ComputationDeployer(libraryManager: ActorRef)
         .asSubclass(classOf[Computation])
         .newInstance()
       computationInstance.setId(deployRequest.id)
-      val deployResult = ComputationCodeDeployed(deployRequest.id,
-                                                 deployRequest.dataflowId,
-                                                 computationInstance)
+      val deployResult = ComputationCodeDeployed(
+        deployRequest.id,
+        deployRequest.dataflowId,
+        computationInstance,
+        deployRequest.computationRepresentation.outputStreams.toSet)
       requester ! deployResult
       context.parent ! deployResult
       context.stop(self)
@@ -86,13 +102,22 @@ class ComputationDeployer(libraryManager: ActorRef)
   }
 }
 
-class ComputationManager(maxSlots: Int) extends Actor with ActorLogging {
+class ComputationManager(maxSlots: Int)
+    extends Actor
+    with ActorConfig
+    with ActorLogging {
 
   import ComputationManager._
   import ComputationNodeRecepcionist.Protocol._
 
   implicit val actorRefFactory = context.system
   val libraryManager = context.actorOf(LibraryManager.props)
+
+  def hashMapping: ConsistentHashMapping = {
+    case Record(key, _) => key
+  }
+
+  val poolStrategy = SupervisorStrategy.defaultStrategy
 
   def receive = receiveWork(ComputationNodeState(maxSlots = maxSlots))
 
@@ -107,9 +132,16 @@ class ComputationManager(maxSlots: Int) extends Actor with ActorLogging {
       deployer.forward(msg)
 
     case code: ComputationCodeDeployed =>
-      val computationReifier = createActorWithBackOff(
-        code.id,
-        ComputationReifier.props(code.computation, code.dataflowId))
+      val computationReifier =
+        context.actorOf(
+          ConsistentHashingPool(config.computation.parallelism,
+                                hashMapping = hashMapping,
+                                supervisorStrategy = poolStrategy)
+            .props(
+              ComputationReifier
+                .props(code.computation, code.dataflowId, code.outputStreams)),
+          name = code.id
+        )
       val newComputations = state.computations + (code.id -> computationReifier)
       context.become(receiveWork(state.copy(computations = newComputations)))
 
@@ -133,9 +165,7 @@ class ComputationManager(maxSlots: Int) extends Actor with ActorLogging {
     case DeploySink(dataflowId, representation) =>
       val sink = createActorWithBackOff(
         representation.id,
-        SinkReifier.props(representation.id,
-                          dataflowId,
-                          representation.sinkFn))
+        SinkReifier.props(representation.id, dataflowId, representation.sinkFn))
       val updatedSinks = state.sinks + (representation.id -> sink)
       context.become(receiveWork(state.copy(streams = updatedSinks)))
 

@@ -112,16 +112,9 @@ class AlcaudonStream(name: String,
           saveSnapshot(state)
       }
 
-    case DataflowNodeAddress(id, path) =>
+    case DataflowNodeAddress(id, ref) =>
       subscribers.get(id).foreach { keyExtractor =>
-        val selection = context.actorSelection(path)
-        val actorRef = selection.resolveOne(2.seconds)
-        actorRef onComplete {
-          case Success(ref) =>
-            state.addSubscriber(ref, keyExtractor)
-          case Failure(err) =>
-            log.error("Error getting subscriber {}", err)
-        }
+        state.addSubscriber(ref, keyExtractor)
       }
 
     case ack: ACK =>

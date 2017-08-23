@@ -22,7 +22,7 @@ class SourceReifier(dataflowId: String,
 
   if (config.computation.distributed) {
     context.actorOf(DataflowTopologyListener.props(dataflowId, name)) ! DownstreamDependencies(
-      subscribers.keySet)
+      subscribers.keySet, self)
   }
 
   var subscriberRefs: Map[ActorRef, KeyExtractor] = Map.empty
@@ -38,17 +38,21 @@ class SourceReifier(dataflowId: String,
   def close: Unit = {}
 
   def receive = {
-    case DataflowNodeAddress(id, path) =>
-      subscribers.get(id).foreach { keyExtractor =>
-        val selection = context.actorSelection(path)
-        val actorRef = selection.resolveOne(2.seconds)
-        actorRef onComplete {
-          case Success(ref) =>
-            subscriberRefs += (ref -> keyExtractor)
-          case Failure(err) =>
-            log.error("Error getting subscriber {}", err)
-        }
-      }
+    case DataflowNodeAddress(id, ref) =>
+    subscribers.get(id).foreach { keyExtractor =>
+      subscriberRefs += (ref -> keyExtractor)
+    }
+//
+//      subscribers.get(id).foreach { keyExtractor =>
+//        val selection = context.actorSelection(path)
+//        val actorRef = selection.resolveOne(2.seconds)
+//        actorRef onComplete {
+//          case Success(ref) =>
+//            subscriberRefs += (ref -> keyExtractor)
+//          case Failure(err) =>
+//            log.error("Error getting subscriber {}", err)
+//        }
+//      }
     case msg =>
       log.info("Received msg on Source {}", msg)
   }

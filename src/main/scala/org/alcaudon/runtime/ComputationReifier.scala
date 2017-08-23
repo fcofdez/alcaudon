@@ -2,13 +2,16 @@ package org.alcaudon.runtime
 
 import java.nio.charset.Charset
 
-import akka.actor.{ActorLogging, ActorRef, Props, Terminated}
+import akka.actor.{ActorLogging, ActorPath, ActorRef, Props, Terminated}
 import akka.persistence.{PersistentActor, SaveSnapshotSuccess, SnapshotOffer}
 import com.github.mgunlogson.cuckoofilter4j.CuckooFilter
 import com.google.common.hash.Funnels
 import org.alcaudon.api.Computation
 import org.alcaudon.clustering.DataflowTopologyListener
-import org.alcaudon.clustering.DataflowTopologyListener.DataflowNodeAddress
+import org.alcaudon.clustering.DataflowTopologyListener.{
+  DataflowNodeAddress,
+  DownstreamDependencies
+}
 import org.alcaudon.core.AlcaudonStream.ACK
 import org.alcaudon.core.State.{ProduceRecord, Transaction}
 import org.alcaudon.core.Timer.Timer
@@ -22,8 +25,10 @@ object ComputationReifier {
   def executorProps(computation: Computation): Props =
     Props(new ComputationExecutor(computation))
 
-  def props(computation: Computation, dataflowId: String): Props =
-    Props(new ComputationReifier(computation, dataflowId))
+  def props(computation: Computation,
+            dataflowId: String,
+            outputStreams: Set[String]): Props =
+    Props(new ComputationReifier(computation, dataflowId, outputStreams))
 
   case object GetState
   case object InjectFailure
@@ -67,7 +72,9 @@ object ComputationReifier {
 
 }
 
-class ComputationReifier(computation: Computation, dataflowId: String = "")
+class ComputationReifier(computation: Computation,
+                         dataflowId: String = "",
+                         outputStreams: Set[String] = Set.empty)
     extends PersistentActor
     with ActorLogging
     with ActorConfig
@@ -78,9 +85,13 @@ class ComputationReifier(computation: Computation, dataflowId: String = "")
   override def persistenceId: String = computation.id
 
   if (config.computation.distributed) {
-    context.actorOf(DataflowTopologyListener.props(dataflowId, computation.id))
+    context.actorOf(DataflowTopologyListener.props(dataflowId, computation.id)) ! DownstreamDependencies(
+      outputStreams,
+      context.parent,
+      broadcast = true)
   }
 
+  var outputStreamRefs: Map[String, ActorRef] = Map.empty
   var state = ComputationState(
     Map.empty,
     Map.empty,
@@ -104,6 +115,7 @@ class ComputationReifier(computation: Computation, dataflowId: String = "")
     val pending = transaction.operations.flatMap(_.applyTx(state))
     pending.foreach {
       case msg: ProduceRecord =>
+        outputStreamRefs.get(msg.stream).foreach(_ ! msg)
         origin ! msg
       case unknown =>
         log.error("Uknonw operation not applied {}", unknown)
@@ -169,6 +181,9 @@ class ComputationReifier(computation: Computation, dataflowId: String = "")
       }
 
     case addr: DataflowNodeAddress =>
+      if (outputStreams.contains(addr.id)) {
+        outputStreamRefs += addr.id -> self
+      }
     case InjectFailure =>
       throw new Exception("injected failure")
 
@@ -201,12 +216,11 @@ class ComputationReifier(computation: Computation, dataflowId: String = "")
 
     case ComputationFailed(reason, record) =>
       state.incrementFailedExecutions()
-      log.warning(
-        "Computation {} failed {} times for record {} with reason {}",
-        computation.id,
-        state.failedExecutions,
-        record,
-        reason)
+      log.warning("Computation {} failed {} times for record {} with reason {}",
+                  computation.id,
+                  state.failedExecutions,
+                  record,
+                  reason)
       context.become(receiveCommand)
 
     case ComputationTimedOut =>
