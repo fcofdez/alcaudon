@@ -77,6 +77,7 @@ private[this] class AlcaudonClient
       uploadResult pipeTo self
       log.info("Uploading dataflow jar for {}", pending.uuid)
     case UploadResult(uuid, SuccessfulUpload) =>
+      log.info("Sending dataflow request to coordinator")
       coordinator ! CreateDataflowPipeline(uuid, registerDataflowJob.dataflow)
       context.setReceiveTimeout(10.seconds)
       context.become(
@@ -103,6 +104,7 @@ private[this] class AlcaudonClient
 class AlcaudonClusterClient(seedNodes: String*) {
   val config = ConfigFactory.parseMap(
     Map("akka.cluster.roles" -> List("client").asJava,
+        "akka.remote.artery.cannonical.port" -> 2441,
         "akka.cluster.seed-nodes" -> seedNodes
           .map(addr => s"akka://alcaudon@$addr")
           .toList.asJava).asJava)
