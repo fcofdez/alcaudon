@@ -8,14 +8,12 @@ import scalax.collection.GraphEdge._
 
 case class DataflowGraph(name: String,
                          id: String,
-                         topology: Graph[DataflowNode, DiEdge],
+                         // topology: Graph[DataflowNode, DiEdge],
                          computations: Map[String, ComputationRepresentation],
                          streams: Set[String],
                          inputStreams: Map[String, StreamRepresentation],
                          sources: Map[String, SourceRepresentation],
-                         sinks: Map[String, SinkRepresentation],
-                         private val nodes: Map[String, DataflowNode]) {
-
+                         sinks: Map[String, SinkRepresentation]) {
   val nodeRepresentation
     : Map[String, DataflowNodeRepresentation] = computations ++ inputStreams ++ sources ++ sinks
   def sourceIds = sources.keys

@@ -103,12 +103,11 @@ class DataflowBuilder(dataflowName: String) {
 
     DataflowGraph(dataflowName,
                   id,
-                  graphBuilder.internalGraph,
+                  // graphBuilder.internalGraph,
                   computations.toMap,
                   streams.toSet,
                   streamReps,
                   sources.toMap,
-                  sinks.toMap,
-                  graphBuilder.nodes.toMap)
+                  sinks.toMap)
   }
 }
