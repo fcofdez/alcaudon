@@ -102,10 +102,10 @@ private[this] class AlcaudonClient
 
 class AlcaudonClusterClient(seedNodes: String*) {
   val config = ConfigFactory.parseMap(
-    Map("akka.cluster.roles" -> List("client"),
+    Map("akka.cluster.roles" -> List("client").asJava,
         "akka.cluster.seed-nodes" -> seedNodes
           .map(addr => s"akka://alcaudon@$addr")
-          .toList).asJava)
+          .toList.asJava).asJava)
   val seedConfig = config.withFallback(ConfigFactory.load("seed"))
 
   val system =
