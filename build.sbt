@@ -1,6 +1,6 @@
 name := "alcaudon"
 
-version := "0.0.18"
+version := "0.0.19"
 
 organization := "com.github.fcofdez"
 
