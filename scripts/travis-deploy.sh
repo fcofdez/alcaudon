@@ -12,4 +12,4 @@ set -ev
 
 docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 
-sbt -jvm-opts travis/jvmopts.compile -Dproject.version=$TRAVIS_TAG publishSigned sonatypeRelease dockerBuildAndPush
+sbt -jvm-opts travis/jvmopts.compile -Dproject.version=$TRAVIS_TAG publishSigned sonatypeRelease docker:publish
