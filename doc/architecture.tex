@@ -4,6 +4,8 @@
 \drop{A}{lcaudon's} architecture will be described in this chapter following a top-down
 approach. Firstly, a general description of the different components of the system
 will be explained. Finally, each of the components will be described more thoroughly.
+Alcaudon source code could be found in a public code repository (see
+\url{https://github.com/fcofdez/alcaudon}).
 
 \section{General description}
 
@@ -535,7 +537,7 @@ different computations, allows better scalability and resilience. One of the
 drawbacks of this approach is an increase in the complexity of
 ComputationExecutor actors. Finally, computation manager sends back a message to
 the coordinator informing that the deployment has finished. The whole process is
-represented as a sequence diagram in figure~\ref{fig:librarymanagement}.
+represented as a sequence diagram in figure~\ref{fig:deployment}.
 
 \begin{figure}[!h]
   \centering
@@ -1000,7 +1002,7 @@ dataflow pipelines to schedule, trigger an alert if that metric keeps growing fo
 \begin{figure}[!h]
 \begin{center}
 \includegraphics[width=0.7\textwidth]{grafana.png}
-\caption{Grafana dasboard}
+\caption{Grafana dashboard}
 \label{fig:grafana}
 \end{center}
 \end{figure}
