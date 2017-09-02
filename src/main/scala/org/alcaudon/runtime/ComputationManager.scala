@@ -88,6 +88,7 @@ class ComputationDeployer(libraryManager: ActorRef)
         computationInstance,
         deployRequest.computationRepresentation.outputStreams.toSet)
       requester ! deployResult
+      requester ! ComputationDeployed(deployRequest.id)
       context.parent ! deployResult
       context.stop(self)
 
@@ -155,6 +156,7 @@ class ComputationManager(maxSlots: Int)
 
       context.watch(stream)
       log.info("Deploying stream for dataflow {}", id)
+      sender() ! StreamDeployed(id)
 
     case DeploySource(id, representation) =>
       log.info("Deploying source for dataflow {}", id)
@@ -163,7 +165,7 @@ class ComputationManager(maxSlots: Int)
         SourceReifier.props(id, representation.name, representation.sourceFn, representation.downstream.toMap))
       val updatedSources = state.sources + (representation.name -> source)
       context.become(receiveWork(state.copy(sources = updatedSources)))
-
+      sender() ! SourceDeployed(representation.name)
 
     case DeploySink(dataflowId, representation) =>
       val sink = createActorWithBackOff(
@@ -174,6 +176,7 @@ class ComputationManager(maxSlots: Int)
 
       context.watch(sink)
       log.info("Deploying sink for dataflow {}", representation.id)
+      sender() ! SinkDeployed(representation.id)
 
     case StopComputation(id) =>
       log.info("Stopping computation for dataflow {}", id)
