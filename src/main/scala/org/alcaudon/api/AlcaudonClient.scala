@@ -79,7 +79,7 @@ private[this] class AlcaudonClient
     case UploadResult(uuid, SuccessfulUpload) =>
       log.info("Sending dataflow request to coordinator")
       coordinator ! CreateDataflowPipeline(uuid, registerDataflowJob.dataflow)
-      context.setReceiveTimeout(10.seconds)
+      context.setReceiveTimeout(2.minutes)
       context.become(
         waitingForPipelineCreation(coordinator, registerDataflowJob))
     case UploadResult(_, FailedUpload) =>
