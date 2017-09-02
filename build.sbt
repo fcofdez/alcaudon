@@ -1,6 +1,6 @@
 name := "alcaudon"
 
-version := "0.0.26"
+version := "0.0.27"
 
 organization := "com.github.fcofdez"
 
@@ -20,7 +20,7 @@ lazy val commonSettings = Seq(
   )
 )
 
-val akkaVersion = "2.4.18"
+val akkaVersion = "2.5.3"
 libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.3.2",
   "org.scala-graph" %% "graph-core" % "1.11.5",
