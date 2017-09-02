@@ -44,8 +44,8 @@ private[alcaudon] class BlobServer
   def receive = receiveWaiting(Map.empty)
 
   def receiveWaiting(clients: Map[String, (ActorRef, String)]): Receive = {
-    case GetBlob(key, uri) =>
-      log.debug("Get blob key {}", key)
+    case request @ GetBlob(key, uri) =>
+      log.info("Get blob key {}", request)
       val localFile = new File(STORAGE_PATH, BLOB_FILE_PREFIX + key)
       if (localFile.exists())
         sender() ! BlobURL(key, localFile.toURL)
@@ -58,7 +58,7 @@ private[alcaudon] class BlobServer
         context.become(receiveWaiting(clients + (jobId -> state)))
       }
     case DownloadFinished(uuid, file) =>
-      log.debug("Download finished blob key {}", uuid)
+      log.info("Download finished blob key {}", uuid)
       for {
         (client, key) <- clients.get(uuid)
       } {

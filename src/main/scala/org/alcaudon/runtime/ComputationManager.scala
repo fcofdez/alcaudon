@@ -1,23 +1,15 @@
 package org.alcaudon.runtime
 
-import akka.actor.{
-  Actor,
-  ActorLogging,
-  ActorRef,
-  Props,
-  ReceiveTimeout,
-  SupervisorStrategy
-}
+import java.net.URI
+
+import akka.actor.{Actor, ActorLogging, ActorRef, Props, ReceiveTimeout, SupervisorStrategy}
 import akka.pattern.{Backoff, BackoffSupervisor}
 import akka.routing.ConsistentHashingPool
 import akka.routing.ConsistentHashingRouter.ConsistentHashMapping
 import org.alcaudon.api.Computation
 import org.alcaudon.clustering.ComputationNodeRecepcionist
-import org.alcaudon.core.{ActorConfig, AlcaudonStream, Record}
-import org.alcaudon.runtime.ComputationManager.{
-  ComputationCodeDeployed,
-  ErrorDeployingComputation
-}
+import org.alcaudon.core._
+import org.alcaudon.runtime.ComputationManager.{ComputationCodeDeployed, ErrorDeployingComputation}
 import org.alcaudon.runtime.LibraryManager._
 
 import scala.concurrent.duration._
@@ -51,7 +43,10 @@ class ComputationDeployer(libraryManager: ActorRef)
 
   def receive = {
     case request @ DeployComputation(_, dataflowId, representation) =>
-      representation.dataflowJob.foreach(libraryManager ! RegisterDataflow(_))
+      val blobUrl = new URI(s"s3://${config.blob.bucket}/$dataflowId.jar")
+      val req = DataflowJob(dataflowId, List(blobUrl))
+      libraryManager ! RegisterDataflow(req)
+      log.info("Deploying jar for dataflow {} {}", dataflowId, req)
       context.become(waitingForRegistration(sender(), request))
       context.setReceiveTimeout(2.minutes)
   }
@@ -59,6 +54,7 @@ class ComputationDeployer(libraryManager: ActorRef)
   def waitingForRegistration(requester: ActorRef,
                              request: DeployComputation): Receive = {
     case DataflowRegistered(dataflowId) =>
+      log.info("Dataflow jar deployed {}", dataflowId)
       libraryManager ! GetClassLoaderForDataflow(dataflowId)
       context.setReceiveTimeout(2.minutes)
       context.become(waitingForDataflow(sender(), request))
@@ -114,7 +110,7 @@ class ComputationManager(maxSlots: Int)
   val libraryManager = context.actorOf(LibraryManager.props)
 
   def hashMapping: ConsistentHashMapping = {
-    case Record(key, _) => key
+    case StreamRecord(_, Record(key, _)) => key
   }
 
   val poolStrategy = SupervisorStrategy.defaultStrategy
@@ -126,12 +122,13 @@ class ComputationManager(maxSlots: Int)
       sender() ! NonAvailableSlots(req.id)
 
     case msg @ DeployComputation(id, dataflowId, representation) =>
-      log.info("Deploying computation {} for dataflow {}", representation, id)
+      log.info("Deploying computation {} for dataflow {}", representation, dataflowId)
       val deployer =
         context.actorOf(Props(new ComputationDeployer(libraryManager)))
       deployer.forward(msg)
 
     case code: ComputationCodeDeployed =>
+      log.info("code deployed")
       val computationReifier =
         context.actorOf(
           ConsistentHashingPool(config.computation.parallelism,
@@ -161,13 +158,19 @@ class ComputationManager(maxSlots: Int)
 
     case DeploySource(id, representation) =>
       log.info("Deploying source for dataflow {}", id)
+      val source = createActorWithBackOff(
+        representation.name,
+        SourceReifier.props(id, representation.name, representation.sourceFn, representation.downstream.toMap))
+      val updatedSources = state.sources + (representation.name -> source)
+      context.become(receiveWork(state.copy(sources = updatedSources)))
+
 
     case DeploySink(dataflowId, representation) =>
       val sink = createActorWithBackOff(
         representation.id,
-        SinkReifier.props(representation.id, dataflowId, representation.sinkFn))
+        SinkReifier.props(dataflowId, representation.id, representation.sinkFn))
       val updatedSinks = state.sinks + (representation.id -> sink)
-      context.become(receiveWork(state.copy(streams = updatedSinks)))
+      context.become(receiveWork(state.copy(sinks = updatedSinks)))
 
       context.watch(sink)
       log.info("Deploying sink for dataflow {}", representation.id)

@@ -33,11 +33,13 @@ class BlobDownloader(uuid: String)
 
   def receive = {
     case DownloadBlob(uri: URI, file: File) =>
-      log.debug("Download {} to {}", uri, file)
+      log.info("Download {} to {}", uri, file)
       BlobLocation(uri).download(file) match {
         case Success(path) =>
+          log.info("Downloaded {} to {}", uri, file)
           sender() ! DownloadFinished(uuid, file)
         case Failure(reason) =>
+          log.info("Downloaded failed {}", reason)
           sender() ! DownloadFailed(uuid, reason)
       }
       context.stop(self)

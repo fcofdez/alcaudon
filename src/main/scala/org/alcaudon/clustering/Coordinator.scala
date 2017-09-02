@@ -276,9 +276,11 @@ class CoordinatorRecepcionist
       jars: List[URI],
       computationNodes: List[ComputationNodeInformation]): DeploymentPlan = {
 
+    log.info("Dataflow {}", dataflow)
     val availableNodes = computationNodes
       .filter(_.available)
       .flatMap(_.availableSlots)
+    log.info("Available nodes {} - {}", computationNodes, availableNodes)
 
     val computationDeploy = dataflow.nodeRepresentation
       .zip(availableNodes)
@@ -287,6 +289,7 @@ class CoordinatorRecepcionist
         nodeId -> pairedComputations.map {
           case ((dataflowNodeId, nodeRep: DataflowNodeRepresentation),
                 (nodeId, actorRef)) =>
+            log.info("Planning for {}", dataflow.id)
             nodeRep.deployPlan(dataflow.id,
                                dataflowNodeId,
                                nodeId,
@@ -318,7 +321,6 @@ class CoordinatorRecepcionist
       val computationNode =
         ComputationNodeInformation(getNewUUID,
                                    sender(),
-                                   register.computationSlots,
                                    register.computationSlots)
 
       context.become(receiveRequests(state.addNode(computationNode)))
@@ -338,9 +340,10 @@ class CoordinatorRecepcionist
       log.info("Scheduling dataflow pipeline {}", request.uuid)
       val blobUrl = new URI(s"s3://${config.blob.bucket}/${request.uuid}.jar")
       val deploymentPlan =
-        scheduleGraph(request.graph,
+        scheduleGraph(request.graph.copy(id = request.uuid),
                       List(blobUrl),
                       state.computationNodes.values.toList)
+      log.info("Scheduling plan {}", deploymentPlan)
       val newState = state.preScheduleDataflow(request.uuid, deploymentPlan)
       val dataflowJob = DataflowJob(request.uuid, List(blobUrl))
       val deployer = context.actorOf(

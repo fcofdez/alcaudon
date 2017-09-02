@@ -5,7 +5,12 @@ import java.util.UUID
 import cats.Semigroup
 import cats.implicits._
 import org.alcaudon.api.DataflowBuilder._
-import org.alcaudon.api.DataflowNodeRepresentation.{ComputationRepresentation, SinkRepresentation, SourceRepresentation, StreamRepresentation}
+import org.alcaudon.api.DataflowNodeRepresentation.{
+  ComputationRepresentation,
+  SinkRepresentation,
+  SourceRepresentation,
+  StreamRepresentation
+}
 import org.alcaudon.core.sources.SourceFunc
 import org.alcaudon.core.{DataflowGraph, KeyExtractor}
 
@@ -17,12 +22,15 @@ object DataflowBuilder {
     new DataflowBuilder(dataflowId)
   }
 
+  case class ConstantExtractor(key: String) extends KeyExtractor {
+    override def extractKey(msg: Array[Byte]): String = key
+  }
+
   object AlcaudonInputStream {
     def apply(name: String)(keyFn: Array[Byte] => String) =
       new AlcaudonInputStream(name, new KeyExtractor {
-        override def extractKey(msg: Array[Byte]): String =
-          keyFn(msg)
-      })
+                                override def extractKey(msg: Array[Byte]): String = keyFn(msg)
+                              })
   }
 
   case class AlcaudonInputStream(name: String,
@@ -52,8 +60,13 @@ class DataflowBuilder(dataflowName: String) {
         .get(inputStream.name)
         .orElse(Some(StreamRepresentation(inputStream.name)))
     } {
-      stream.downstream += (uuid -> inputStream.keyExtractor)
-      streamInputs += (inputStream.name -> stream)
+      if (sources.contains(inputStream.name)) {
+        val source = sources.get(inputStream.name).get
+        source.downstream += (uuid -> inputStream.keyExtractor)
+      } else {
+        stream.downstream += (uuid -> inputStream.keyExtractor)
+        streamInputs += (inputStream.name -> stream)
+      }
     }
 
     streams ++= inputStreams.map(_.name)

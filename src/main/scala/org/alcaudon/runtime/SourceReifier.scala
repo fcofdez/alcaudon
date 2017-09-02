@@ -1,13 +1,20 @@
 package org.alcaudon.runtime
 
-import akka.actor.{Actor, ActorLogging, ActorRef}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import org.alcaudon.clustering.DataflowTopologyListener
 import org.alcaudon.clustering.DataflowTopologyListener.{DataflowNodeAddress, DownstreamDependencies}
 import org.alcaudon.core._
 import org.alcaudon.core.sources.{SourceCtx, SourceFunc}
 
-import scala.concurrent.duration._
-import scala.util.{Failure, Success}
+import scala.concurrent.Future
+
+object SourceReifier {
+  def props(dataflowId: String,
+            name: String,
+            sourceFn: SourceFunc,
+            subscribers: Map[String, KeyExtractor] = Map.empty): Props =
+    Props(new SourceReifier(dataflowId, name, sourceFn, subscribers))
+}
 
 class SourceReifier(dataflowId: String,
                     name: String,
@@ -18,11 +25,10 @@ class SourceReifier(dataflowId: String,
     with ActorLogging
     with SourceCtx {
 
-  import context.dispatcher
-
   if (config.computation.distributed) {
     context.actorOf(DataflowTopologyListener.props(dataflowId, name)) ! DownstreamDependencies(
-      subscribers.keySet, self)
+      subscribers.keySet,
+      self)
   }
 
   var subscriberRefs: Map[ActorRef, KeyExtractor] = Map.empty
@@ -35,26 +41,20 @@ class SourceReifier(dataflowId: String,
     }
   }
 
+  import context.dispatcher
+
   def close: Unit = {}
 
   def receive = {
     case DataflowNodeAddress(id, ref) =>
-    subscribers.get(id).foreach { keyExtractor =>
-      subscriberRefs += (ref -> keyExtractor)
-    }
-//
-//      subscribers.get(id).foreach { keyExtractor =>
-//        val selection = context.actorSelection(path)
-//        val actorRef = selection.resolveOne(2.seconds)
-//        actorRef onComplete {
-//          case Success(ref) =>
-//            subscriberRefs += (ref -> keyExtractor)
-//          case Failure(err) =>
-//            log.error("Error getting subscriber {}", err)
-//        }
-//      }
-    case msg =>
-      log.info("Received msg on Source {}", msg)
+      subscribers.get(id).foreach { keyExtractor =>
+        sourceFn.setUp(this)
+        Future(sourceFn.run())
+        log.info("New node added {} {} {}", id, ref, subscribers)
+        subscriberRefs += (ref -> keyExtractor)
+      }
+    case _ =>
+
   }
 
 }

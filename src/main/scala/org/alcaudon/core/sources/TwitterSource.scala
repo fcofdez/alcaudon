@@ -31,7 +31,7 @@ case class TwitterSource(credentials: TwitterSourceConfig.OAuth1)
   @transient var client: BasicClient = null
   @transient val mapper = new ObjectMapper()
 
-  def run(ctx: SourceCtx): Unit = {
+  def run(): Unit = {
     val endpoint = new StatusesSampleEndpoint()
     endpoint.stallWarnings(false)
     endpoint.delimited(false)

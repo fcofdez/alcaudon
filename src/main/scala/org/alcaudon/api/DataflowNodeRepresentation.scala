@@ -55,14 +55,15 @@ object DataflowNodeRepresentation {
     }
   }
 
-  case class SourceRepresentation(name: String, sourceFn: SourceFunc)
+  case class SourceRepresentation(name: String, sourceFn: SourceFunc, downstream: Map[String, KeyExtractor] =
+  Map.empty)
       extends DataflowNodeRepresentation {
     def deployPlan(dataflowId: String,
                    nodeId: String,
                    computationNodeId: String,
                    actorRef: ActorRef,
                    jars: List[URI]): DeployPlan = {
-      DeployPlan(DeploySource(nodeId, this),
+      DeployPlan(DeploySource(dataflowId, this),
                  ScheduledSource(nodeId, computationNodeId, actorRef, this))
     }
   }
@@ -74,7 +75,7 @@ object DataflowNodeRepresentation {
                    computationNodeId: String,
                    actorRef: ActorRef,
                    jars: List[URI]): DeployPlan = {
-      DeployPlan(DeploySink(nodeId, this),
+      DeployPlan(DeploySink(dataflowId, this),
                  ScheduledSink(nodeId, computationNodeId, actorRef, this))
     }
   }

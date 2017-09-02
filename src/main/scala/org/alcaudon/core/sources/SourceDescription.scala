@@ -12,12 +12,17 @@ trait TimestampExtractor extends Serializable {
 }
 
 trait SourceFunc extends Serializable { ts: TimestampExtractor =>
-  var running = true
-  def run(ctx: SourceCtx): Unit
+  var ctx: SourceCtx = null
+  var running = false
+  def run(): Unit
   def cancel: Unit = running = false
+  def setUp(externalCtx: SourceCtx): Unit = {
+    running = true
+    ctx = externalCtx
+  }
 }
 
 case class Source(id: String, sourceFn: SourceFunc) {
-  def run(ctx: SourceCtx): Unit = sourceFn.run(ctx)
+  def run(ctx: SourceCtx): Unit = sourceFn.run()
   def close(): Unit = sourceFn.cancel
 }

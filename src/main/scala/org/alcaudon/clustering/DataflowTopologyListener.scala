@@ -22,12 +22,14 @@ class DataflowTopologyListener(dataflowId: String, nodeId: String)
 
   def receive = {
     case deps: DownstreamDependencies =>
+      log.info("Dependencies for downstream {}", deps)
       context.become(receiveDownStream(deps))
       mediator ! Subscribe(dataflowId, self)
   }
 
   def receiveDownStream(deps: DownstreamDependencies): Receive = {
     case SubscribeAck(Subscribe(dataflowId, None, `self`)) =>
+      log.info("Subscribe ack {}", dataflowId)
       val nodeAddress = DataflowNodeAddress(nodeId, deps.nodeRef)
       mediator ! Publish(dataflowId, nodeAddress)
     case downstreamNode @ DataflowNodeAddress(id, _)

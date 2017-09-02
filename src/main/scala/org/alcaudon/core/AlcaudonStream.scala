@@ -26,6 +26,10 @@ trait KeyExtractor extends Serializable {
   def extractKey(msg: Array[Byte]): String
 }
 
+class ConstantExtractor extends KeyExtractor {
+  def extractKey(msg: Array[Byte]): String = "key"
+}
+
 object AlcaudonStream {
   case class ACK(actor: ActorRef, offset: Long)
   case class ReceiveACK(id: String)

@@ -15,7 +15,7 @@ case class SocketSource(host: String,
   @transient var socket = new Socket
   var retries = 0
 
-  def run(ctx: SourceCtx): Unit = {
+  def run(): Unit = {
     while (running) {
       try {
         socket = new Socket()

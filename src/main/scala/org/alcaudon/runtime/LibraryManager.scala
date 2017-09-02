@@ -87,14 +87,14 @@ private[alcaudon] class LibraryManager(blobServer: ActorRef)
       }
       cache += (dataflow.id -> LibraryEntry(dataflow.id,
                                             dataflow.requiredJars.size))
-      log.debug("Register dataflow {} - Pending jobs {}",
-                dataflow.id,
+      log.info("Register dataflow {} - Pending jobs {}",
+                dataflow,
                 pending ++ pendingJobs)
       context.become(receivePending(pending ++ pendingJobs))
       sender() ! DataflowRegistered(dataflow.id)
 
     case blob @ BlobURL(key, file) =>
-      log.debug("BlobURL msg for key {}", key)
+      log.info("BlobURL msg for key {}", key)
       for {
         dataflowId <- pending.get(key)
         entry <- cache.get(dataflowId)
