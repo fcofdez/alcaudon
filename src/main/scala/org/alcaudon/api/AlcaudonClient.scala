@@ -116,7 +116,7 @@ class AlcaudonClusterClient(seedNodes: String*) {
   val clientActor = system.actorOf(Props[AlcaudonClient])
 
   private def sendQuery[Q, R: ClassTag](query: Q): Try[R] = {
-    implicit val timeout = Timeout(5.seconds)
+    implicit val timeout = Timeout(2.minutes)
     val req = clientActor ? query
     val response = req.mapTo[R]
     val resp = Await.ready(response, 1.minute)

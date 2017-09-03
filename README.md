@@ -3,4 +3,25 @@
 
 Streaming data processing platform
 
-https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=65147077
+```scala
+trait Computation
+    extends ProduceAPI
+    with TimerAPI
+    with StateAPI
+    with SerializationAPI
+    with RuntimeContext {
+  var id = UUID.randomUUID().toString
+  val inputStreams: List[String] = List.empty
+  val outputStreams: List[String] = List.empty
+  private var subscribedStreams: Set[String] = Set.empty
+
+  def processRecord(record: Record): Unit
+  def processTimer(timer: Timer): Unit
+
+  def setId(externalId: String): Unit = id = externalId
+
+  def setup(runtimeContext: AbstractRuntimeContext): Unit = {
+    context = runtimeContext
+  }
+}
+```
