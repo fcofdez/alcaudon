@@ -127,6 +127,7 @@ class ComputationManager(maxSlots: Int)
       val deployer =
         context.actorOf(Props(new ComputationDeployer(libraryManager)))
       deployer.forward(msg)
+      sender() ! ComputationDeployed(id)
 
     case code: ComputationCodeDeployed =>
       log.info("code deployed")

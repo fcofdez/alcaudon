@@ -11,7 +11,6 @@ case class RangeSource(from: Int) extends SourceFunc with TimestampExtractor {
         ctx.collect(RawRecord(BigInt(n).toByteArray, extractTimestamp("")))
         Thread.sleep(10)
       }
-      println(n)
     }
   }
 }
