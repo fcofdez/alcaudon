@@ -40,9 +40,10 @@ class CoordinatorDataflowDeployer(
   }
 
   def checkPending(requester: ActorRef, pendingCount: Int): Unit = {
-    if (pendingCount == 1 ) {
+    if (pendingCount <= 1 ) {
       context.parent ! DataflowDeployed(dataflowId)
-      requester ! DataflowPipelineCreated
+      requester ! DataflowPipelineCreated(dataflowID)
+      context.stop(self)
     }
   }
 
@@ -72,12 +73,12 @@ class CoordinatorDataflowDeployer(
       context.become(waitingForResponses(requester, pendingCount - 1))
     case ReceiveTimeout if pendingCount == 0 =>
       log.info("Deployment for dataflow {} finished succesfully", dataflowId)
-      context.parent ! DataflowDeployed(dataflowId)
-      requester ! DataflowPipelineCreated
+      checkPending(requester, pendingCount)
     case ReceiveTimeout =>
       log.error("Deployment for dataflow {} failed due to a timeout",
                 dataflowId)
       context.parent ! DataflowDeploymentFailed(dataflowId)
+      context.stop(self)
   }
 
 }
