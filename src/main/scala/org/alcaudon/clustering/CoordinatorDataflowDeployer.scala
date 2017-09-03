@@ -63,7 +63,7 @@ class CoordinatorDataflowDeployer(
       checkPending(requester, pendingCount)
       context.become(waitingForResponses(requester, pendingCount - 1))
     case SourceDeployed(_) =>
-      log.info("Source deployed {}", pendingCount - 1)
+      log.info("Source deployed {} {}", pendingCount - 1, requester)
       checkPending(requester, pendingCount)
       context.become(waitingForResponses(requester, pendingCount - 1))
     case SinkDeployed(_) =>
