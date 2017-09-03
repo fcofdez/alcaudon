@@ -39,7 +39,7 @@ class CoordinatorDataflowDeployer(
       context.setReceiveTimeout(2.minutes)
   }
 
-  def checkPending(pendingCount: Int): Unit = {
+  def checkPending(requester: ActorRef, pendingCount: Int): Unit = {
     if (pendingCount == 1 ) {
       context.parent ! DataflowDeployed(dataflowId)
       requester ! DataflowPipelineCreated
