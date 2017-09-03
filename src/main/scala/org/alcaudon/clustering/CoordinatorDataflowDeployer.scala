@@ -49,15 +49,32 @@ class CoordinatorDataflowDeployer(
       context.parent ! DataflowDeploymentFailed(dataflowId)
     case ComputationDeployed(_) =>
       log.info("Computation deployed {}", pendingCount - 1)
+      if (pendingCount == 0 ) {
+        context.parent ! DataflowDeployed(dataflowId)
+        requester ! DataflowPipelineCreated
+      }
       context.become(waitingForResponses(requester, pendingCount - 1))
     case StreamDeployed(_) =>
       log.info("Stream deployed {}", pendingCount - 1)
+      if (pendingCount == 0 ) {
+        context.parent ! DataflowDeployed(dataflowId)
+        requester ! DataflowPipelineCreated
+      }
       context.become(waitingForResponses(requester, pendingCount - 1))
     case SourceDeployed(_) =>
       log.info("Source deployed {}", pendingCount - 1)
+
+      if (pendingCount == 0 ) {
+        context.parent ! DataflowDeployed(dataflowId)
+        requester ! DataflowPipelineCreated
+      }
       context.become(waitingForResponses(requester, pendingCount - 1))
     case SinkDeployed(_) =>
       log.info("Sink deployed {}", pendingCount - 1)
+      if (pendingCount == 0 ) {
+        context.parent ! DataflowDeployed(dataflowId)
+        requester ! DataflowPipelineCreated
+      }
       context.become(waitingForResponses(requester, pendingCount - 1))
     case ReceiveTimeout if pendingCount == 0 =>
       log.info("Deployment for dataflow {} finished succesfully", dataflowId)
