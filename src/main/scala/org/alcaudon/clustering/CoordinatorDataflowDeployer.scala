@@ -42,7 +42,7 @@ class CoordinatorDataflowDeployer(
   def checkPending(requester: ActorRef, pendingCount: Int): Unit = {
     if (pendingCount <= 1 ) {
       context.parent ! DataflowDeployed(dataflowId)
-      requester ! DataflowPipelineCreated(dataflowID)
+      requester ! DataflowPipelineCreated(dataflowId)
       context.stop(self)
     }
   }
